@@ -191,11 +191,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.14')
-        self.assertEqual(version_display.display_version(version), 'v0.0.14')
+        self.assertEqual(version, '00.00.15')
+        self.assertEqual(version_display.display_version(version), 'v0.0.15')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.15'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.16'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -329,11 +329,21 @@ class Tests(unittest.TestCase):
 
     def test_pi_progress_extension_contract(self):
         src = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
-        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+shift+home', 'following current']:
+        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+shift+home', 'ctrl+alt+shift+t', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items']:
             self.assertIn(token, src)
         install = (ROOT / 'install.sh').read_text(encoding='utf-8')
         self.assertIn('PI_EXTENSIONS_DIR', install)
         self.assertIn('story-film-progress.ts', install)
+
+    def test_todo_docs_define_compact_and_checkpoint_sync_rules(self):
+        pipeline_skill = (ROOT / 'skills/pipeline-progress/SKILL.md').read_text(encoding='utf-8')
+        docs = (ROOT / 'docs/production/todo-and-progress.md').read_text(encoding='utf-8')
+        router = (ROOT / 'skills/story-film/SKILL.md').read_text(encoding='utf-8')
+        for token in ['three visible pipeline rows', '/story-todo toggle', 'Do not work ahead', 'at most three Story-Film items']:
+            self.assertIn(token, pipeline_skill)
+        for token in ['Compact mode shows three pipeline rows', 'Why a Todo can look stale', 'at most three Story-Film items']:
+            self.assertIn(token, docs)
+        self.assertIn('Do not start a later specialist or write a later artifact', router)
 
     def test_feature_sequence_and_context_shards(self):
         with tempfile.TemporaryDirectory() as td:

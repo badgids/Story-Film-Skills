@@ -22,7 +22,8 @@ type Ui = {
 };
 
 const KEY = "story-film-pipeline-todo";
-const ROWS = 10;
+const EXPANDED_ROWS = 10;
+const COLLAPSED_ROWS = 3;
 const ANSI = /\x1b\[[0-?]*[ -/]*[@-~]/g;
 
 function projectRoot(cwd: string): string | undefined {
@@ -87,6 +88,89 @@ function flatten(value: Progress): { lines: string[]; current: number } {
   return { lines, current };
 }
 
+function labelSkillNames(label: string): string[] {
+  return [...label.matchAll(/`([a-z0-9][a-z0-9-]*)`/gi)].map(match => match[1].toLowerCase());
+}
+
+function activePathSkillNames(value: Progress): Set<string> {
+  const result = new Set<string>();
+  const visit = (node: NodeRecord): boolean => {
+    const ownActive = node.status === "current" || node.status === "blocked";
+    let childActive = false;
+    for (const child of [...(node.steps ?? []), ...(node.substeps ?? [])]) {
+      if (visit(child)) childActive = true;
+    }
+    if (ownActive || childActive) {
+      for (const name of labelSkillNames(node.label)) result.add(name);
+      return true;
+    }
+    return false;
+  };
+  for (const stage of value.stages ?? []) visit(stage);
+  return result;
+}
+
+function skillStatuses(value: Progress): Map<string, Set<Status>> {
+  const result = new Map<string, Set<Status>>();
+  const visit = (node: NodeRecord): void => {
+    for (const name of labelSkillNames(node.label)) {
+      const statuses = result.get(name) ?? new Set<Status>();
+      statuses.add(node.status);
+      result.set(name, statuses);
+    }
+    for (const child of [...(node.steps ?? []), ...(node.substeps ?? [])]) visit(child);
+  };
+  for (const stage of value.stages ?? []) visit(stage);
+  return result;
+}
+
+function requestedSkillName(event: any): string | undefined {
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  if (!new Set(["read", "read_file", "readfile"]).has(tool)) return undefined;
+  const input = event?.input ?? {};
+  const path = String(input.path ?? input.file_path ?? input.filepath ?? "").replace(/\\/g, "/");
+  const match = /(?:^|\/)skills\/([^/]+)\/SKILL\.md$/i.exec(path);
+  return match?.[1]?.toLowerCase();
+}
+
+function pipelineGuardPrompt(value: Progress | undefined): string | undefined {
+  if (!value?.stages?.length || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
+  const flat = flatten(value);
+  const currentLine = flat.lines[flat.current] || value.next_action || "current Story-Film target";
+  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n`;
+}
+
+function futureSkillBlockReason(value: Progress | undefined, requested: string | undefined): string | undefined {
+  if (!value || !requested || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
+  const statuses = skillStatuses(value).get(requested);
+  if (!statuses || !statuses.has("pending")) return undefined;
+  if (statuses.has("completed") || statuses.has("current") || statuses.has("blocked")) return undefined;
+  if (activePathSkillNames(value).has(requested)) return undefined;
+  const flat = flatten(value);
+  const currentLine = flat.lines[flat.current] || value.next_action || "the current Story-Film target";
+  return `Story-Film progress is still at ${currentLine}. Validate and checkpoint the current target before opening the future specialist '${requested}'. Do not work ahead.`;
+}
+
+
+function genericTodoBlockReason(value: Progress | undefined, event: any): string | undefined {
+  if (!value || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  if (!new Set(["todo", "todo_write"]).has(tool)) return undefined;
+  const input = event?.input ?? {};
+  const op = String(input.op ?? input.operation ?? "").toLowerCase();
+  if (op && op !== "init" && op !== "replace") return undefined;
+  let count = 0;
+  if (Array.isArray(input.list)) {
+    count = input.list.reduce((sum: number, phase: any) => sum + (Array.isArray(phase?.items) ? phase.items.length : 0), 0);
+  } else if (Array.isArray(input.todos)) {
+    count = input.todos.length;
+  } else if (Array.isArray(input.items)) {
+    count = input.items.length;
+  }
+  if (count <= 3) return undefined;
+  return `Story-Film already has a detailed authoritative pipeline Todo. Keep Pi's generic Todo to at most three Story-Film mirror items: current target, immediate next target, and requested endpoint. The attempted generic Todo contains ${count} items.`;
+}
+
 function safeWidth(text: string, width: number): string {
   const plain = text.replace(ANSI, "");
   if (plain.length <= width) return text;
@@ -102,7 +186,9 @@ class Viewport {
   private current = 0;
   private lines: string[] = [];
   private tui?: any;
+  private expanded = false;
 
+  private rows(): number { return this.expanded ? EXPANDED_ROWS : COLLAPSED_ROWS; }
   update(value: Progress | undefined, resource?: ResourceStatus): void {
     this.value = value; this.resource = resource;
     if (!value?.stages?.length || value.status === "inactive") {
@@ -119,22 +205,31 @@ class Viewport {
     return { render: (width: number) => this.render(width), invalidate: () => tui.requestRender?.(), dispose: () => { if (this.tui === tui) this.tui = undefined; } };
   }
   scroll(delta: number): boolean { if (!this.lines.length) return false; this.manual = true; const before = this.offset; this.offset += delta; this.clamp(); this.tui?.requestRender?.(); return before !== this.offset; }
-  page(delta: number): boolean { return this.scroll(delta * Math.max(1, ROWS - 1)); }
-  follow(render = true): boolean { if (!this.lines.length) return false; this.manual = false; const before = this.offset; this.offset = Math.max(0, this.current - Math.floor(ROWS / 2)); this.clamp(); if (render) this.tui?.requestRender?.(); return before !== this.offset; }
-  state() { return { active: this.lines.length > 0, offset: this.offset, total: this.lines.length, current: this.current, manual: this.manual }; }
-  private clamp(): void { this.offset = Math.max(0, Math.min(Math.max(0, this.lines.length - ROWS), this.offset)); }
+  page(delta: number): boolean { return this.scroll(delta * Math.max(1, this.rows() - 1)); }
+  follow(render = true): boolean { if (!this.lines.length) return false; this.manual = false; const before = this.offset; this.offset = Math.max(0, this.current - Math.floor(this.rows() / 2)); this.clamp(); if (render) this.tui?.requestRender?.(); return before !== this.offset; }
+  setExpanded(expanded: boolean): boolean { const changed = this.expanded !== expanded; this.expanded = expanded; if (!this.manual) this.follow(false); this.clamp(); this.tui?.requestRender?.(); return changed; }
+  toggle(): boolean { return this.setExpanded(!this.expanded); }
+  state() { return { active: this.lines.length > 0, offset: this.offset, total: this.lines.length, current: this.current, manual: this.manual, expanded: this.expanded, rows: this.rows() }; }
+  private clamp(): void { const rows = this.rows(); this.offset = Math.max(0, Math.min(Math.max(0, this.lines.length - rows), this.offset)); }
   private render(width: number): string[] {
     if (!this.value || !this.lines.length) return [];
-    const end = Math.min(this.lines.length, this.offset + ROWS);
-    const title = `Story-Film Todo - ${this.value.label || this.value.pipeline_id || "Active pipeline"} [${this.offset + 1}-${end}/${this.lines.length}] ${this.manual ? "manual" : "following"}`;
-    const out = [title, ...this.lines.slice(this.offset, end), "Ctrl+Alt+Shift+Up/Down scroll | Ctrl+Alt+Shift+PgUp/PgDn page | Ctrl+Alt+Shift+Home follow"];
-    if (this.value.status !== "complete" && this.value.next_action) out.push(`NEXT -> ${this.value.next_action}`);
-    if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
+    const rows = this.rows();
+    const end = Math.min(this.lines.length, this.offset + rows);
+    const mode = this.expanded ? "expanded" : "compact";
+    const title = `Story-Film Todo - ${this.value.label || this.value.pipeline_id || "Active pipeline"} [${this.offset + 1}-${end}/${this.lines.length}] ${this.manual ? "manual" : "following"} ${mode}`;
+    const out = [title, ...this.lines.slice(this.offset, end)];
+    if (this.expanded) {
+      out.push("Ctrl+Alt+Shift+T compact | Up/Down scroll | PgUp/PgDn page | Home follow");
+      if (this.value.status !== "complete" && this.value.next_action) out.push(`NEXT -> ${this.value.next_action}`);
+      if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
+    } else if (this.value.blocker) {
+      out.push(`BLOCKED -> ${this.value.blocker}`);
+    }
     if (this.resource && this.resource.phase && this.resource.phase !== "idle") {
       const jobs = this.resource.job_total ? ` | jobs ${this.resource.job_index ?? 0}/${this.resource.job_total}` : "";
       const currentJob = this.resource.current_job_id ? ` | ${this.resource.current_job_id}` : "";
       out.push(`RESOURCE -> ${this.resource.phase}${jobs}${currentJob}`);
-      if (this.resource.message) out.push(`RUNTIME -> ${this.resource.message}`);
+      if (this.expanded && this.resource.message) out.push(`RUNTIME -> ${this.resource.message}`);
       if (this.resource.error) out.push(`RESOURCE ERROR -> ${this.resource.error}`);
     }
     return out.map(line => safeWidth(line, width));
@@ -186,7 +281,18 @@ export default function storyFilmProgress(pi: any): void {
       lastResourcePhase = phase;
     }, 1000);
   });
-  pi.on?.("before_agent_start", refresh);
+  pi.on?.("before_agent_start", async (event: any, ctx: any) => {
+    await refresh(event, ctx);
+    const systemPromptAppend = pipelineGuardPrompt(load(ctx.cwd));
+    return systemPromptAppend ? { systemPromptAppend } : undefined;
+  });
+  pi.on?.("tool_call", async (event: any, ctx: any) => {
+    const value = load(ctx.cwd);
+    const reason = futureSkillBlockReason(value, requestedSkillName(event)) ?? genericTodoBlockReason(value, event);
+    if (!reason) return undefined;
+    ctx.ui.notify?.(reason, "warning");
+    return { block: true, reason };
+  });
   pi.on?.("tool_result", refresh);
   pi.on?.("agent_end", async (_event: any, ctx: any) => {
     lastCtx = ctx;
@@ -202,7 +308,7 @@ export default function storyFilmProgress(pi: any): void {
   });
 
   pi.registerCommand?.("story-todo", {
-    description: "Inspect or scroll the active Story-Film pipeline todo.",
+    description: "Inspect, compact, expand, or scroll the active Story-Film pipeline todo.",
     handler: async (args: string, ctx: any) => {
       render(ctx);
       const action = (args || "status").trim().toLowerCase() || "status";
@@ -211,14 +317,18 @@ export default function storyFilmProgress(pi: any): void {
         : action === "page-up" ? viewport.page(-1)
         : action === "page-down" ? viewport.page(1)
         : action === "current" || action === "follow" ? viewport.follow()
+        : action === "toggle" ? viewport.toggle()
+        : action === "expand" ? viewport.setExpanded(true)
+        : action === "collapse" || action === "compact" ? viewport.setExpanded(false)
         : false;
       const state = viewport.state();
       if (!state.active) { ctx.ui.notify?.("No active Story-Film pipeline todo is available.", "info"); return; }
-      if (action === "status" || !["up", "down", "page-up", "page-down", "current", "follow"].includes(action)) {
+      const known = ["up", "down", "page-up", "page-down", "current", "follow", "toggle", "expand", "collapse", "compact"];
+      if (action === "status" || !known.includes(action)) {
         const value = load(ctx.cwd);
         const extra = value?.blocker ? ` Blocker: ${value.blocker}` : value?.next_action ? ` Next: ${value.next_action}` : "";
-        ctx.ui.notify?.(`Story-Film todo: line ${state.offset + 1} of ${state.total}; ${state.manual ? "manual scroll" : "following current"}.${extra} Use /story-todo up|down|page-up|page-down|current.`, value?.blocker ? "warning" : "info");
-      } else if (!changed && !["current", "follow"].includes(action)) {
+        ctx.ui.notify?.(`Story-Film todo: ${state.expanded ? "expanded" : "compact"}, ${state.rows} visible items, line ${state.offset + 1} of ${state.total}; ${state.manual ? "manual scroll" : "following current"}.${extra} Use /story-todo toggle|expand|collapse|up|down|page-up|page-down|current.`, value?.blocker ? "warning" : "info");
+      } else if (!changed && !["current", "follow", "expand", "collapse", "compact"].includes(action)) {
         ctx.ui.notify?.("Story-Film todo viewport is already at that boundary.", "info");
       }
     },
@@ -248,5 +358,6 @@ export default function storyFilmProgress(pi: any): void {
     pi.registerShortcut("ctrl+alt+shift+pageUp", { description: "Page Story-Film todo up", handler: async () => { viewport.page(-1); } });
     pi.registerShortcut("ctrl+alt+shift+pageDown", { description: "Page Story-Film todo down", handler: async () => { viewport.page(1); } });
     pi.registerShortcut("ctrl+alt+shift+home", { description: "Follow current Story-Film todo", handler: async () => { viewport.follow(); } });
+    pi.registerShortcut("ctrl+alt+shift+t", { description: "Toggle compact Story-Film todo", handler: async () => { viewport.toggle(); } });
   }
 }

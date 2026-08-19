@@ -22,7 +22,7 @@ This is the general entry point for Story-Film Skills. The package is standalone
 8. If no project exists, initialize one with `../../scripts/init_story_project.py` or create the same structure manually.
 9. For any playbook with more than one ordered step, read `../pipeline-progress/SKILL.md`. If no active matching progress ledger exists, initialize it with `../../scripts/pipeline_progress.py init`. If one already exists, resume its current target instead of reconstructing progress from chat history.
 10. Execute the playbook in order. Before each specialist step, read the named sibling `SKILL.md`.
-11. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance.
+11. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance. Do not start a later specialist or write a later artifact until the current leaf is validated and checkpointed.
 12. Update `00_project/state.json` after each completed artifact.
 13. If an approved upstream artifact changes, run `project-impact` before rebuilding downstream work.
 14. Run continuity, narrative-state, production-coverage when applicable, dramaturgy, prompt, standalone, and style checks at the gates required by the playbook.
@@ -34,6 +34,8 @@ Do not invent a new workflow while a listed playbook fits. If more than one fits
 ## Small-model rule
 
 Work one artifact at a time. Save it. Validate it. Checkpoint the corresponding pipeline leaf. Then continue. For long work, process one chapter, scene, sequence, or stale dependency slice at a time. After restart or compaction, read `00_project/pipeline_progress.json` and `00_project/HANDOFF.md` before opening unrelated context.
+
+If the host provides a generic Todo tool, do not duplicate the full Story-Film playbook there. Mirror at most three Story-Film items: current target, immediate next target, and requested endpoint. Refresh that mirror only after the authoritative Story-Film checkpoint advances.
 
 ## Standalone rule
 
