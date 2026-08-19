@@ -1,0 +1,30 @@
+name: Bug report
+description: Report reproducible incorrect behavior.
+title: "[Bug] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Explain the observed behavior and the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Give the smallest safe procedure that reproduces the problem.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Story-Film Skills version
+      placeholder: v0.0.11 / 00.00.11
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python, Pi version, local LLM runtime, ComfyUI version, and relevant public media runtimes. Remove private paths and secrets.

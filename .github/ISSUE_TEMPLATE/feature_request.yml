@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose a focused Story-Film capability or usability improvement.
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Production problem
+      description: What story, book, image, audio, video, film, or release problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe observable behavior. Avoid prescribing unnecessary implementation details.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and constraints
+      description: Note local-first, memory, portability, or compatibility requirements.

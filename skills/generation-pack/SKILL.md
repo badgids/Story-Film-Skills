@@ -1,0 +1,22 @@
+---
+name: generation-pack
+description: Compile story, screenplay, continuity, shots, references, dialogue, score, and sound needs into model-neutral JSONL generation briefs ready for model-specific adapters.
+disable-model-invocation: true
+author: Alan Guice (Badgids)
+license: Apache-2.0
+---
+
+# Generation Pack
+
+## Workflow
+
+1. Read core contract, prompt packet schema, model routing, canon, continuity, reference manifest, and requested production artifacts.
+2. Normalize all generation work into the appropriate JSONL files under `04_generation/`.
+3. Keep one task per object. A shot, keyframe, voice line, music cue, or SFX cue is one task.
+4. Use stable IDs and explicit reference IDs with roles and preserve rules.
+5. Do not choose model-specific syntax here.
+6. Mark whether identity, exact text, lip sync, first frame, last frame, reference audio, or duration is hard-required.
+
+## Done
+
+A different agent can route every brief to a model adapter without consulting the original conversation.

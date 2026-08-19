@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "artifacts": {
+    "screenplay:SCN-001": {
+      "path": "02_screenplay/SCN-001.fountain",
+      "scope": "SCN-001",
+      "depends_on": []
+    },
+    "breakdown:SCN-001": {
+      "path": "03_preproduction/scene_breakdowns/SCN-001.md",
+      "scope": "SCN-001",
+      "depends_on": [
+        "screenplay:SCN-001"
+      ]
+    },
+    "shots:SCN-001": {
+      "path": "04_generation/SCN-001-shots.jsonl",
+      "scope": "SCN-001",
+      "depends_on": [
+        "breakdown:SCN-001"
+      ]
+    },
+    "screenplay:SCN-002": {
+      "path": "02_screenplay/SCN-002.fountain",
+      "scope": "SCN-002",
+      "depends_on": []
+    },
+    "breakdown:SCN-002": {
+      "path": "03_preproduction/scene_breakdowns/SCN-002.md",
+      "scope": "SCN-002",
+      "depends_on": [
+        "screenplay:SCN-002"
+      ]
+    }
+  }
+}

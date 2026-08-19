@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Local secrets and machine configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary output
+.tmp/
+tmp/
+*.tmp
+*.bak
+*.swp
+
+# Local release archives
+Story-Film-Skills-v*.zip
+Story-Film-Skills-v*.zip.sha256

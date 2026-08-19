@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "release": "00.00.11",
+  "display_version": "v0.0.11",
+  "tiers": {
+    "video": [
+      {
+        "id": "VIDEO-5M-001",
+        "title": "The Last Light in the Workshop",
+        "target_minutes": 5,
+        "path": "video-5min-01-workshop.md"
+      },
+      {
+        "id": "VIDEO-5M-002",
+        "title": "Where Rain Goes",
+        "target_minutes": 5,
+        "path": "video-5min-02-rain.md"
+      },
+      {
+        "id": "VIDEO-5M-003",
+        "title": "Midnight Radio",
+        "target_minutes": 5,
+        "path": "video-5min-03-radio.md"
+      }
+    ],
+    "short-film": [
+      {
+        "id": "SHORT-20M-001",
+        "title": "The Borrowed Key",
+        "target_minutes": 20,
+        "path": "short-20min-01-key.md"
+      },
+      {
+        "id": "SHORT-20M-002",
+        "title": "Signal at Mile 18",
+        "target_minutes": 20,
+        "path": "short-20min-02-signal.md"
+      },
+      {
+        "id": "SHORT-20M-003",
+        "title": "The Committee for Small Miracles",
+        "target_minutes": 20,
+        "path": "short-20min-03-miracles.md"
+      }
+    ],
+    "movie": [
+      {
+        "id": "MOVIE-90M-001",
+        "title": "The River Keeps the Names",
+        "target_minutes": 100,
+        "path": "movie-90min-01-river.md"
+      },
+      {
+        "id": "MOVIE-90M-002",
+        "title": "After the Third Sunrise",
+        "target_minutes": 105,
+        "path": "movie-90min-02-sunrise.md"
+      },
+      {
+        "id": "MOVIE-90M-003",
+        "title": "The Glass Orchard",
+        "target_minutes": 110,
+        "path": "movie-90min-03-orchard.md"
+      }
+    ]
+  }
+}

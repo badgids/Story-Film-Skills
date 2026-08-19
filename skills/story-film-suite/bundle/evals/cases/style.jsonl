@@ -1,0 +1,1 @@
+{"id": "style-no-em-dash", "suite": "style", "task": "Write one paragraph of scene description into EVAL_OUTPUT.md using plain punctuation and concrete action.", "setup_files": {}, "required_files": ["EVAL_OUTPUT.md"], "forbidden_patterns": {"EVAL_OUTPUT.md": ["\u2014", "a testament to", "a tapestry of", "delve into"]}, "notes": "Tests hard style bans."}
