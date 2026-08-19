@@ -11,6 +11,7 @@ from typing import Any
 from comfyui_control import Client, resolve_url
 from comfyui_batch import load_manifest, validate as validate_batch, preflight as preflight_batch, execute as execute_batch, manifest_path as batch_manifest_path, write as write_batch
 from media_runtime import project_root, project_path
+from llm_runtime import classify_endpoint
 
 PHASES={'idle','armed','waiting-for-agent-end','unloading-llm','running-comfyui','unloading-comfyui','reloading-llm','complete','failed','cancelled'}
 def now():return datetime.now(timezone.utc).isoformat()
@@ -62,14 +63,24 @@ def wait_health(llm:dict[str,Any],timeout:float):
   if url and http_ok(url):return
   time.sleep(1)
  raise TimeoutError('local LLM health check did not become ready')
+def validate_llm_policy(policy):
+ llm=policy.get('local_llm',{});adapter=llm.get('adapter','unconfigured');location=llm.get('runtime_location','unknown');endpoint=str(llm.get('endpoint') or llm.get('health_url') or '');evidence=llm.get('location_evidence') or []
+ if location not in {'unknown','local','external'}:raise ValueError('local_llm.runtime_location must be unknown, local, or external')
+ if endpoint and classify_endpoint(endpoint).get('location')=='local':
+  if location=='external' or adapter=='external':raise ValueError('local_llm is configured as external, but its endpoint is local to this machine')
+  location='local'
+ if adapter=='external':
+  if location!='external' or not isinstance(evidence,list) or not any(isinstance(x,str) and x.strip() for x in evidence):raise ValueError('external LLM mode requires explicit external runtime_location and location_evidence; never infer external from API style or missing environment variables')
+ if adapter=='command' and location=='external':raise ValueError('command lifecycle adapter conflicts with external runtime_location')
+ return location
 def unload_llm(policy):
- llm=policy.get('local_llm',{});adapter=llm.get('adapter','unconfigured')
- if adapter=='external':return 'external model: no local unload needed'
+ validate_llm_policy(policy);llm=policy.get('local_llm',{});adapter=llm.get('adapter','unconfigured')
+ if adapter=='external':return 'verified external model: no local unload needed'
  if adapter!='command':raise ValueError('exclusive generation requires local_llm.adapter command or external')
  return run_argv(llm.get('unload_command',[]),float(llm.get('unload_timeout_s',120)),'LLM unload')
 def reload_llm(policy):
- llm=policy.get('local_llm',{});adapter=llm.get('adapter','unconfigured')
- if adapter=='external':return 'external model: no local reload needed'
+ validate_llm_policy(policy);llm=policy.get('local_llm',{});adapter=llm.get('adapter','unconfigured')
+ if adapter=='external':return 'verified external model: no local reload needed'
  if adapter!='command':raise ValueError('cannot restore unconfigured local LLM adapter')
  text=run_argv(llm.get('reload_command',[]),float(llm.get('reload_timeout_s',300)),'LLM reload');wait_health(llm,float(llm.get('health_timeout_s',300)));return text
 def wait_queue_empty(client:Client,timeout=120):
@@ -146,7 +157,8 @@ def arm(root:Path,manifest_rel:str,url:str|None,detach:bool)->dict[str,Any]:
  batch=preflight_batch(root,batch,client,stage_uploads=True)
  write_batch(batch_manifest_path(root,manifest_rel),batch)
  adapter=policy.get('local_llm',{}).get('adapter','unconfigured')
- if adapter not in {'command','external'}:raise ValueError('resource_policy local_llm.adapter must be command or external before arming')
+ validate_llm_policy(policy)
+ if adapter not in {'command','external'}:raise ValueError('resource_policy local_llm.adapter must be command or verified external before arming')
  ps=paths(root)
  try:ps['release'].unlink()
  except FileNotFoundError:pass

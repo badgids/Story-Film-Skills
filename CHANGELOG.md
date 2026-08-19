@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.0.12 (00.00.12) - 2026-08-19
+
+- Fixed local LLM runtime classification. Story-Film Skills must not infer that Pi uses a cloud or external model from OpenAI-compatible API behavior, provider naming, or missing environment variables.
+- Added `scripts/llm_runtime.py`. Loopback endpoints such as `127.0.0.1`, `localhost`, and `::1`, plus local-interface endpoints and Unix-domain sockets, are classified as local. Other endpoints remain unknown until direct evidence proves they are external.
+- Hardened resource handoff policy. The `external` lifecycle adapter now requires explicit external runtime location evidence and is rejected when the configured endpoint is local.
+- Added regression and local-smoke coverage for Pi using a local `llama-server` endpoint on `127.0.0.1`.
+- Hardened `scripts/validate_skills.py` to parse YAML frontmatter with PyYAML when available, with a dependency-free unsafe-scalar fallback, so malformed skill metadata is caught before Pi loads it.
+
 ## v0.0.11 (00.00.11) - 2026-08-19
 
 - Added nine documented example/test prompts without changing the v0.0.11 version: three approximately 5-minute videos, three approximately 20-minute short films, and three feature-movie prompts requiring at least 90 minutes. The set covers narrative, factual, dialogue-heavy, mystery, science-fiction, ensemble comedy/fantasy, grounded feature drama, resource-heavy feature science fiction, and animated family fantasy production shapes.

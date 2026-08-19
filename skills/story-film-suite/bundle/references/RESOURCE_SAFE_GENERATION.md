@@ -19,12 +19,35 @@ Allow Pi to use a locally hosted LLM and ComfyUI on the same resource-constraine
 
 Failures enter `failed`, but the runner must still attempt to unload ComfyUI models and restore the configured local LLM before it exits.
 
+
+## Runtime location must be proven
+
+Do not infer that Pi uses a remote or cloud LLM from the API format, provider name, or missing environment variables. A local `llama-server` can expose an OpenAI-compatible HTTP API.
+
+Use direct evidence in this order:
+
+1. Use an endpoint reported by Pi or explicitly configured by the user.
+2. Run `python scripts/llm_runtime.py --endpoint <base-url>`.
+3. Treat `localhost`, `127.0.0.0/8`, `::1`, Unix-domain sockets, and an address that matches a local network interface as local.
+4. Treat any other endpoint as `unknown` unless the user or a trusted runtime source proves that it is external.
+5. Never use `external` only because an endpoint speaks the OpenAI API.
+
+Example:
+
+```bash
+python scripts/llm_runtime.py --endpoint http://127.0.0.1:8080
+```
+
+That endpoint is local to the same machine. If it is the endpoint used by Pi, Story-Film must plan for its RAM/VRAM use and must not select the external no-op lifecycle mode.
+
+`local_llm.adapter: external` is allowed only when `runtime_location` is `external` and `location_evidence` records why that conclusion is trusted. A local or unknown endpoint must not be converted to external merely to bypass lifecycle configuration.
+
 ## Local LLM lifecycle adapter
 
 Do not assume how the user's local model server is managed. The default policy is `unconfigured` and exclusive generation must refuse to start until the user chooses one of:
 
 - `command`: explicit argv arrays for unload and reload, plus either a health URL or health command
-- `external`: the Pi model is remote or otherwise proven not to consume the local generation resources
+- `external`: the Pi model is proven to run outside this machine and `location_evidence` records that proof
 
 Commands are executed without a shell. Do not store secrets in argv or project files.
 

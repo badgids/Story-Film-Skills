@@ -6,6 +6,7 @@
 
 - [Problem](#problem)
 - [Safe handoff](#safe-handoff)
+- [Check where the LLM runs](#check-where-the-llm-runs)
 - [What must be finished first](#what-must-be-finished-first)
 - [What works without the LLM](#what-works-without-the-llm)
 - [Failure behavior](#failure-behavior)
@@ -33,6 +34,22 @@ Story-Film Skills can use this order:
 10. Ask ComfyUI to unload models and free memory.
 11. Reload the local LLM.
 12. Read `00_project/RESOURCE_RESUME.md` and continue.
+
+## Check where the LLM runs
+
+Do not guess that the model is in the cloud.
+
+A local model server can use an OpenAI-compatible API. The API shape does not tell you where the model runs.
+
+If Pi shows an LLM endpoint, check it:
+
+```bash
+python scripts/llm_runtime.py --endpoint http://127.0.0.1:8080
+```
+
+`127.0.0.1`, `localhost`, and `::1` are on the same computer. Story-Film must classify those endpoints as local.
+
+For another address, Story-Film keeps the location `unknown` until it has direct evidence. It must not call the model external merely because no local environment variable was found.
 
 ## What must be finished first
 

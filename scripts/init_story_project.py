@@ -211,6 +211,9 @@ def main():
             'schema_version': 1,
             'local_llm': {
                 'adapter': 'unconfigured',
+                'runtime_location': 'unknown',
+                'endpoint': '',
+                'location_evidence': [],
                 'unload_command': [],
                 'reload_command': [],
                 'health_command': [],

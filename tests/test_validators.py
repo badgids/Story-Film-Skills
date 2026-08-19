@@ -42,6 +42,7 @@ import decision_map
 import document_companions
 import comfyui_batch
 import resource_handoff
+import llm_runtime
 import sequence_manager
 import context_shards
 import production_health
@@ -51,6 +52,7 @@ import recovery_checkpoint
 import batch_recovery
 import editorial_reconcile
 import completeness_audit
+import validate_skills
 
 
 class FakeComfyHandler(BaseHTTPRequestHandler):
@@ -1367,6 +1369,43 @@ class Tests(unittest.TestCase):
             self.assertTrue((project/'00_project/RESOURCE_RESUME.md').is_file())
             self.assertTrue((project/'04_generation/comfyui/offline_batch_result.json').is_file())
             self.assertTrue(any(x.get('unload_models') and x.get('free_memory') for x in FakeComfyHandler.free_requests)); self.assertEqual(len(FakeComfyHandler.upload_requests),1)
+
+
+    def test_skill_frontmatter_uses_strict_yaml_rules(self):
+        bad = "---\nname: bad-example\ndescription: Unsafe scalar: this must be quoted\n---\n"
+        with self.assertRaises(ValueError):
+            validate_skills.frontmatter(bad)
+        good = "---\nname: good-example\ndescription: \"Safe scalar: quoted\"\n---\n"
+        parsed = validate_skills.frontmatter(good)
+        self.assertEqual(parsed['name'], 'good-example')
+
+    def test_llm_runtime_loopback_is_local_and_external_guard_blocks_misclassification(self):
+        local = llm_runtime.classify_endpoint('http://127.0.0.1:8080')
+        self.assertEqual(local['location'], 'local')
+        local6 = llm_runtime.classify_endpoint('http://[::1]:8080')
+        self.assertEqual(local6['location'], 'local')
+        unknown = llm_runtime.classify_endpoint('https://example.invalid/v1')
+        self.assertEqual(unknown['location'], 'unknown')
+        with self.assertRaises(ValueError):
+            resource_handoff.validate_llm_policy({'local_llm': {
+                'adapter': 'external',
+                'runtime_location': 'external',
+                'endpoint': 'http://127.0.0.1:8080',
+                'location_evidence': ['Assumed cloud because API is OpenAI-compatible.'],
+            }})
+        with self.assertRaises(ValueError):
+            resource_handoff.validate_llm_policy({'local_llm': {
+                'adapter': 'external',
+                'runtime_location': 'unknown',
+                'endpoint': '',
+                'location_evidence': [],
+            }})
+        self.assertEqual(resource_handoff.validate_llm_policy({'local_llm': {
+            'adapter': 'external',
+            'runtime_location': 'external',
+            'endpoint': 'https://api.example.invalid/v1',
+            'location_evidence': ['User explicitly confirmed that this endpoint runs on another machine.'],
+        }}), 'external')
 
     def test_resource_handoff_requires_declared_llm_lifecycle(self):
         with tempfile.TemporaryDirectory() as td, FakeComfyServer() as srv:

@@ -5,6 +5,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
 ROOT = Path(__file__).resolve().parents[1]
 NAME_RX = re.compile(r'^[a-z0-9]+(?:-[a-z0-9]+)*$')
 
@@ -14,11 +19,28 @@ def frontmatter(text: str):
     end = text.find('\n---\n', 4)
     if end < 0:
         return None
+    raw = text[4:end]
+    if yaml is not None:
+        try:
+            out = yaml.safe_load(raw)
+        except yaml.YAMLError as exc:
+            raise ValueError(f'invalid YAML frontmatter: {exc}') from exc
+        if not isinstance(out, dict):
+            raise ValueError('frontmatter must be a YAML mapping')
+        return out
+
+    # Dependency-free fallback for normal installations. This does not try to
+    # implement all YAML. It rejects the common unsafe plain-scalar pattern
+    # that Pi's YAML parser also rejects, including an unquoted ': ' value.
     out = {}
-    for line in text[4:end].splitlines():
-        if ':' in line:
-            k, v = line.split(':', 1)
-            out[k.strip()] = v.strip()
+    for line in raw.splitlines():
+        if ':' not in line:
+            continue
+        k, v = line.split(':', 1)
+        value = v.strip()
+        if value and value[0] not in {'"', "'", '[', '{'} and ': ' in value:
+            raise ValueError(f'unsafe unquoted YAML scalar for {k.strip()!r}; quote values containing colon-space')
+        out[k.strip()] = value.strip('"\'')
     return out
 
 def main():
@@ -27,7 +49,11 @@ def main():
     if not skills:
         errors.append('no skills found')
     for p in skills:
-        fm = frontmatter(p.read_text(encoding='utf-8'))
+        try:
+            fm = frontmatter(p.read_text(encoding='utf-8'))
+        except ValueError as exc:
+            errors.append(f'{p}: {exc}')
+            continue
         if fm is None:
             errors.append(f'{p}: missing or malformed frontmatter')
             continue

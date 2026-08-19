@@ -913,6 +913,22 @@ def main() -> int:
                 errors.append('00_project/resource_policy.json: local_llm must be an object')
             elif llm.get('adapter') not in {'unconfigured', 'command', 'external'}:
                 errors.append('00_project/resource_policy.json: local_llm.adapter must be unconfigured, command, or external')
+            else:
+                location = llm.get('runtime_location', 'unknown')
+                if location not in {'unknown', 'local', 'external'}:
+                    errors.append('00_project/resource_policy.json: local_llm.runtime_location must be unknown, local, or external')
+                if llm.get('adapter') == 'external':
+                    evidence = llm.get('location_evidence', [])
+                    if location != 'external' or not isinstance(evidence, list) or not any(isinstance(x, str) and x.strip() for x in evidence):
+                        errors.append('00_project/resource_policy.json: external adapter requires explicit external runtime_location and location_evidence')
+                    endpoint = str(llm.get('endpoint') or llm.get('health_url') or '')
+                    if endpoint:
+                        try:
+                            from llm_runtime import classify_endpoint
+                            if classify_endpoint(endpoint).get('location') == 'local':
+                                errors.append('00_project/resource_policy.json: external adapter conflicts with a local LLM endpoint')
+                        except Exception as exc:
+                            errors.append(f'00_project/resource_policy.json: could not classify local_llm endpoint: {exc}')
             comfy_cfg = rp.get('comfyui')
             if not isinstance(comfy_cfg, dict):
                 errors.append('00_project/resource_policy.json: comfyui must be an object')
