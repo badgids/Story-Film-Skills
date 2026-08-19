@@ -43,6 +43,11 @@ Never stop required creative or preproduction work because another skill pack is
 
 If the user wants to pressure-test an idea, resolve creative ambiguity, turn existing discussion into a durable production specification, split a large production into executable work units, or chart a project whose route is not yet clear, route through `playbooks/creative-planning-and-execution.md`. Facts that can be discovered from files or tools are agent work; creative decisions remain the user's unless explicitly delegated.
 
+
+## Generation model and resource selection
+
+Before creating model-specific prompts or ComfyUI workflows, read `../generation-model-setup/SKILL.md`. Poll the active ComfyUI model inventory and show the user the available choices for every production process that applies. Record the adapter/model family and exact concrete resources in `00_project/model_preferences.json`. Do not infer VAEs, text encoders, LoRAs, checkpoints, audio models, upscalers, or other installed resources from adapter names or installed file order. MiniMax H3 remains the default video adapter only when the user did not choose a video adapter.
+
 ## Resource-safe local generation routing
 
 If the local LLM and ComfyUI cannot safely coexist in RAM or VRAM, route generation through `playbooks/resource-safe-comfyui.md`. All prompts, workflows, uploads, parameters, dependencies, output destinations, and validation decisions must be finalized before the local LLM is unloaded. While the LLM is unavailable, only the deterministic batch runner and Pi progress extension may advance or report generation state.

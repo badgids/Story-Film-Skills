@@ -84,7 +84,7 @@ For film production, preserve traceability from screenplay scene and `LINE-###` 
 
 Create a model-neutral brief first, then adapt it for Qwen, Krea, H3, LTX, TTS, music, or sound models.
 
-Read `MODEL_SELECTION.md` before choosing a video adapter. The user owns the video-model choice. If the user has not chosen a video model, use `minimax-h3`. Do not silently substitute LTX or another video model because it appears to fit the task better.
+Read `MODEL_SELECTION.md` before any model-specific generation. The user owns adapter/model-family choices and the concrete ComfyUI resource choices for each production process. Poll the active ComfyUI inventory before asking the user to select checkpoints, diffusion models, VAEs, text encoders, LoRAs, audio encoders, upscalers, or other model files. MiniMax H3 is the default video adapter only when the user has not chosen a video adapter. Do not infer concrete resource choices from the adapter default.
 
 ## 9. Preserve uncertainty
 

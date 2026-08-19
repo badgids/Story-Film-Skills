@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse, json
 from pathlib import Path
 from datetime import datetime, timezone
+from model_preferences import default_preferences
 
 DIRS = [
     '00_project', '00_project/reviews', '00_project/wizards', '00_project/shards', '00_project/recovery', '01_story', '01_story/chapters', '01_story/simulations', '01_story/research', '02_screenplay',
@@ -208,17 +209,7 @@ def main():
     if not decision_map_md.exists():
         decision_map_md.write_text('# Production Compass\n\nDestination: not set\n', encoding='utf-8')
     if not model_preferences.exists():
-        model_preferences.write_text(json.dumps({
-            'schema_version': 1,
-            'video': {
-                'default_model': 'minimax-h3',
-                'selected_model': 'minimax-h3',
-                'selection_source': 'default',
-                'user_confirmed': False,
-                'allow_agent_substitution': False,
-                'shot_overrides': {},
-            },
-        }, indent=2) + '\n', encoding='utf-8')
+        model_preferences.write_text(json.dumps(default_preferences(), indent=2) + '\n', encoding='utf-8')
     if not resource_policy.exists():
         resource_policy.write_text(json.dumps({
             'schema_version': 1,

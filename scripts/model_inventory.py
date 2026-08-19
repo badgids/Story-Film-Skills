@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+# Copyright 2026 Alan Guice (Badgids)
+# SPDX-License-Identifier: Apache-2.0
+"""Poll ComfyUI model folders and build a user-facing Story-Film selection inventory."""
+from __future__ import annotations
+
+import argparse
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from comfyui_control import Client, resolve_url
+from model_preferences import PROCESS_SPECS, load as load_preferences
+
+SCHEMA_VERSION = 1
+MODEL_INPUT_TOKENS = ("model", "ckpt", "checkpoint", "vae", "clip", "encoder", "lora", "upscale", "control", "unet", "diffusion", "audio", "tts", "voice", "interpolation")
+FOLDER_PREFIXES = {
+    "checkpoints": "C",
+    "diffusion_models": "D",
+    "vae": "V",
+    "text_encoders": "T",
+    "loras": "L",
+    "clip_vision": "CV",
+    "controlnet": "CN",
+    "audio_encoders": "AE",
+    "upscale_models": "U",
+    "latent_upscale_models": "LU",
+    "frame_interpolation": "F",
+    "style_models": "S",
+    "embeddings": "E",
+}
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def json_path(root: Path) -> Path:
+    return root / "00_project/comfyui_model_inventory.json"
+
+
+def markdown_path(root: Path) -> Path:
+    return root / "00_project/comfyui_model_inventory.md"
+
+
+def extract_node_choices(info: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for node_class, schema in sorted(info.items(), key=lambda item: str(item[0]).casefold()):
+        if not isinstance(schema, dict):
+            continue
+        input_schema = schema.get("input") if isinstance(schema.get("input"), dict) else {}
+        for section in ("required", "optional"):
+            fields = input_schema.get(section) if isinstance(input_schema.get(section), dict) else {}
+            for name, spec in fields.items():
+                low = str(name).lower()
+                if not any(token in low for token in MODEL_INPUT_TOKENS):
+                    continue
+                if not isinstance(spec, (list, tuple)) or not spec:
+                    continue
+                choices = spec[0]
+                if not isinstance(choices, list) or not choices or any(not isinstance(x, str) for x in choices):
+                    continue
+                rows.append({
+                    "key": f"node:{node_class}:{name}",
+                    "node_class": str(node_class),
+                    "input": str(name),
+                    "section": section,
+                    "choices": sorted({str(x) for x in choices}, key=str.casefold),
+                })
+    return rows
+
+
+def scan(root: Path, url: str, timeout: float = 20.0) -> dict[str, Any]:
+    client = Client(resolve_url(url), timeout=timeout)
+    folders: dict[str, Any] = {}
+    for folder in sorted(client.model_types(), key=str.casefold):
+        try:
+            names = sorted(client.models(folder), key=str.casefold)
+            folders[folder] = {"count": len(names), "models": names}
+        except Exception as exc:
+            folders[folder] = {"count": 0, "models": [], "error": str(exc)}
+    try:
+        node_choices = extract_node_choices(client.object_info())
+    except Exception:
+        node_choices = []
+    obj = {
+        "schema_version": SCHEMA_VERSION,
+        "server": client.base_url,
+        "captured_at": now_iso(),
+        "folders": folders,
+        "node_choices": node_choices,
+    }
+    json_path(root).parent.mkdir(parents=True, exist_ok=True)
+    json_path(root).write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    markdown_path(root).write_text(render_inventory(obj), encoding="utf-8")
+    return obj
+
+
+def load(root: Path) -> dict[str, Any]:
+    path = json_path(root)
+    if not path.is_file():
+        raise FileNotFoundError(f"{path} does not exist; run model_inventory.py scan first")
+    obj = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(obj, dict) or obj.get("schema_version") != SCHEMA_VERSION:
+        raise ValueError("invalid ComfyUI model inventory")
+    return obj
+
+
+def folder_models(obj: dict[str, Any], folder: str) -> list[str]:
+    folders = obj.get("folders") if isinstance(obj.get("folders"), dict) else {}
+    row = folders.get(folder)
+    if isinstance(row, dict) and isinstance(row.get("models"), list):
+        return [str(x) for x in row["models"]]
+    return []
+
+
+def render_inventory(obj: dict[str, Any]) -> str:
+    lines = [
+        "# ComfyUI Model Inventory",
+        "",
+        f"Server: `{obj.get('server', '')}`",
+        "",
+        f"Captured: `{obj.get('captured_at', '')}`",
+        "",
+        "This file contains model names returned by the running ComfyUI server. Story-Film Skills does not choose these files for you.",
+        "",
+    ]
+    folders = obj.get("folders") if isinstance(obj.get("folders"), dict) else {}
+    for folder in sorted(folders, key=str.casefold):
+        row = folders[folder]
+        models = row.get("models", []) if isinstance(row, dict) else []
+        lines.extend([f"## {folder}", ""])
+        if not models:
+            lines.append("No models were reported in this folder.")
+        else:
+            for i, name in enumerate(models, 1):
+                lines.append(f"{i}. `{name}`")
+        lines.append("")
+    node_choices = obj.get("node_choices") if isinstance(obj.get("node_choices"), list) else []
+    if node_choices:
+        lines.extend(["## Model choices exposed by installed nodes", ""])
+        for row in node_choices:
+            lines.append(f"### `{row.get('node_class')}` / `{row.get('input')}`")
+            lines.append("")
+            for i, name in enumerate(row.get("choices", []), 1):
+                lines.append(f"{i}. `{name}`")
+            lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def render_menu(root: Path, obj: dict[str, Any], process_id: str | None = None) -> str:
+    prefs = load_preferences(root)
+    wanted = [process_id] if process_id else list(PROCESS_SPECS)
+    lines = [
+        "# Story-Film Generation Model Selection",
+        "",
+        "Choose the adapter/model family and the exact ComfyUI resources you want for each process.",
+        "The lists below come from the current ComfyUI server inventory.",
+        "",
+    ]
+    processes = prefs.get("processes", {}) if isinstance(prefs.get("processes"), dict) else {}
+    folders = obj.get("folders") if isinstance(obj.get("folders"), dict) else {}
+    for pid in wanted:
+        if pid not in PROCESS_SPECS:
+            raise ValueError(f"unknown process {pid!r}")
+        spec = PROCESS_SPECS[pid]
+        process = processes.get(pid, {}) if isinstance(processes.get(pid), dict) else {}
+        selected = process.get("selected_adapter") or "not selected"
+        lines.extend([
+            f"## {spec['label']} (`{pid}`)",
+            "",
+            f"Current adapter/model family: `{selected}`",
+            "",
+            "### Adapter/model family",
+            "",
+        ])
+        known = spec.get("known_adapters", [])
+        if not known:
+            lines.append("No Story-Film adapter is forced for this process. You can name the adapter or workflow family that you want to use.")
+        else:
+            for i, adapter in enumerate(known, 1):
+                suffix = " (default)" if adapter == spec.get("default_adapter") else ""
+                lines.append(f"A{i}. `{adapter}`{suffix}")
+        lines.extend(["", "### Installed ComfyUI resources", ""])
+        relevant = list(dict.fromkeys(spec.get("resource_folders", [])))
+        extra = [f for f in folders if f not in relevant and folder_models(obj, f)]
+        for folder in relevant + extra:
+            models = folder_models(obj, folder)
+            if not models and folder not in folders:
+                continue
+            lines.extend([f"#### {folder}", ""])
+            if not models:
+                lines.append("No installed resources reported.")
+            else:
+                prefix = FOLDER_PREFIXES.get(folder, "X")
+                for i, name in enumerate(models, 1):
+                    lines.append(f"{prefix}{i}. `{name}`")
+            lines.append("")
+        node_choices = obj.get("node_choices") if isinstance(obj.get("node_choices"), list) else []
+        if node_choices:
+            lines.extend(["### Model choices exposed by installed ComfyUI nodes", ""])
+            for row in node_choices:
+                lines.append(f"`{row.get('key')}`")
+                for i, name in enumerate(row.get("choices", []), 1):
+                    lines.append(f"N{i}. `{name}`")
+                lines.append("")
+        lines.extend([
+            "You can select zero, one, or more resources from a folder when the workflow supports them.",
+            "LoRA selections also record model and CLIP strengths.",
+            "",
+        ])
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Poll ComfyUI models and print Story-Film selection menus.")
+    sub = ap.add_subparsers(dest="command", required=True)
+    p = sub.add_parser("scan")
+    p.add_argument("project_dir")
+    p.add_argument("--url")
+    p.add_argument("--timeout", type=float, default=20.0)
+    p = sub.add_parser("show")
+    p.add_argument("project_dir")
+    p.add_argument("--folder")
+    p = sub.add_parser("menu")
+    p.add_argument("project_dir")
+    p.add_argument("--process", choices=sorted(PROCESS_SPECS))
+    args = ap.parse_args()
+    root = Path(args.project_dir).expanduser().resolve()
+    if args.command == "scan":
+        obj = scan(root, resolve_url(args.url), args.timeout)
+        print(json.dumps({"inventory": str(json_path(root)), "markdown": str(markdown_path(root)), "folder_count": len(obj["folders"])}, indent=2))
+        return 0
+    obj = load(root)
+    if args.command == "show":
+        if args.folder:
+            print(json.dumps({args.folder: folder_models(obj, args.folder)}, indent=2, ensure_ascii=False))
+        else:
+            print(json.dumps(obj, indent=2, ensure_ascii=False))
+        return 0
+    print(render_menu(root, obj, args.process), end="")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

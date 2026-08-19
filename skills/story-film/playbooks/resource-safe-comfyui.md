@@ -1,5 +1,8 @@
 # Playbook: Resource-Safe Local ComfyUI Generation
 
+
+> Before model-specific prompts or ComfyUI workflows, run `generation-model-setup`. Poll the live ComfyUI model inventory and record the user-selected adapter plus exact model resources for each production process. MiniMax H3 is only the default video adapter. Do not guess concrete model files, VAEs, text encoders, LoRAs, audio models, or upscalers.
+
 Use when Pi's local LLM and ComfyUI generation models share a machine and may not fit in RAM/VRAM at the same time.
 
 ## Steps

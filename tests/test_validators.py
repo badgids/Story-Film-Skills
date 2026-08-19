@@ -38,6 +38,7 @@ import remotion_adapter
 import pipeline_progress
 import version_display
 import model_preferences
+import model_inventory
 import work_units
 import decision_map
 import document_companions
@@ -94,11 +95,25 @@ class FakeComfyHandler(BaseHTTPRequestHandler):
                     'input': {'required': {'data': ['TEST']}},
                     'output': [], 'output_node': True, 'category': 'test'
                 },
+                'CustomModelLoader': {
+                    'input': {'required': {'model_name': [['custom-node-model.safetensors']]}},
+                    'output': ['MODEL'], 'output_node': False, 'category': 'loaders'
+                },
             })
         if path == '/models':
-            return self._json(['checkpoints'])
-        if path == '/models/checkpoints':
-            return self._json(['model.safetensors'])
+            return self._json(['checkpoints', 'diffusion_models', 'vae', 'text_encoders', 'loras', 'audio_encoders', 'upscale_models', 'frame_interpolation'])
+        model_folders = {
+            '/models/checkpoints': ['model.safetensors'],
+            '/models/diffusion_models': ['h3-video.safetensors', 'ltx-video.safetensors', 'qwen-image.safetensors'],
+            '/models/vae': ['h3-vae.safetensors', 'ltx-vae.safetensors', 'image-vae.safetensors'],
+            '/models/text_encoders': ['clip-l.safetensors', 't5xxl.safetensors'],
+            '/models/loras': ['camera-motion.safetensors', 'film-look.safetensors'],
+            '/models/audio_encoders': ['audio-encoder.safetensors'],
+            '/models/upscale_models': ['4x-upscaler.pth'],
+            '/models/frame_interpolation': ['rife.pth'],
+        }
+        if path in model_folders:
+            return self._json(model_folders[path])
         if path.startswith('/history/'):
             pid = path.rsplit('/', 1)[-1]
             return self._json({pid: {
@@ -176,11 +191,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.13')
-        self.assertEqual(version_display.display_version(version), 'v0.0.13')
+        self.assertEqual(version, '00.00.14')
+        self.assertEqual(version_display.display_version(version), 'v0.0.14')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.14'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.15'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -236,10 +251,12 @@ class Tests(unittest.TestCase):
             self.assertTrue((project / '00_project/decision_map.md').is_file())
             self.assertTrue((project / '00_project/resource_policy.json').is_file())
             model_prefs = json.loads((project / '00_project/model_preferences.json').read_text())
-            self.assertEqual(model_prefs['video']['default_model'], 'minimax-h3')
-            self.assertEqual(model_prefs['video']['selected_model'], 'minimax-h3')
-            self.assertEqual(model_prefs['video']['selection_source'], 'default')
-            self.assertFalse(model_prefs['video']['allow_agent_substitution'])
+            self.assertEqual(model_prefs['schema_version'], 2)
+            self.assertEqual(model_prefs['processes']['video_generation']['default_adapter'], 'minimax-h3')
+            self.assertEqual(model_prefs['processes']['video_generation']['selected_adapter'], 'minimax-h3')
+            self.assertEqual(model_prefs['processes']['video_generation']['selection_source'], 'default')
+            self.assertFalse(model_prefs['processes']['video_generation']['allow_agent_substitution'])
+            self.assertIsNone(model_prefs['processes']['image_generation']['selected_adapter'])
             self.assertTrue((project / '00_project/resource_handoff.json').is_file())
             self.assertTrue((project / '00_project/resource_events.jsonl').is_file())
             self.assertTrue((project / '00_project/wizards').is_dir())
@@ -1428,12 +1445,13 @@ class Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             project = Path(td) / 'film'
             subprocess.run([sys.executable, str(ROOT / 'scripts/init_story_project.py'), str(project)], check=True, stdout=subprocess.DEVNULL)
-            prefs = json.loads((project / '00_project/model_preferences.json').read_text())
-            self.assertEqual(prefs['video']['selected_model'], 'minimax-h3')
+            prefs = model_preferences.load(project)
+            video = prefs['processes']['video_generation']
+            self.assertEqual(video['selected_adapter'], 'minimax-h3')
             self.assertEqual(model_preferences.validate(prefs), [])
-            prefs['video']['selected_model'] = 'ltx-2-5'
-            prefs['video']['selection_source'] = 'default'
-            prefs['video']['user_confirmed'] = False
+            video['selected_adapter'] = 'ltx-2-5'
+            video['selection_source'] = 'default'
+            video['user_confirmed'] = False
             self.assertTrue(any('non-default' in e for e in model_preferences.validate(prefs)))
             (project / '04_generation/shot_briefs.jsonl').write_text(json.dumps({'shot_id':'SHOT-001','scene_id':'SCN-001','target_model':'ltx-2-5'}) + '\n', encoding='utf-8')
             check = subprocess.run([sys.executable, str(ROOT / 'scripts/validate_story_project.py'), str(project)], text=True, capture_output=True)
@@ -1442,13 +1460,60 @@ class Tests(unittest.TestCase):
             self.assertIn('minimax-h3', check.stdout + check.stderr)
             (project / '04_generation/shot_briefs.jsonl').unlink()
             subprocess.run([sys.executable, str(ROOT / 'scripts/model_preferences.py'), 'set-video', str(project), 'ltx-2-5', '--source', 'user'], check=True, stdout=subprocess.DEVNULL)
-            chosen = json.loads((project / '00_project/model_preferences.json').read_text())
-            self.assertEqual(chosen['video']['selected_model'], 'ltx-2-5')
-            self.assertEqual(chosen['video']['selection_source'], 'user')
-            self.assertTrue(chosen['video']['user_confirmed'])
+            chosen = model_preferences.load(project)['processes']['video_generation']
+            self.assertEqual(chosen['selected_adapter'], 'ltx-2-5')
+            self.assertEqual(chosen['selection_source'], 'user')
+            self.assertTrue(chosen['user_confirmed'])
             subprocess.run([sys.executable, str(ROOT / 'scripts/model_preferences.py'), 'reset-video', str(project)], check=True, stdout=subprocess.DEVNULL)
-            reset = json.loads((project / '00_project/model_preferences.json').read_text())
-            self.assertEqual(reset['video']['selected_model'], 'minimax-h3')
+            reset = model_preferences.load(project)['processes']['video_generation']
+            self.assertEqual(reset['selected_adapter'], 'minimax-h3')
+
+    def test_comfyui_model_inventory_and_per_process_resource_selection(self):
+        with tempfile.TemporaryDirectory() as td, FakeComfyServer() as srv:
+            project = Path(td) / 'film'
+            subprocess.run([sys.executable, str(ROOT / 'scripts/init_story_project.py'), str(project)], check=True, stdout=subprocess.DEVNULL)
+            inventory = model_inventory.scan(project, srv.url)
+            self.assertIn('vae', inventory['folders'])
+            self.assertIn('text_encoders', inventory['folders'])
+            self.assertIn('loras', inventory['folders'])
+            self.assertIn('upscale_models', inventory['folders'])
+            self.assertTrue(any(row.get('key') == 'node:CustomModelLoader:model_name' for row in inventory['node_choices']))
+            menu = model_inventory.render_menu(project, inventory, 'video_generation')
+            self.assertIn('minimax-h3', menu)
+            self.assertIn('h3-vae.safetensors', menu)
+            self.assertIn('camera-motion.safetensors', menu)
+            self.assertIn('custom-node-model.safetensors', menu)
+
+            prefs = model_preferences.load(project)
+            self.assertEqual(prefs['schema_version'], 2)
+            self.assertEqual(prefs['processes']['video_generation']['selected_adapter'], 'minimax-h3')
+            self.assertIsNone(prefs['processes']['image_generation']['selected_adapter'])
+
+            model_preferences.cmd_set_resource(project, 'video_generation', 'diffusion_models', ['h3-video.safetensors'], None)
+            model_preferences.cmd_set_resource(project, 'video_generation', 'vae', ['h3-vae.safetensors'], None)
+            model_preferences.cmd_set_resource(project, 'video_generation', 'text_encoders', ['clip-l.safetensors', 't5xxl.safetensors'], None)
+            model_preferences.cmd_add_lora(project, 'video_generation', 'camera-motion.safetensors', None, 0.8, 0.7)
+            self.assertEqual(model_preferences.validate(model_preferences.load(project), inventory), [])
+
+            model_preferences.cmd_set_adapter(project, 'video_generation', 'ltx-2-5', 'user', '')
+            model_preferences.cmd_set_resource(project, 'video_generation', 'vae', ['ltx-vae.safetensors'], None)
+            ltx = model_preferences.load(project)
+            self.assertEqual(ltx['processes']['video_generation']['profiles']['minimax-h3']['resources']['vae'], ['h3-vae.safetensors'])
+            self.assertEqual(ltx['processes']['video_generation']['profiles']['ltx-2-5']['resources']['vae'], ['ltx-vae.safetensors'])
+
+            model_preferences.cmd_set_adapter(project, 'image_generation', 'qwen-image-2512', 'user', '')
+            model_preferences.cmd_set_resource(project, 'image_generation', 'diffusion_models', ['qwen-image.safetensors'], None)
+            chosen = model_preferences.load(project)
+            self.assertEqual(chosen['processes']['image_generation']['selected_adapter'], 'qwen-image-2512')
+
+            broken = model_preferences.load(project)
+            broken['processes']['image_generation']['profiles']['qwen-image-2512']['resources']['vae'] = ['missing-vae.safetensors']
+            self.assertTrue(any('missing-vae.safetensors' in e for e in model_preferences.validate(broken, inventory)))
+
+            legacy = {'schema_version': 1, 'video': {'default_model':'minimax-h3','selected_model':'ltx-2-5','selection_source':'user','user_confirmed':True,'allow_agent_substitution':False,'shot_overrides':{}}}
+            migrated = model_preferences.normalize(legacy)
+            self.assertEqual(migrated['schema_version'], 2)
+            self.assertEqual(migrated['processes']['video_generation']['selected_adapter'], 'ltx-2-5')
 
     def test_project_validator_checks_graphics_compositions_and_documents(self):
         with tempfile.TemporaryDirectory() as td:

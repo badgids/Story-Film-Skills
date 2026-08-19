@@ -27,7 +27,7 @@ from document_companions import audit as audit_document_companions
 from comfyui_batch import load_manifest as load_offline_batch, validate as validate_offline_batch
 from sequence_manager import validate_manifest as validate_sequence_manifest
 from context_shards import validate_shards as validate_context_shards
-from model_preferences import validate as validate_model_preferences
+from model_preferences import normalize as normalize_model_preferences, validate as validate_model_preferences
 
 ID_RX = re.compile(r'^(CHAR|LOC|PROP|CH|SCN|LINE|SHOT|VOICE|MUS|SFX|REF|QST|PROM|TAKE|MEDIA|AUD|EVT|MASTER|TRL|CAMP|SOC|COPY|DELIV|TOOL|CLIP|EDIT|SRC|CLAIM|GFX|COMP|CONTENT|DOC|DEC|UNIT|BATCH|JOB|UP|WIZ|SEQ|CONT)-\d{3,}$')
 
@@ -117,15 +117,17 @@ def main() -> int:
             errors.append(f'00_project/decision_map.json: {exc}')
 
     model_preferences_path = root / '00_project/model_preferences.json'
+    model_inventory_path = root / '00_project/comfyui_model_inventory.json'
     selected_video_model = None
     video_shot_overrides = {}
     if model_preferences_path.exists():
         try:
-            model_preferences_obj = load_json(model_preferences_path)
-            errors.extend(f'model preferences: {e}' for e in validate_model_preferences(model_preferences_obj))
-            video_preferences = model_preferences_obj.get('video', {})
-            selected_video_model = video_preferences.get('selected_model')
-            video_shot_overrides = video_preferences.get('shot_overrides', {}) if isinstance(video_preferences.get('shot_overrides', {}), dict) else {}
+            model_preferences_obj = normalize_model_preferences(load_json(model_preferences_path))
+            model_inventory_obj = load_json(model_inventory_path) if model_inventory_path.exists() else None
+            errors.extend(f'model preferences: {e}' for e in validate_model_preferences(model_preferences_obj, model_inventory_obj))
+            video_preferences = model_preferences_obj.get('processes', {}).get('video_generation', {})
+            selected_video_model = video_preferences.get('selected_adapter')
+            video_shot_overrides = video_preferences.get('overrides', {}) if isinstance(video_preferences.get('overrides', {}), dict) else {}
         except Exception as exc:
             errors.append(f'00_project/model_preferences.json: {exc}')
 

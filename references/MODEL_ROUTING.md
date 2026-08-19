@@ -2,7 +2,9 @@
 
 Model routing is advisory. It does not override the user's model choice.
 
-For video generation, read `MODEL_SELECTION.md` first. If the user has not selected a video model, use `minimax-h3` as the default. Do not select LTX or another video model only because its control surface appears to fit the task better.
+Read `MODEL_SELECTION.md` first. Model routing is advisory for every generation process. It does not override the user's adapter/model-family choice or any exact ComfyUI resource selection.
+
+Before model-specific ComfyUI work, poll the active ComfyUI inventory and let the user choose the process adapter plus exact installed resources. MiniMax H3 is the default video adapter only when no video adapter has been selected. It does not select a checkpoint, diffusion model, VAE, text encoder, or LoRA.
 
 Use the sections below to explain capabilities, recommend alternatives, or adapt prompts after a model has been selected.
 

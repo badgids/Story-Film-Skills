@@ -5,7 +5,7 @@
 ## Table of contents
 
 - [Purpose](#purpose)
-- [Choose the video model](#choose-the-video-model)
+- [Choose generation models and resources](#choose-generation-models-and-resources)
 - [Before generation](#before-generation)
 - [Prepare a workflow](#prepare-a-workflow)
 - [Run work](#run-work)
@@ -18,15 +18,15 @@ ComfyUI performs configured image, audio, and video generation. Story-Film Skill
 
 Story-Film Skills does not treat a queued job as a finished asset. An output must return to the media registry and pass the required checks.
 
-## Choose the video model
+## Choose generation models and resources
 
-The user owns the video-model choice.
+The user owns the model choices for image generation, image editing, video, TTS, music, SFX/Foley, upscaling, and frame interpolation.
 
-If the user does not choose one, Story-Film Skills uses **MiniMax H3** (`minimax-h3`).
+Before model-specific generation, Story-Film Skills polls the running ComfyUI server and shows the installed model folders and model-like choices. The user can select exact checkpoints, diffusion models, VAEs, text encoders, LoRAs, audio encoders, upscalers, and other server-reported resources.
 
-Do not silently switch to LTX or another model if MiniMax H3 is missing. Report the blocker and let the user choose, unless the user explicitly delegated model selection.
+If the user does not choose a video adapter, Story-Film Skills uses **MiniMax H3** (`minimax-h3`). This default does not choose its concrete ComfyUI model files.
 
-See [Choose the video generation model](model-selection.md).
+See [Choose generation models and ComfyUI resources](model-selection.md).
 
 ## Before generation
 
@@ -34,11 +34,12 @@ Do these actions before you spend GPU time:
 
 1. Freeze the creative decisions that affect the job.
 2. Give the item a stable ID such as `SHOT-###`, `VOICE-###`, `MUS-###`, or `SFX-###`.
-3. Select a compatible ComfyUI workflow.
-4. Confirm that required model files and custom nodes exist.
-5. Confirm that reference images and other inputs exist.
-6. Validate the API-format workflow.
-7. Set an output destination.
+3. Scan the active ComfyUI model inventory and record the user-selected model stack.
+4. Select a compatible ComfyUI workflow.
+5. Confirm that required model files and custom nodes exist.
+6. Confirm that reference images and other inputs exist.
+7. Validate the API-format workflow.
+8. Set an output destination.
 
 Do not make ComfyUI guess missing story facts.
 
@@ -78,7 +79,7 @@ If the local LLM and the ComfyUI model cannot fit in memory at the same time, us
 
 ## Related pages
 
-- [Choose the video generation model](model-selection.md)
+- [Choose generation models and ComfyUI resources](model-selection.md)
 - [Resource-safe local generation](resource-safe.md)
 - [RAM and VRAM budgets](memory-budget.md)
 - [Partial batch recovery](batch-recovery.md)

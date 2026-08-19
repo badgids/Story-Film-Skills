@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.0.14 (00.00.14) - 2026-08-19
+
+- Added user-controlled generation configuration for image generation, image editing, video generation, TTS, music, SFX/Foley, image upscaling, video upscaling, and frame interpolation.
+- Added live ComfyUI model inventory polling through the public `/models`, `/models/{folder}`, and `/object_info` APIs. Story-Film Skills now records exact server-reported model folders and model-like node choices before model-specific generation.
+- Expanded `00_project/model_preferences.json` to schema version 2 with per-process, per-adapter profiles. A profile can preserve exact checkpoints, diffusion models, VAEs, text encoders, LoRAs, audio encoders, upscalers, frame-interpolation models, custom model folders, and node-provided model choices.
+- MiniMax H3 remains the default video adapter only. The default no longer implies any checkpoint, VAE, text encoder, LoRA, or other concrete ComfyUI resource. Other generation processes have no forced adapter default and require a user selection or explicit delegation before model-specific generation.
+- Added `scripts/model_inventory.py` and the `generation-model-setup` skill. Pi must show the user the installed choices for each required production process and record the exact selections instead of choosing from file order or model availability.
+- Added backward-compatible migration from the v0.0.13 video-only model preference schema and kept `set-video` and `reset-video` command aliases.
+- Added deterministic tests for live inventory polling, model-specific VAE/text-encoder profiles, LoRA strengths, per-process selection, inactive profile preservation, missing-resource blocking, and v1-to-v2 preference migration.
+
 ## v0.0.13 (00.00.13) - 2026-08-19
 
 - Fixed video-generation model selection. The user owns the video-model choice; Story-Film Skills no longer chooses LTX or another adapter merely because it appears to fit the shot.

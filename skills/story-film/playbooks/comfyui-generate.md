@@ -1,5 +1,8 @@
 # Playbook: Generate Through ComfyUI
 
+
+> Before model-specific prompts or ComfyUI workflows, run `generation-model-setup`. Poll the live ComfyUI model inventory and record the user-selected adapter plus exact model resources for each production process. MiniMax H3 is only the default video adapter. Do not guess concrete model files, VAEs, text encoders, LoRAs, audio models, or upscalers.
+
 Use when a story-film project is ready to turn one or more approved image, video, voice, music, or sound briefs into generated media through ComfyUI.
 
 ## Steps
