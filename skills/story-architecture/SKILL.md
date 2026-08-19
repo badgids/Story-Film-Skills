@@ -1,6 +1,6 @@
 ---
 name: story-architecture
-description: Design or repair a story core: logline, dramatic question, protagonist goal, opposition, stakes, change, ending logic, and a causal architecture appropriate to the requested form.
+description: "Design or repair a story core: logline, dramatic question, protagonist goal, opposition, stakes, change, ending logic, and a causal architecture appropriate to the requested form."
 disable-model-invocation: true
 author: Alan Guice (Badgids)
 license: Apache-2.0

@@ -1,6 +1,6 @@
 ---
 name: production-breakdown
-description: Break screenplay scenes into production needs: cast, extras, locations, props, wardrobe, makeup, vehicles, practical effects, VFX, sound, music, special continuity, and generation dependencies.
+description: "Break screenplay scenes into production needs: cast, extras, locations, props, wardrobe, makeup, vehicles, practical effects, VFX, sound, music, special continuity, and generation dependencies."
 disable-model-invocation: true
 author: Alan Guice (Badgids)
 license: Apache-2.0
