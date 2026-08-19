@@ -93,6 +93,7 @@ def main():
     decision_map = root / '00_project/decision_map.json'
     decision_map_md = root / '00_project/decision_map.md'
     resource_policy = root / '00_project/resource_policy.json'
+    model_preferences = root / '00_project/model_preferences.json'
     resource_handoff = root / '00_project/resource_handoff.json'
     resource_events = root / '00_project/resource_events.jsonl'
     sequence_manifest = root / '00_project/sequence_manifest.json'
@@ -206,6 +207,18 @@ def main():
         decision_map.write_text(json.dumps({'schema_version': 1, 'destination': '', 'notes': [], 'decisions': [], 'not_yet_specified': [], 'out_of_scope': [], 'updated_at': ''}, indent=2) + '\n', encoding='utf-8')
     if not decision_map_md.exists():
         decision_map_md.write_text('# Production Compass\n\nDestination: not set\n', encoding='utf-8')
+    if not model_preferences.exists():
+        model_preferences.write_text(json.dumps({
+            'schema_version': 1,
+            'video': {
+                'default_model': 'minimax-h3',
+                'selected_model': 'minimax-h3',
+                'selection_source': 'default',
+                'user_confirmed': False,
+                'allow_agent_substitution': False,
+                'shot_overrides': {},
+            },
+        }, indent=2) + '\n', encoding='utf-8')
     if not resource_policy.exists():
         resource_policy.write_text(json.dumps({
             'schema_version': 1,

@@ -73,7 +73,7 @@ Run production coverage before generation.
 
 Prepare model-neutral briefs first.
 
-Adapt the briefs to the selected image, audio, or video model.
+Adapt the briefs to the selected image, audio, or video model. For video, the user owns the choice. If the user does not choose, use MiniMax H3 (`minimax-h3`).
 
 Validate ComfyUI workflows before a run.
 
@@ -112,5 +112,6 @@ Run the final completeness audit for a finished feature.
 ## Related pages
 
 - [Feature film](feature-film.md)
+- [Choose the video generation model](../generation/model-selection.md)
 - [ComfyUI generation](../generation/comfyui.md)
 - [Final completeness audit](../release/completion.md)

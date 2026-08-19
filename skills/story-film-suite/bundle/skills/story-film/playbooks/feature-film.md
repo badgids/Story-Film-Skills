@@ -10,7 +10,7 @@ Use for a full-length film package. Never attempt all screenplay pages, shots, r
 6. `visual-bible`: lock visual rules that must survive across sequences.
 7. Build global `reference-assets` for recurring characters, locations, props, voices, and visual rules before sequence production. Add sequence-specific references only when needed.
 8. Run `production-capabilities` for the selected production route. Divide production into sequences of related `SCN-###` IDs. Process one sequence at a time through `production-breakdown`, `director-book`, optional `production-diagrams`, optional `previz-plan`, `performance-blocking`, `shot-design`, `shot-list`, progressive `storyboard-prompts`, `dialogue-voice` where needed, `shooting-script`, `production-coverage`, and `generation-pack`. Do not advance an uncovered sequence into generation.
-9. Run model adapters and `prompt-qc` per sequence. When candidates are generated, run `media-qc` before `take-selection`. Do not wait until the end to discover continuity drift.
+9. Before video adapters, resolve the project video model from `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`. Then run model adapters and `prompt-qc` per sequence. When candidates are generated, run `media-qc` before `take-selection`. Do not wait until the end to discover continuity drift.
 10. Run `dialogue-voice`, `score-plan`, and `sound-design` across the full film after sequence needs are known. Lock recurring voice and motif identities globally.
 11. `edit-plan` and `editorial-package`: reconcile sequence durations, audio bridges, subtitles, stems, placeholders, and pickups.
 12. Final `continuity-check` across the whole package.

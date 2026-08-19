@@ -1,6 +1,10 @@
 # Model Routing
 
-Choose a model because its control surface matches the task.
+Model routing is advisory. It does not override the user's model choice.
+
+For video generation, read `MODEL_SELECTION.md` first. If the user has not selected a video model, use `minimax-h3` as the default. Do not select LTX or another video model only because its control surface appears to fit the task better.
+
+Use the sections below to explain capabilities, recommend alternatives, or adapt prompts after a model has been selected.
 
 ## Qwen Image 2512
 

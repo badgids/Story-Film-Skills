@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.0.13 (00.00.13) - 2026-08-19
+
+- Fixed video-generation model selection. The user owns the video-model choice; Story-Film Skills no longer chooses LTX or another adapter merely because it appears to fit the shot.
+- MiniMax H3 (`minimax-h3`) is now the explicit default video-generation model when the user has not chosen another model.
+- Added `00_project/model_preferences.json`, `scripts/model_preferences.py`, and `references/MODEL_SELECTION.md` for durable model choice, user/delegated overrides, and a no-silent-substitution rule.
+- If the selected video model is unavailable, Story-Film Skills must report a blocker and available alternatives instead of silently switching models.
+- Added model-selection documentation and deterministic regression coverage.
+
 ## v0.0.12 (00.00.12) - 2026-08-19
 
 - Fixed local LLM runtime classification. Story-Film Skills must not infer that Pi uses a cloud or external model from OpenAI-compatible API behavior, provider naming, or missing environment variables.

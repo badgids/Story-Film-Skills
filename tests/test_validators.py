@@ -37,6 +37,7 @@ import motion_graphics
 import remotion_adapter
 import pipeline_progress
 import version_display
+import model_preferences
 import work_units
 import decision_map
 import document_companions
@@ -175,11 +176,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.11')
-        self.assertEqual(version_display.display_version(version), 'v0.0.11')
+        self.assertEqual(version, '00.00.13')
+        self.assertEqual(version_display.display_version(version), 'v0.0.13')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.12'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.14'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -234,6 +235,11 @@ class Tests(unittest.TestCase):
             self.assertTrue((project / '00_project/decision_map.json').is_file())
             self.assertTrue((project / '00_project/decision_map.md').is_file())
             self.assertTrue((project / '00_project/resource_policy.json').is_file())
+            model_prefs = json.loads((project / '00_project/model_preferences.json').read_text())
+            self.assertEqual(model_prefs['video']['default_model'], 'minimax-h3')
+            self.assertEqual(model_prefs['video']['selected_model'], 'minimax-h3')
+            self.assertEqual(model_prefs['video']['selection_source'], 'default')
+            self.assertFalse(model_prefs['video']['allow_agent_substitution'])
             self.assertTrue((project / '00_project/resource_handoff.json').is_file())
             self.assertTrue((project / '00_project/resource_events.jsonl').is_file())
             self.assertTrue((project / '00_project/wizards').is_dir())
@@ -1417,6 +1423,32 @@ class Tests(unittest.TestCase):
             (project/'04_generation/comfyui/offline_batch.json').write_text(json.dumps(batch))
             policy=json.loads((project/'00_project/resource_policy.json').read_text());policy['comfyui']['url']=srv.url;(project/'00_project/resource_policy.json').write_text(json.dumps(policy))
             with self.assertRaises(ValueError): resource_handoff.arm(project,'04_generation/comfyui/offline_batch.json',srv.url,detach=False)
+
+    def test_video_model_selection_defaults_to_h3_and_blocks_silent_ltx(self):
+        with tempfile.TemporaryDirectory() as td:
+            project = Path(td) / 'film'
+            subprocess.run([sys.executable, str(ROOT / 'scripts/init_story_project.py'), str(project)], check=True, stdout=subprocess.DEVNULL)
+            prefs = json.loads((project / '00_project/model_preferences.json').read_text())
+            self.assertEqual(prefs['video']['selected_model'], 'minimax-h3')
+            self.assertEqual(model_preferences.validate(prefs), [])
+            prefs['video']['selected_model'] = 'ltx-2-5'
+            prefs['video']['selection_source'] = 'default'
+            prefs['video']['user_confirmed'] = False
+            self.assertTrue(any('non-default' in e for e in model_preferences.validate(prefs)))
+            (project / '04_generation/shot_briefs.jsonl').write_text(json.dumps({'shot_id':'SHOT-001','scene_id':'SCN-001','target_model':'ltx-2-5'}) + '\n', encoding='utf-8')
+            check = subprocess.run([sys.executable, str(ROOT / 'scripts/validate_story_project.py'), str(project)], text=True, capture_output=True)
+            self.assertNotEqual(check.returncode, 0)
+            self.assertIn('target_model', check.stdout + check.stderr)
+            self.assertIn('minimax-h3', check.stdout + check.stderr)
+            (project / '04_generation/shot_briefs.jsonl').unlink()
+            subprocess.run([sys.executable, str(ROOT / 'scripts/model_preferences.py'), 'set-video', str(project), 'ltx-2-5', '--source', 'user'], check=True, stdout=subprocess.DEVNULL)
+            chosen = json.loads((project / '00_project/model_preferences.json').read_text())
+            self.assertEqual(chosen['video']['selected_model'], 'ltx-2-5')
+            self.assertEqual(chosen['video']['selection_source'], 'user')
+            self.assertTrue(chosen['video']['user_confirmed'])
+            subprocess.run([sys.executable, str(ROOT / 'scripts/model_preferences.py'), 'reset-video', str(project)], check=True, stdout=subprocess.DEVNULL)
+            reset = json.loads((project / '00_project/model_preferences.json').read_text())
+            self.assertEqual(reset['video']['selected_model'], 'minimax-h3')
 
     def test_project_validator_checks_graphics_compositions_and_documents(self):
         with tempfile.TemporaryDirectory() as td:

@@ -12,15 +12,16 @@ This skill creates a portable generation package. It does not require ComfyUI or
 
 ## Workflow
 
-1. Read the standalone contract, core contract, dependency rules, ComfyUI portable package contract, state, canon, continuity, references, and generation briefs.
+1. Read the standalone contract, core contract, dependency rules, model selection, ComfyUI portable package contract, state, canon, continuity, references, and generation briefs.
 2. Determine the smallest requested scope by sequence, scene, shot, cue, or stale asset.
 3. Ensure model-neutral briefs exist for that scope.
-4. Run the selected model adapters when prewritten prompts are part of the requested package.
-5. Write `04_generation/comfyui_handoff.json` using project-relative paths only.
-6. Include requested model families, prompt files, reference IDs and roles, required input media, expected output IDs, durations or dimensions when required, stale IDs, and unresolved requirements.
-7. Never invent node class names, widget indices, local model paths, or private custom-node schemas. The portable manifest describes intent, not a guessed executable graph.
-8. Run `prompt-qc` on included prompt documents.
-9. If the user also requests execution, route next to `comfyui`: discover the live server, map the manifest into a preserved workflow copy, validate against live node schemas, stage inputs, submit, and collect outputs.
+4. Read `MODEL_SELECTION.md`. For video work, use the user's selected model. If no video model was selected, use `minimax-h3`. Never silently substitute another video adapter.
+5. Run the selected model adapters when prewritten prompts are part of the requested package.
+6. Write `04_generation/comfyui_handoff.json` using project-relative paths only.
+7. Include requested model families, prompt files, reference IDs and roles, required input media, expected output IDs, durations or dimensions when required, stale IDs, and unresolved requirements.
+8. Never invent node class names, widget indices, local model paths, or private custom-node schemas. The portable manifest describes intent, not a guessed executable graph.
+9. Run `prompt-qc` on included prompt documents.
+10. If the user also requests execution, route next to `comfyui`: discover the live server, map the manifest into a preserved workflow copy, validate against live node schemas, stage inputs, submit, and collect outputs.
 
 ## Done
 

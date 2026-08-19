@@ -17,6 +17,7 @@ Minimum shape:
   "project_title": "Example",
   "source_state": "00_project/state.json",
   "canon": "00_project/canon.json",
+  "model_preferences": "00_project/model_preferences.json",
   "reference_manifest": "03_preproduction/references/reference_manifest.json",
   "shot_briefs": "04_generation/shot_briefs.jsonl",
   "image_briefs": "04_generation/image_briefs.jsonl",
@@ -41,6 +42,7 @@ All paths are project-relative.
 The package may specify:
 
 - stable shot or cue ID
+- user-selected model family, or the MiniMax H3 video default when no video model was selected
 - model family requested
 - prompt file
 - reference IDs and roles

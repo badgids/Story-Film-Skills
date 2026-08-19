@@ -5,6 +5,7 @@
 ## Table of contents
 
 - [Purpose](#purpose)
+- [Choose the video model](#choose-the-video-model)
 - [Before generation](#before-generation)
 - [Prepare a workflow](#prepare-a-workflow)
 - [Run work](#run-work)
@@ -16,6 +17,16 @@
 ComfyUI performs configured image, audio, and video generation. Story-Film Skills prepares the creative instructions and the workflow data.
 
 Story-Film Skills does not treat a queued job as a finished asset. An output must return to the media registry and pass the required checks.
+
+## Choose the video model
+
+The user owns the video-model choice.
+
+If the user does not choose one, Story-Film Skills uses **MiniMax H3** (`minimax-h3`).
+
+Do not silently switch to LTX or another model if MiniMax H3 is missing. Report the blocker and let the user choose, unless the user explicitly delegated model selection.
+
+See [Choose the video generation model](model-selection.md).
 
 ## Before generation
 
@@ -67,6 +78,7 @@ If the local LLM and the ComfyUI model cannot fit in memory at the same time, us
 
 ## Related pages
 
+- [Choose the video generation model](model-selection.md)
 - [Resource-safe local generation](resource-safe.md)
 - [RAM and VRAM budgets](memory-budget.md)
 - [Partial batch recovery](batch-recovery.md)

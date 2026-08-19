@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.12`
-**Canonical version:** `00.00.12`
+**Display version:** `v0.0.13`
+**Canonical version:** `00.00.13`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -23,6 +23,7 @@ v0.0.11 completes the initial prototype-building phase. The project now includes
   - [Install with npx skills](#install-with-npx-skills)
 - [Use Story-Film Skills](#use-story-film-skills)
 - [Example and test prompts](#example-and-test-prompts)
+- [Video generation model choice](#video-generation-model-choice)
 - [Local LLM and ComfyUI memory handoff](#local-llm-and-comfyui-memory-handoff)
 - [Interactive Pi Todo](#interactive-pi-todo)
 - [Documentation](#documentation)
@@ -218,6 +219,12 @@ v0.0.11 includes nine copy-and-paste production prompts for examples and regress
 Use a prompt unchanged for a full production test. For a cheaper first test, the documentation provides planning-only and generation-ready prefixes that stop before expensive rendering.
 
 Start with the [Examples and test prompts guide](docs/examples/README.md). The raw prompt library is in [`examples/`](examples/README.md).
+
+## Video generation model choice
+
+The user owns the video-generation model choice. If the user does not choose a video model, Story-Film Skills uses **MiniMax H3** (`minimax-h3`). LTX 2.5 and other adapters remain optional choices. Story-Film Skills must not silently replace MiniMax H3 because another model appears to fit a shot better or because MiniMax H3 is missing.
+
+See [Choose the video generation model](docs/generation/model-selection.md).
 
 ## Local LLM and ComfyUI memory handoff
 

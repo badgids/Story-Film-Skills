@@ -27,6 +27,7 @@ from document_companions import audit as audit_document_companions
 from comfyui_batch import load_manifest as load_offline_batch, validate as validate_offline_batch
 from sequence_manager import validate_manifest as validate_sequence_manifest
 from context_shards import validate_shards as validate_context_shards
+from model_preferences import validate as validate_model_preferences
 
 ID_RX = re.compile(r'^(CHAR|LOC|PROP|CH|SCN|LINE|SHOT|VOICE|MUS|SFX|REF|QST|PROM|TAKE|MEDIA|AUD|EVT|MASTER|TRL|CAMP|SOC|COPY|DELIV|TOOL|CLIP|EDIT|SRC|CLAIM|GFX|COMP|CONTENT|DOC|DEC|UNIT|BATCH|JOB|UP|WIZ|SEQ|CONT)-\d{3,}$')
 
@@ -114,6 +115,19 @@ def main() -> int:
             errors.extend(f'decision map: {e}' for e in validate_decision_map(load_json(decision_map_path)))
         except Exception as exc:
             errors.append(f'00_project/decision_map.json: {exc}')
+
+    model_preferences_path = root / '00_project/model_preferences.json'
+    selected_video_model = None
+    video_shot_overrides = {}
+    if model_preferences_path.exists():
+        try:
+            model_preferences_obj = load_json(model_preferences_path)
+            errors.extend(f'model preferences: {e}' for e in validate_model_preferences(model_preferences_obj))
+            video_preferences = model_preferences_obj.get('video', {})
+            selected_video_model = video_preferences.get('selected_model')
+            video_shot_overrides = video_preferences.get('shot_overrides', {}) if isinstance(video_preferences.get('shot_overrides', {}), dict) else {}
+        except Exception as exc:
+            errors.append(f'00_project/model_preferences.json: {exc}')
 
     # Every rich/binary document artifact must have a human-readable Markdown companion.
     for rel in audit_document_companions(root):
@@ -386,6 +400,12 @@ def main() -> int:
         scn = obj.get('scene_id', '')
         if scn and (not scn.startswith('SCN-') or not ID_RX.match(scn)):
             errors.append(f'shot_briefs.jsonl:{n}: invalid scene_id {scn!r}')
+        target_model = obj.get('target_model')
+        if target_model and selected_video_model:
+            override = video_shot_overrides.get(sid, {}) if isinstance(video_shot_overrides, dict) else {}
+            expected_model = override.get('model') if isinstance(override, dict) and override.get('model') else selected_video_model
+            if target_model != expected_model:
+                errors.append(f'shot_briefs.jsonl:{n}: target_model {target_model!r} conflicts with user/default video selection {expected_model!r}')
         line_ids = obj.get('line_ids', [])
         if line_ids is not None and not isinstance(line_ids, list):
             errors.append(f'shot_briefs.jsonl:{n}: line_ids must be an array')

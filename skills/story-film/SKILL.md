@@ -15,16 +15,17 @@ This is the general entry point for Story-Film Skills. The package is standalone
 1. Read `../../references/STANDALONE_CONTRACT.md`.
 2. Read `../../references/CORE_CONTRACT.md`.
 3. Read `../../references/DOCUMENT_COMPANIONS.md`.
-4. Read `CATALOG.md`.
-5. Match the request to exactly one playbook in `playbooks/`.
-6. Read that playbook in full.
-7. If no project exists, initialize one with `../../scripts/init_story_project.py` or create the same structure manually.
-8. For any playbook with more than one ordered step, read `../pipeline-progress/SKILL.md`. If no active matching progress ledger exists, initialize it with `../../scripts/pipeline_progress.py init`. If one already exists, resume its current target instead of reconstructing progress from chat history.
-9. Execute the playbook in order. Before each specialist step, read the named sibling `SKILL.md`.
-10. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance.
-11. Update `00_project/state.json` after each completed artifact.
-12. If an approved upstream artifact changes, run `project-impact` before rebuilding downstream work.
-13. Run continuity, narrative-state, production-coverage when applicable, dramaturgy, prompt, standalone, and style checks at the gates required by the playbook.
+4. Read `../../references/MODEL_SELECTION.md`.
+5. Read `CATALOG.md`.
+6. Match the request to exactly one playbook in `playbooks/`.
+7. Read that playbook in full.
+8. If no project exists, initialize one with `../../scripts/init_story_project.py` or create the same structure manually.
+9. For any playbook with more than one ordered step, read `../pipeline-progress/SKILL.md`. If no active matching progress ledger exists, initialize it with `../../scripts/pipeline_progress.py init`. If one already exists, resume its current target instead of reconstructing progress from chat history.
+10. Execute the playbook in order. Before each specialist step, read the named sibling `SKILL.md`.
+11. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance.
+12. Update `00_project/state.json` after each completed artifact.
+13. If an approved upstream artifact changes, run `project-impact` before rebuilding downstream work.
+14. Run continuity, narrative-state, production-coverage when applicable, dramaturgy, prompt, standalone, and style checks at the gates required by the playbook.
 
 ## Routing rule
 

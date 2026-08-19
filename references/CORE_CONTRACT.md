@@ -84,6 +84,8 @@ For film production, preserve traceability from screenplay scene and `LINE-###` 
 
 Create a model-neutral brief first, then adapt it for Qwen, Krea, H3, LTX, TTS, music, or sound models.
 
+Read `MODEL_SELECTION.md` before choosing a video adapter. The user owns the video-model choice. If the user has not chosen a video model, use `minimax-h3`. Do not silently substitute LTX or another video model because it appears to fit the task better.
+
 ## 9. Preserve uncertainty
 
 If a required fact is missing, choose the smallest reversible assumption and mark it `ASSUMPTION:`. Do not manufacture detailed backstory or geometry to fill a small gap.

@@ -14,7 +14,7 @@
 12. `dialogue-voice`, `score-plan`, and `sound-design` as needed. Preserve line IDs and exact dialogue.
 13. `shooting-script`: compile line, blocking, camera, and timing into a portable execution plan.
 14. `production-coverage`: prove that the requested screenplay scope has not been silently dropped.
-15. `generation-pack`, selected model adapters, and `prompt-qc`.
+15. `generation-pack`, then resolve the video model from `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`. Run the selected model adapters and `prompt-qc`.
 16. If actual generation occurs, register concrete media with `asset-approval`; run `media-qc`, then `take-selection` for picture candidates.
 17. `edit-plan` and `editorial-package` as requested.
 18. If actual ComfyUI generation is requested, run `comfyui-handoff` and the ComfyUI Generate playbook by approved scope.
