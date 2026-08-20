@@ -15,6 +15,8 @@ const RequestSchema = Type.Object({
   action: Type.Union([
     Type.Literal("doctor"),
     Type.Literal("server-info"),
+    Type.Literal("model-inventory"),
+    Type.Literal("model-search"),
     Type.Literal("list-tools"),
     Type.Literal("search-tools"),
     Type.Literal("call"),
@@ -24,6 +26,8 @@ const RequestSchema = Type.Object({
     Type.Literal("v2-request"),
   ]),
   query: Type.Optional(Type.String()),
+  folder: Type.Optional(Type.String()),
+  limit: Type.Optional(Type.Number()),
   tool: Type.Optional(Type.String()),
   arguments: Type.Optional(Type.Record(Type.String(), Type.Any())),
   method: Type.Optional(Type.String()),
@@ -70,20 +74,27 @@ function runOne(python: string, cwd: string, request: Record<string, unknown>, s
       else signal.addEventListener("abort", abort, { once: true });
     }
     child.on("error", reject);
-    child.on("close", code => {
+    child.on("close", (code, closeSignal) => {
       signal?.removeEventListener("abort", abort);
       if (captureExceeded) {
         resolvePromise({ ok: false, error: "managed runtime response exceeded 64 MiB; narrow the MCP query or fetch outputs to files" });
         return;
       }
       const raw = stdout.trim();
+      const exitError = signal?.aborted
+        ? "managed runtime request was cancelled"
+        : closeSignal
+          ? `managed runtime terminated by ${closeSignal}`
+          : code === null
+            ? "managed runtime exited without a status"
+            : `managed runtime exited ${code}`;
       let value: RuntimeResult;
       try {
-        value = raw ? JSON.parse(raw) as RuntimeResult : { ok: false, error: stderr.trim() || `managed runtime exited ${code}` };
+        value = raw ? JSON.parse(raw) as RuntimeResult : { ok: false, error: stderr.trim() || exitError };
       } catch {
         value = { ok: false, error: `managed runtime returned invalid JSON${stderr.trim() ? `: ${stderr.trim()}` : ""}` };
       }
-      if (code && value.ok !== false) value = { ...value, ok: false, error: value.error || `managed runtime exited ${code}` };
+      if ((code || closeSignal) && value.ok !== false) value = { ...value, ok: false, error: value.error || exitError };
       resolvePromise(value);
     });
     child.stdin.end(JSON.stringify(request));
@@ -133,7 +144,7 @@ export default function storyFilmComfy(pi: any): void {
   pi.on?.("before_agent_start", async (_event: any, ctx: any) => {
     if (!storyProjectRoot(ctx.cwd)) return undefined;
     return {
-      systemPromptAppend: `\nSTORY-FILM MANAGED COMFY RUNTIME:\n- The Pi-native story_comfy tool is the primary interactive control surface for the user's existing ComfyUI. Start live Comfy work with story_comfy action=server-info and use action=search-tools when the exact official comfy-mcp verb is unknown.\n- Story-Film automatically bootstraps comfy-cli, comfy-mcp, and comfy-api-proxy into its separate managed runtime. Do not ask the user to install or configure those control packages or a generic MCP server.\n- The user owns ComfyUI itself and their model collection. Managed bootstrap never installs ComfyUI, models, or custom nodes.\n- References elsewhere to comfyui_control.py, model_inventory.py, comfyui_batch.py, resource_handoff.py, or workflow-catalog describe Story-Film's deterministic internal paths. Do not ask the user to run them and do not invoke them through permission-gated bash for ordinary interactive ComfyUI discovery/control when story_comfy can perform the operation.\n- Do not replace story_comfy with curl, wget, urllib, requests, httpx, aiohttp, raw /prompt loops, or guessed class_type graphs.\n`,
+      systemPromptAppend: `\nSTORY-FILM MANAGED COMFY RUNTIME:\n- The Pi-native story_comfy tool is the primary interactive control surface for the user's existing ComfyUI. Start live Comfy work with story_comfy action=server-info. Before deciding that any local model is missing, run story_comfy action=model-inventory; use action=model-search to search the complete live inventory.\n- Never treat the checkpoints folder as the complete image/video model inventory. Valid local weights may be registered under unet, diffusion_models, checkpoints, diffusers, or model-choice inputs exposed by installed loader nodes. The live ComfyUI registry is authoritative, including extra_model_paths.yaml registrations.\n- Use action=search-tools only to discover official comfy-mcp tool names; it is not a substitute for model-inventory/model-search.\n- Story-Film automatically bootstraps comfy-cli, comfy-mcp, and comfy-api-proxy into its separate managed runtime. Do not ask the user to install or configure those control packages or a generic MCP server.\n- The user owns ComfyUI itself and their model collection. Managed bootstrap never installs ComfyUI, models, or custom nodes.\n- References elsewhere to comfyui_control.py, model_inventory.py, comfyui_batch.py, resource_handoff.py, or workflow-catalog describe Story-Film's deterministic internal paths. Do not ask the user to run them and do not invoke them through permission-gated bash for ordinary interactive ComfyUI discovery/control when story_comfy can perform the operation.\n- Do not replace story_comfy with curl, wget, urllib, requests, httpx, aiohttp, raw /prompt loops, or guessed class_type graphs.\n`,
     };
   });
 
@@ -141,7 +152,7 @@ export default function storyFilmComfy(pi: any): void {
     name: "story_comfy",
     label: "Story-Film ComfyUI",
     description:
-      "Primary Story-Film control surface for the user's existing ComfyUI. Story-Film automatically installs its own separate official comfy-cli/comfy-mcp/comfy-api-proxy control runtime on first use; it does NOT install ComfyUI or models. Start with server-info, use search-tools before generic call, and use the live official MCP tool surface rather than guessed nodes/workflows or raw curl/bash ComfyUI calls.",
+      "Primary Story-Film control surface for the user's existing ComfyUI. Story-Film automatically installs its own separate official comfy-cli/comfy-mcp/comfy-api-proxy control runtime on first use; it does NOT install ComfyUI or models. Start with server-info, run model-inventory before deciding models are missing, use model-search across every live model folder/node choice, and use the official MCP tool surface rather than guessed nodes/workflows or raw curl/bash ComfyUI calls.",
     parameters: RequestSchema,
     async execute(_toolCallId: string, params: any, signal: AbortSignal | undefined, onUpdate: any, ctx: any) {
       if (params.action === "call") {

@@ -104,10 +104,11 @@ class FakeComfyHandler(BaseHTTPRequestHandler):
                 },
             })
         if path == '/models':
-            return self._json(['checkpoints', 'diffusion_models', 'vae', 'text_encoders', 'loras', 'audio_encoders', 'upscale_models', 'frame_interpolation'])
+            return self._json(['checkpoints', 'diffusion_models', 'unet', 'vae', 'text_encoders', 'loras', 'audio_encoders', 'upscale_models', 'frame_interpolation'])
         model_folders = {
             '/models/checkpoints': ['model.safetensors'],
             '/models/diffusion_models': ['h3-video.safetensors', 'ltx-video.safetensors', 'qwen-image.safetensors'],
+            '/models/unet': ['qwen-image-2512-Q4_K_M.gguf'],
             '/models/vae': ['h3-vae.safetensors', 'ltx-vae.safetensors', 'image-vae.safetensors'],
             '/models/text_encoders': ['clip-l.safetensors', 't5xxl.safetensors'],
             '/models/loras': ['camera-motion.safetensors', 'film-look.safetensors'],
@@ -194,11 +195,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.23')
-        self.assertEqual(version_display.display_version(version), 'v0.0.23')
+        self.assertEqual(version, '00.00.24')
+        self.assertEqual(version_display.display_version(version), 'v0.0.24')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.24'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.25'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1508,7 +1509,15 @@ class Tests(unittest.TestCase):
             self.assertIn('text_encoders', inventory['folders'])
             self.assertIn('loras', inventory['folders'])
             self.assertIn('upscale_models', inventory['folders'])
+            self.assertIn('unet', inventory['folders'])
+            self.assertIn('qwen-image-2512-Q4_K_M.gguf', inventory['folders']['unet']['models'])
             self.assertTrue(any(row.get('key') == 'node:CustomModelLoader:model_name' for row in inventory['node_choices']))
+            summary = model_inventory.inventory_summary(inventory)
+            self.assertIn('unet', summary['primary_weight_models'])
+            self.assertIn('diffusion_models', summary['primary_weight_models'])
+            qwen = model_inventory.search_inventory(inventory, 'qwen image 2512')
+            self.assertTrue(any(row['name'] == 'qwen-image-2512-Q4_K_M.gguf' for row in qwen['matches']))
+            self.assertIn('unet', model_preferences.PROCESS_SPECS['image_generation']['resource_folders'])
             menu = model_inventory.render_menu(project, inventory, 'video_generation')
             self.assertIn('minimax-h3', menu)
             self.assertIn('h3-vae.safetensors', menu)

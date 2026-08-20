@@ -20,19 +20,19 @@ PROCESS_SPECS: dict[str, dict[str, Any]] = {
         "label": "Image generation",
         "default_adapter": None,
         "known_adapters": ["qwen-image-2512", "krea-2"],
-        "resource_folders": ["checkpoints", "diffusion_models", "vae", "text_encoders", "loras", "clip_vision", "controlnet", "style_models", "embeddings"],
+        "resource_folders": ["checkpoints", "diffusion_models", "unet", "diffusers", "vae", "text_encoders", "loras", "clip_vision", "controlnet", "style_models", "embeddings"],
     },
     "image_edit": {
         "label": "Image edit generation",
         "default_adapter": None,
         "known_adapters": ["qwen-image-edit-2511"],
-        "resource_folders": ["checkpoints", "diffusion_models", "vae", "text_encoders", "loras", "clip_vision", "controlnet", "style_models", "embeddings"],
+        "resource_folders": ["checkpoints", "diffusion_models", "unet", "diffusers", "vae", "text_encoders", "loras", "clip_vision", "controlnet", "style_models", "embeddings"],
     },
     "video_generation": {
         "label": "Video generation",
         "default_adapter": DEFAULT_VIDEO_MODEL,
         "known_adapters": ["minimax-h3", "ltx-2-5"],
-        "resource_folders": ["checkpoints", "diffusion_models", "vae", "text_encoders", "loras", "clip_vision", "controlnet", "embeddings"],
+        "resource_folders": ["checkpoints", "diffusion_models", "unet", "diffusers", "vae", "text_encoders", "loras", "clip_vision", "controlnet", "embeddings"],
     },
     "tts": {
         "label": "Text to speech",

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.0.24 (00.00.24) - 2026-08-20
+
+- Added native `story_comfy` `model-inventory` and `model-search` actions backed by Story-Film's deterministic live ComfyUI model registry scan.
+- Model discovery now enumerates every folder returned by ComfyUI `/models`, including `unet`, `diffusion_models`, `checkpoints`, `diffusers`, and model choices exposed by installed loader nodes.
+- Added `unet` and `diffusers` as first-class image, image-edit, and video resource locations instead of treating `checkpoints` as the only local model-weight folder.
+- Fixed multi-word `search-tools` queries so weak models can find relevant official comfy-mcp tools instead of requiring one exact literal description match.
+- Strengthened Pi runtime steering so an agent must run the complete live model inventory before claiming that a local image or video model is missing.
+- Improved managed-runtime process errors so cancellation or signal termination is reported explicitly instead of `managed runtime exited null`.
+- Added regression coverage for Qwen weights in `unet`, MiniMax/LTX-style weights in `diffusion_models`, node-exposed model choices, and multi-word tool discovery.
+
 ## v0.0.23 (00.00.23) - 2026-08-20
 
 - Added a Pi-native `story_comfy` tool so Story-Film controls the user's existing ComfyUI without requiring a separately configured generic MCP extension.

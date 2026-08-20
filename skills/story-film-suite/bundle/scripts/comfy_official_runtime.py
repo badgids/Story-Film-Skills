@@ -32,6 +32,12 @@ import venv
 from pathlib import Path
 from typing import Any
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+import model_inventory
+
 OFFICIAL_PACKAGES = ("comfy-cli>=1.14.0", "comfy-mcp", "comfy-api-proxy")
 DEFAULT_COMFYUI_URL = "http://127.0.0.1:8188"
 DEFAULT_V2_URL = "http://127.0.0.1:8189"
@@ -311,6 +317,20 @@ def _tool_records(obj: dict[str, Any]) -> list[dict[str, Any]]:
     return []
 
 
+def _tool_search_terms(query: str) -> set[str]:
+    terms = {token for token in re.findall(r"[a-z0-9]+", query.casefold()) if token not in {"a", "an", "and", "or", "the", "to", "for", "of", "with", "in", "on"}}
+    if terms & {"checkpoint", "ckpt", "unet", "diffusion", "lora", "vae", "sdxl", "flux", "qwen", "minimax", "ltx"}:
+        terms.add("model")
+    if terms & {"graph", "workflow", "template"}:
+        terms.update({"workflow", "template"})
+    return terms
+
+
+def _tool_match_score(tool: dict[str, Any], terms: set[str]) -> int:
+    haystack = (str(tool.get("name", "")) + " " + str(tool.get("description", ""))).casefold()
+    return sum(1 for term in terms if term in haystack)
+
+
 def _http_json(url: str, *, method: str = "GET", body: Any = None, timeout: float = 15.0) -> Any:
     data = None
     headers = {"Accept": "application/json"}
@@ -431,18 +451,47 @@ def dispatch_request(req: dict[str, Any], *, project: str | Path | None = None) 
         return {"ok": True, "action": action, "runtime": state}
     if action == "server-info":
         return _run_mcp({"action": "call", "tool": "server_info", "arguments": {}}, comfyui_url, 120.0)
+    if action in {"model-inventory", "model-search"}:
+        root = _find_project(project)
+        if root is None:
+            raise RuntimeErrorDetail("model inventory requires a Story-Film project with 00_project state")
+        inventory = model_inventory.scan(root, comfyui_url)
+        if action == "model-inventory":
+            return {
+                "ok": True,
+                "action": action,
+                "comfyui_url": comfyui_url,
+                "inventory": str(model_inventory.json_path(root)),
+                "markdown": str(model_inventory.markdown_path(root)),
+                "summary": model_inventory.inventory_summary(inventory),
+            }
+        try:
+            limit = int(req.get("limit") or 100)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeErrorDetail("model-search limit must be an integer") from exc
+        return {
+            "ok": True,
+            "action": action,
+            "comfyui_url": comfyui_url,
+            "inventory": str(model_inventory.json_path(root)),
+            **model_inventory.search_inventory(
+                inventory,
+                str(req.get("query") or "").strip(),
+                str(req.get("folder") or "").strip() or None,
+                limit,
+            ),
+        }
     if action == "list-tools":
         return _run_mcp({"action": "list-tools"}, comfyui_url, 120.0)
     if action == "search-tools":
         result = _run_mcp({"action": "list-tools"}, comfyui_url, 120.0)
         query = str(req.get("query") or "").strip().lower()
         tools = _tool_records(result)
-        if query:
-            tools = [
-                tool for tool in tools
-                if query in (str(tool.get("name", "")) + " " + str(tool.get("description", ""))).lower()
-            ]
-        return {"ok": True, "action": action, "query": query, "tools": tools, "count": len(tools)}
+        terms = _tool_search_terms(query)
+        if terms:
+            scored = [(tool, _tool_match_score(tool, terms)) for tool in tools]
+            tools = [tool for tool, score in sorted(scored, key=lambda item: (-item[1], str(item[0].get("name", "")).casefold())) if score > 0]
+        return {"ok": True, "action": action, "query": query, "terms": sorted(terms), "tools": tools, "count": len(tools)}
     if action == "call":
         tool = str(req.get("tool") or "").strip()
         args = req.get("arguments") or {}

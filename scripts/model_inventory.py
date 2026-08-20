@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -15,9 +16,12 @@ from model_preferences import PROCESS_SPECS, load as load_preferences
 
 SCHEMA_VERSION = 1
 MODEL_INPUT_TOKENS = ("model", "ckpt", "checkpoint", "vae", "clip", "encoder", "lora", "upscale", "control", "unet", "diffusion", "audio", "tts", "voice", "interpolation")
+PRIMARY_WEIGHT_FOLDERS = ("checkpoints", "diffusion_models", "unet", "diffusers")
 FOLDER_PREFIXES = {
     "checkpoints": "C",
     "diffusion_models": "D",
+    "unet": "UN",
+    "diffusers": "DF",
     "vae": "V",
     "text_encoders": "T",
     "loras": "L",
@@ -140,6 +144,87 @@ def folder_models(obj: dict[str, Any], folder: str) -> list[str]:
     if isinstance(row, dict) and isinstance(row.get("models"), list):
         return [str(x) for x in row["models"]]
     return []
+
+
+def inventory_summary(obj: dict[str, Any]) -> dict[str, Any]:
+    folders = obj.get("folders") if isinstance(obj.get("folders"), dict) else {}
+    nonempty = [
+        folder for folder in sorted(folders, key=str.casefold)
+        if folder_models(obj, folder)
+    ]
+    primary = {
+        folder: folder_models(obj, folder)
+        for folder in PRIMARY_WEIGHT_FOLDERS
+        if folder_models(obj, folder)
+    }
+    node_choices = obj.get("node_choices") if isinstance(obj.get("node_choices"), list) else []
+    model_choice_rows = []
+    for row in node_choices:
+        if not isinstance(row, dict):
+            continue
+        key_text = f"{row.get('node_class', '')} {row.get('input', '')}".lower()
+        if any(token in key_text for token in ("model", "ckpt", "checkpoint", "unet", "diffusion")):
+            model_choice_rows.append(row)
+    return {
+        "folder_count": len(folders),
+        "resource_count": int(obj.get("resource_count", 0) or 0),
+        "nonempty_folders": nonempty,
+        "primary_weight_folders": list(PRIMARY_WEIGHT_FOLDERS),
+        "primary_weight_models": primary,
+        "model_choice_rows": model_choice_rows,
+        "warnings": obj.get("warnings", []) if isinstance(obj.get("warnings"), list) else [],
+    }
+
+
+def _query_terms(value: str) -> list[str]:
+    return re.findall(r"[a-z0-9]+", value.casefold())
+
+
+def search_inventory(
+    obj: dict[str, Any],
+    query: str = "",
+    folder: str | None = None,
+    limit: int = 100,
+) -> dict[str, Any]:
+    limit = max(1, min(int(limit), 500))
+    terms = _query_terms(query)
+    wanted_folder = folder.casefold() if isinstance(folder, str) and folder.strip() else None
+    matches: list[dict[str, Any]] = []
+    folders = obj.get("folders") if isinstance(obj.get("folders"), dict) else {}
+    for folder_name in sorted(folders, key=str.casefold):
+        if wanted_folder and folder_name.casefold() != wanted_folder:
+            continue
+        for name in folder_models(obj, folder_name):
+            haystack = f"{folder_name} {name}".casefold()
+            if terms and not all(term in haystack for term in terms):
+                continue
+            matches.append({"source": "registry-folder", "folder": folder_name, "name": name})
+    if not wanted_folder:
+        rows = obj.get("node_choices") if isinstance(obj.get("node_choices"), list) else []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            choices = row.get("choices") if isinstance(row.get("choices"), list) else []
+            for name in choices:
+                haystack = f"{row.get('node_class', '')} {row.get('input', '')} {name}".casefold()
+                if terms and not all(term in haystack for term in terms):
+                    continue
+                matches.append({
+                    "source": "node-choice",
+                    "key": row.get("key"),
+                    "node_class": row.get("node_class"),
+                    "input": row.get("input"),
+                    "name": str(name),
+                })
+    matches.sort(key=lambda row: (str(row.get("name", "")).casefold(), str(row.get("folder", "")).casefold(), str(row.get("key", "")).casefold()))
+    total = len(matches)
+    return {
+        "query": query,
+        "folder": folder or "",
+        "total": total,
+        "shown": min(total, limit),
+        "matches": matches[:limit],
+    }
 
 
 def render_inventory(obj: dict[str, Any]) -> str:
