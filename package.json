@@ -1,6 +1,6 @@
 {
   "name": "story-film-skills",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "private": true,
   "description": "Local-first Agent Skills for story, book, screenplay, image, audio, video, film, postproduction, and release workflows.",
   "license": "Apache-2.0",
@@ -11,6 +11,9 @@
     "test": "python3 scripts/regression_suite.py",
     "docs:check": "python3 scripts/check_docs.py",
     "examples:check": "python3 scripts/validate_examples.py"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-tui": "*"
   },
   "keywords": [
     "pi-package",

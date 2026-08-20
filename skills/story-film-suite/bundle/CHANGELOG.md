@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.0.21 (00.00.21) - 2026-08-20
+
+- Fixed Story-Film Todo keyboard handling with a raw terminal-input fallback that uses Pi's own key parser when normal extension shortcut dispatch is unavailable or unreliable.
+- Kept the normal `pi.registerShortcut` path and made the raw fallback consume handled Story-Film keys so the same action cannot fire twice.
+- Restored the complete Todo control legend in both compact and expanded views: toggle, fallback toggle, row scroll, page scroll, focus-current, and help.
+- Split the control legend across short lines so terminal-width truncation cannot silently hide the navigation controls.
+- Strengthened regression coverage so the Pi extension contract requires the terminal fallback and all visible navigation controls.
+
 ## v0.0.20 (00.00.20) - 2026-08-20
 
 - Added portable ImageMagick 6 and ImageMagick 7 command resolution to the media toolkit.

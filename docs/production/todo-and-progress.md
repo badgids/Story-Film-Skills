@@ -49,7 +49,7 @@ The human handoff is:
 
 The Story-Film Todo starts in compact mode. Compact mode shows three pipeline rows. It follows the current row automatically. You can still scroll it.
 
-Expanded mode shows ten pipeline rows. It also shows the full control hint and the detailed next-action line.
+Expanded mode shows ten pipeline rows. Both compact and expanded modes show the full keyboard control legend; expanded mode also shows the detailed next-action line.
 
 Toggle the Story-Film panel with:
 
@@ -68,6 +68,8 @@ Ctrl+Alt+Shift+T
 
 `Ctrl+Alt+T` is the primary toggle. `Ctrl+Alt+Shift+T` is a fallback for terminals,
 window managers, or Pi variants that intercept the primary chord.
+
+The extension also listens to Pi's raw terminal-input hook and routes the same chords through Pi's own key parser. This is a deterministic fallback when normal extension shortcut dispatch is unavailable or unreliable; it does not require the user to run a shell command.
 
 ## Keep the two Todo panels small
 
@@ -120,7 +122,7 @@ Ctrl+Alt+T                Toggle compact or expanded view
 Ctrl+Alt+Shift+T          Fallback compact/expanded toggle
 Ctrl+Alt+Up/Down          Scroll one row
 Ctrl+Alt+PageUp/PageDown  Scroll one page
-Ctrl+Alt+Home             Follow the current Story-Film item
+Ctrl+Alt+Home             Focus/follow the current Story-Film item
 ```
 
 ## Command-line controls

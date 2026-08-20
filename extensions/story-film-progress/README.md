@@ -17,6 +17,8 @@ Controls:
 - `Ctrl+Alt+PageUp/PageDown` pages
 - `Ctrl+Alt+Home` follows the current item
 
+The extension keeps the complete keyboard control set visible in both compact and expanded Todo views. It also listens to Pi's raw terminal-input hook and uses Pi's own key parser as a fallback when normal extension shortcut dispatch does not receive the chord.
+
 The extension refreshes after tool results and before agent turns, so checkpoints written by `scripts/pipeline_progress.py` appear without maintaining a second state store.
 
-The compact panel always shows a short key hint so the controls stay visible to the end user.
+The control hints are split across short lines so scroll, page, and focus-current controls are not lost to terminal-width truncation.

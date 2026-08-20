@@ -1,5 +1,6 @@
 // Copyright 2026 Alan Guice (Badgids)
 // SPDX-License-Identifier: Apache-2.0
+import { matchesKey } from "@earendil-works/pi-tui";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
@@ -18,6 +19,7 @@ type Ui = {
   setWidget?: (key: string, content: string[] | ((tui: any, theme: any) => any) | undefined, options?: { placement?: "aboveEditor" | "belowEditor" }) => void;
   setStatus?: (key: string, text: string | undefined) => void;
   notify?: (message: string, type?: "info" | "warning" | "error") => void;
+  onTerminalInput?: (handler: (data: string) => { consume?: boolean; data?: string } | undefined) => () => void;
   theme?: { fg?: (role: string, text: string) => string };
 };
 
@@ -34,6 +36,24 @@ const SHORTCUTS = {
   follow: "ctrl+alt+home",
 } as const;
 const ANSI = /\x1b\[[0-?]*[ -/]*[@-~]/g;
+type ViewportAction = "up" | "down" | "page-up" | "page-down" | "current" | "follow" | "toggle" | "expand" | "collapse" | "compact";
+
+function terminalShortcutAction(data: string): ViewportAction | undefined {
+  if (matchesKey(data, SHORTCUTS.toggle) || matchesKey(data, SHORTCUTS.toggleFallback)) return "toggle";
+  if (matchesKey(data, SHORTCUTS.up)) return "up";
+  if (matchesKey(data, SHORTCUTS.down)) return "down";
+  if (matchesKey(data, SHORTCUTS.pageUp)) return "page-up";
+  if (matchesKey(data, SHORTCUTS.pageDown)) return "page-down";
+  if (matchesKey(data, SHORTCUTS.follow)) return "current";
+  return undefined;
+}
+
+const CONTROL_HINTS = [
+  "Toggle: Ctrl+Alt+T | fallback: Ctrl+Alt+Shift+T",
+  "Scroll: Ctrl+Alt+Up/Down",
+  "Page: Ctrl+Alt+PageUp/PageDown",
+  "Focus current: Ctrl+Alt+Home | Help: /story-todo help",
+] as const;
 
 function projectRoot(cwd: string): string | undefined {
   let here = resolve(cwd);
@@ -271,14 +291,11 @@ class Viewport {
     const mode = this.expanded ? "expanded" : "compact";
     const title = `Story-Film Todo - ${this.value.label || this.value.pipeline_id || "Active pipeline"} [${this.offset + 1}-${end}/${this.lines.length}] ${this.manual ? "manual" : "following"} ${mode}`;
     const out = [title, ...this.lines.slice(this.offset, end)];
+    out.push(...CONTROL_HINTS);
     if (this.expanded) {
-      out.push("Keys: Ctrl+Alt+T compact | fallback Ctrl+Alt+Shift+T | Ctrl+Alt+Up/Down scroll | Ctrl+Alt+Home follow");
       if (this.value.status !== "complete" && this.value.next_action) out.push(`NEXT -> ${this.value.next_action}`);
       if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
-    } else {
-      out.push("Keys: Ctrl+Alt+T expand | fallback Ctrl+Alt+Shift+T | /story-todo help");
-      if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
-    }
+    } else if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
     if (this.resource && this.resource.phase && this.resource.phase !== "idle") {
       const jobs = this.resource.job_total ? ` | jobs ${this.resource.job_index ?? 0}/${this.resource.job_total}` : "";
       const currentJob = this.resource.current_job_id ? ` | ${this.resource.current_job_id}` : "";
@@ -291,6 +308,18 @@ class Viewport {
 }
 
 const viewport = new Viewport();
+
+function applyViewportAction(action: string): boolean {
+  return action === "up" ? viewport.scroll(-1)
+    : action === "down" ? viewport.scroll(1)
+    : action === "page-up" ? viewport.page(-1)
+    : action === "page-down" ? viewport.page(1)
+    : action === "current" || action === "follow" ? viewport.follow()
+    : action === "toggle" ? viewport.toggle()
+    : action === "expand" ? viewport.setExpanded(true)
+    : action === "collapse" || action === "compact" ? viewport.setExpanded(false)
+    : false;
+}
 
 function render(ctx: any): void {
   const ui = ctx.ui as Ui;
@@ -320,9 +349,22 @@ export default function storyFilmProgress(pi: any): void {
   let lastCtx: any | undefined;
   let timer: ReturnType<typeof setInterval> | undefined;
   let lastResourcePhase = "";
+  let unsubscribeTerminalInput: (() => void) | undefined;
   const refresh = async (_event: any, ctx: any) => { lastCtx = ctx; render(ctx); };
   pi.on?.("session_start", async (event: any, ctx: any) => {
     await refresh(event, ctx);
+    unsubscribeTerminalInput?.();
+    unsubscribeTerminalInput = undefined;
+    const ui = ctx.ui as Ui;
+    if (ctx.mode === "tui" && typeof ui.onTerminalInput === "function") {
+      unsubscribeTerminalInput = ui.onTerminalInput((data: string) => {
+        const action = terminalShortcutAction(data);
+        if (!action || !viewport.state().active) return undefined;
+        applyViewportAction(action);
+        render(ctx);
+        return { consume: true };
+      });
+    }
     if (timer) clearInterval(timer);
     timer = setInterval(() => {
       if (!lastCtx) return;
@@ -359,6 +401,8 @@ export default function storyFilmProgress(pi: any): void {
   });
   pi.on?.("session_shutdown", async (_event: any, ctx: any) => {
     if (timer) { clearInterval(timer); timer = undefined; }
+    unsubscribeTerminalInput?.();
+    unsubscribeTerminalInput = undefined;
     lastCtx = undefined;
     const ui = ctx.ui as Ui; viewport.update(undefined, undefined); ui.setWidget?.(KEY, undefined, { placement: "aboveEditor" }); ui.setStatus?.("story-film-stage", undefined); ui.setStatus?.("story-film-next", undefined); ui.setStatus?.("story-film-resource", undefined);
   });
@@ -368,15 +412,7 @@ export default function storyFilmProgress(pi: any): void {
     handler: async (args: string, ctx: any) => {
       render(ctx);
       const action = (args || "status").trim().toLowerCase() || "status";
-      const changed = action === "up" ? viewport.scroll(-1)
-        : action === "down" ? viewport.scroll(1)
-        : action === "page-up" ? viewport.page(-1)
-        : action === "page-down" ? viewport.page(1)
-        : action === "current" || action === "follow" ? viewport.follow()
-        : action === "toggle" ? viewport.toggle()
-        : action === "expand" ? viewport.setExpanded(true)
-        : action === "collapse" || action === "compact" ? viewport.setExpanded(false)
-        : false;
+      const changed = applyViewportAction(action);
       const state = viewport.state();
       if (!state.active) { ctx.ui.notify?.("No active Story-Film pipeline todo is available.", "info"); return; }
       const known = ["up", "down", "page-up", "page-down", "current", "follow", "toggle", "expand", "collapse", "compact", "help", "keys"];
@@ -413,13 +449,13 @@ export default function storyFilmProgress(pi: any): void {
   });
 
   if (typeof pi.registerShortcut === "function") {
-    const runShortcut = (action: () => void) => async (ctx: any) => { action(); render(ctx); };
-    pi.registerShortcut(SHORTCUTS.up, { description: "Scroll Story-Film todo up", handler: runShortcut(() => { viewport.scroll(-1); }) });
-    pi.registerShortcut(SHORTCUTS.down, { description: "Scroll Story-Film todo down", handler: runShortcut(() => { viewport.scroll(1); }) });
-    pi.registerShortcut(SHORTCUTS.pageUp, { description: "Page Story-Film todo up", handler: runShortcut(() => { viewport.page(-1); }) });
-    pi.registerShortcut(SHORTCUTS.pageDown, { description: "Page Story-Film todo down", handler: runShortcut(() => { viewport.page(1); }) });
-    pi.registerShortcut(SHORTCUTS.follow, { description: "Follow current Story-Film todo", handler: runShortcut(() => { viewport.follow(); }) });
-    pi.registerShortcut(SHORTCUTS.toggle, { description: "Toggle compact Story-Film todo", handler: runShortcut(() => { viewport.toggle(); }) });
-    pi.registerShortcut(SHORTCUTS.toggleFallback, { description: "Toggle compact Story-Film todo (fallback)", handler: runShortcut(() => { viewport.toggle(); }) });
+    const runShortcut = (action: ViewportAction) => async (ctx: any) => { applyViewportAction(action); render(ctx); };
+    pi.registerShortcut(SHORTCUTS.up, { description: "Scroll Story-Film todo up", handler: runShortcut("up") });
+    pi.registerShortcut(SHORTCUTS.down, { description: "Scroll Story-Film todo down", handler: runShortcut("down") });
+    pi.registerShortcut(SHORTCUTS.pageUp, { description: "Page Story-Film todo up", handler: runShortcut("page-up") });
+    pi.registerShortcut(SHORTCUTS.pageDown, { description: "Page Story-Film todo down", handler: runShortcut("page-down") });
+    pi.registerShortcut(SHORTCUTS.follow, { description: "Focus current Story-Film todo", handler: runShortcut("current") });
+    pi.registerShortcut(SHORTCUTS.toggle, { description: "Toggle compact Story-Film todo", handler: runShortcut("toggle") });
+    pi.registerShortcut(SHORTCUTS.toggleFallback, { description: "Toggle compact Story-Film todo (fallback)", handler: runShortcut("toggle") });
   }
 }

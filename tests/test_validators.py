@@ -194,11 +194,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.20')
-        self.assertEqual(version_display.display_version(version), 'v0.0.20')
+        self.assertEqual(version, '00.00.21')
+        self.assertEqual(version_display.display_version(version), 'v0.0.21')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.21'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.22'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -317,6 +317,7 @@ class Tests(unittest.TestCase):
     def test_pi_native_package_manifest_and_project_local_docs(self):
         package = json.loads((ROOT / 'package.json').read_text(encoding='utf-8'))
         self.assertIn('pi-package', package.get('keywords', []))
+        self.assertEqual(package.get('peerDependencies', {}).get('@earendil-works/pi-tui'), '*')
         manifest = package.get('pi', {})
         self.assertIn('./extensions/story-film-progress/index.ts', manifest.get('extensions', []))
         skills = manifest.get('skills', [])
@@ -332,8 +333,10 @@ class Tests(unittest.TestCase):
 
     def test_pi_progress_extension_contract(self):
         src = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
-        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+home', 'ctrl+alt+t', 'ctrl+alt+shift+t', 'Keys: Ctrl+Alt+T expand', '/story-todo help', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items', 'comfyModelFilesystemScanBlockReason', 'extra_model_paths.yaml', 'model_inventory.py scan', 'rawRegistryEndpoint', 'write_file']:
+        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+home', 'ctrl+alt+t', 'ctrl+alt+shift+t', '/story-todo help', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items', 'comfyModelFilesystemScanBlockReason', 'extra_model_paths.yaml', 'model_inventory.py scan', 'rawRegistryEndpoint', 'write_file', '@earendil-works/pi-tui', 'matchesKey', 'onTerminalInput', 'terminalShortcutAction', 'consume: true']:
             self.assertIn(token, src)
+        for control in ['Toggle: Ctrl+Alt+T', 'fallback: Ctrl+Alt+Shift+T', 'Scroll: Ctrl+Alt+Up/Down', 'Page: Ctrl+Alt+PageUp/PageDown', 'Focus current: Ctrl+Alt+Home']:
+            self.assertIn(control, src)
         install = (ROOT / 'install.sh').read_text(encoding='utf-8')
         self.assertIn('PI_EXTENSIONS_DIR', install)
         self.assertIn('story-film-progress.ts', install)
@@ -344,7 +347,7 @@ class Tests(unittest.TestCase):
         router = (ROOT / 'skills/story-film/SKILL.md').read_text(encoding='utf-8')
         for token in ['three visible pipeline rows', '/story-todo toggle', 'Do not work ahead', 'at most three Story-Film items']:
             self.assertIn(token, pipeline_skill)
-        for token in ['Compact mode shows three pipeline rows', 'Why a Todo can look stale', 'at most three Story-Film items', 'Ctrl+Alt+T', 'Ctrl+Alt+Shift+T', '/story-todo help']:
+        for token in ['Compact mode shows three pipeline rows', 'Both compact and expanded modes show the full keyboard control legend', 'Why a Todo can look stale', 'at most three Story-Film items', 'Ctrl+Alt+T', 'Ctrl+Alt+Shift+T', 'Ctrl+Alt+PageUp/PageDown', 'Ctrl+Alt+Home', '/story-todo help']:
             self.assertIn(token, docs)
         self.assertIn('Do not start a later specialist or write a later artifact', router)
 
