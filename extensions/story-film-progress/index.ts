@@ -137,7 +137,7 @@ function pipelineGuardPrompt(value: Progress | undefined): string | undefined {
   if (!value?.stages?.length || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
   const flat = flatten(value);
   const currentLine = flat.lines[flat.current] || value.next_action || "current Story-Film target";
-  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n`;
+  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n- For ComfyUI model discovery, use Story-Film's scripts/model_inventory.py scan against the live server. ComfyUI's /models registry includes server-registered external model directories such as extra_model_paths.yaml. Do not use filesystem-wide find/grep scans to decide that models are missing. Do not infer model absence from an ad hoc /object_info parser.\n`;
 }
 
 function futureSkillBlockReason(value: Progress | undefined, requested: string | undefined): string | undefined {
@@ -169,6 +169,22 @@ function genericTodoBlockReason(value: Progress | undefined, event: any): string
   }
   if (count <= 3) return undefined;
   return `Story-Film already has a detailed authoritative pipeline Todo. Keep Pi's generic Todo to at most three Story-Film mirror items: current target, immediate next target, and requested endpoint. The attempted generic Todo contains ${count} items.`;
+}
+
+function comfyModelFilesystemScanBlockReason(value: Progress | undefined, event: any): string | undefined {
+  if (!value || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  if (!new Set(["bash", "shell", "terminal"]).has(tool)) return undefined;
+  const input = event?.input ?? {};
+  const command = String(input.command ?? input.cmd ?? input.script ?? "");
+  const lower = command.toLowerCase();
+  const looksLikeWideFind = /(?:^|[;&|\n]\s*)find\s+\/(?:\s|$)/i.test(command);
+  const modelTokens = [".safetensors", ".ckpt", "models/checkpoints", "models/diffusion", "models/vae", "models/loras", "checkpointloader", "vaeloader"];
+  const modelRelated = modelTokens.some(token => lower.includes(token));
+  const approvedInventoryTool = lower.includes("model_inventory.py") || lower.includes("comfyui_control.py");
+  const adHocObjectInfoInventory = lower.includes("/object_info") && modelRelated && !approvedInventoryTool;
+  if ((!looksLikeWideFind || !modelRelated) && !adHocObjectInfoInventory) return undefined;
+  return "Do not improvise ComfyUI model discovery. Run Story-Film's scripts/model_inventory.py scan against the live ComfyUI server. The /models registry includes paths registered by extra_model_paths.yaml and other ComfyUI startup configuration. Use /object_info only for node schemas and secondary dropdown choices.";
 }
 
 function safeWidth(text: string, width: number): string {
@@ -288,7 +304,9 @@ export default function storyFilmProgress(pi: any): void {
   });
   pi.on?.("tool_call", async (event: any, ctx: any) => {
     const value = load(ctx.cwd);
-    const reason = futureSkillBlockReason(value, requestedSkillName(event)) ?? genericTodoBlockReason(value, event);
+    const reason = futureSkillBlockReason(value, requestedSkillName(event))
+      ?? genericTodoBlockReason(value, event)
+      ?? comfyModelFilesystemScanBlockReason(value, event);
     if (!reason) return undefined;
     ctx.ui.notify?.(reason, "warning");
     return { block: true, reason };

@@ -330,7 +330,7 @@ class Tests(unittest.TestCase):
 
     def test_pi_progress_extension_contract(self):
         src = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
-        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+shift+home', 'ctrl+alt+shift+t', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items']:
+        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+shift+home', 'ctrl+alt+shift+t', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items', 'comfyModelFilesystemScanBlockReason', 'extra_model_paths.yaml', 'model_inventory.py scan']:
             self.assertIn(token, src)
         install = (ROOT / 'install.sh').read_text(encoding='utf-8')
         self.assertIn('PI_EXTENSIONS_DIR', install)
@@ -1525,6 +1525,30 @@ class Tests(unittest.TestCase):
             migrated = model_preferences.normalize(legacy)
             self.assertEqual(migrated['schema_version'], 2)
             self.assertEqual(migrated['processes']['video_generation']['selected_adapter'], 'ltx-2-5')
+
+    def test_comfyui_external_model_paths_use_server_registry_not_filesystem_scan(self):
+        with tempfile.TemporaryDirectory() as td, FakeComfyServer() as srv:
+            project = Path(td) / 'film'
+            subprocess.run([sys.executable, str(ROOT / 'scripts/init_story_project.py'), str(project)], check=True, stdout=subprocess.DEVNULL)
+            inventory = model_inventory.scan(project, srv.url)
+            self.assertEqual(inventory['discovery_method'], 'comfyui-model-registry')
+            self.assertEqual(inventory['registry_endpoints'], ['/models', '/models/{folder}'])
+            self.assertFalse(inventory['filesystem_scan_used'])
+            self.assertTrue(inventory['external_model_paths_supported'])
+            self.assertGreater(inventory['resource_count'], 0)
+            self.assertEqual(model_inventory.registry_warnings({'checkpoints': {'models': []}})[0].split('.')[0], 'ComfyUI returned model folder categories but no model filenames')
+            md = (project / '00_project/comfyui_model_inventory.md').read_text(encoding='utf-8')
+            self.assertIn('extra_model_paths.yaml', md)
+            self.assertIn('does not scan the local filesystem', md)
+
+        setup_skill = (ROOT / 'skills/generation-model-setup/SKILL.md').read_text(encoding='utf-8')
+        discover_skill = (ROOT / 'skills/comfyui-discover/SKILL.md').read_text(encoding='utf-8')
+        extension = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
+        for token in ['extra_model_paths.yaml', '/models', 'Do not run `find /`']:
+            self.assertIn(token, setup_skill)
+        self.assertIn('input.required', discover_skill)
+        self.assertIn('comfyModelFilesystemScanBlockReason', extension)
+        self.assertIn('model_inventory.py scan', extension)
 
     def test_screenplay_consistency_uses_canon_not_hardcoded_names(self):
         with tempfile.TemporaryDirectory() as td:

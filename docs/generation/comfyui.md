@@ -34,7 +34,7 @@ Do these actions before you spend GPU time:
 
 1. Freeze the creative decisions that affect the job.
 2. Give the item a stable ID such as `SHOT-###`, `VOICE-###`, `MUS-###`, or `SFX-###`.
-3. Scan the active ComfyUI model inventory and record the user-selected model stack.
+3. Scan the active ComfyUI model inventory and record the user-selected model stack. Use the ComfyUI server registry, which includes external model directories configured through `extra_model_paths.yaml`. Do not search the filesystem for model files.
 4. Select a compatible ComfyUI workflow.
 5. Confirm that required model files and custom nodes exist.
 6. Confirm that reference images and other inputs exist.

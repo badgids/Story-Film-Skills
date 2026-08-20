@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.17 (00.00.17) - 2026-08-20
+
+- Fixed ComfyUI model discovery for installations that use `extra_model_paths.yaml` or other server-registered external model directories. Story-Film now treats ComfyUI's `/models` and `/models/{folder}` registry as authoritative instead of assuming models live under the ComfyUI application directory.
+- Hardened generation setup so agents must use `scripts/model_inventory.py scan` for model discovery. Ad hoc `/object_info` parsers and filesystem-wide `find` scans are forbidden for deciding which ComfyUI models are installed.
+- Documented the current ComfyUI node schema correctly: node input definitions are under `input.required` and `input.optional`; `/object_info` is for node schemas and is only a secondary source for model-like dropdown choices.
+- Added a deterministic Pi runtime guard that blocks filesystem-wide model scans during an active Story-Film pipeline and redirects the agent to the ComfyUI model inventory.
+- Added explicit handling for empty model inventory results. An empty or inconsistent registry is a blocker to diagnose, not proof that the user owns no models, not permission to download models, and not permission to create mock generated media.
+- Added regression definitions and deterministic coverage for external ComfyUI model directories and the no-filesystem-scan rule.
+
 ## v0.0.16 (00.00.16) - 2026-08-20
 
 - Added a project-generic Fountain screenplay consistency verifier. It derives dialogue speaker identities from `00_project/canon.json` and never hardcodes story-specific character names.

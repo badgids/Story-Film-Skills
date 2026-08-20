@@ -44,6 +44,27 @@ def markdown_path(root: Path) -> Path:
     return root / "00_project/comfyui_model_inventory.md"
 
 
+def inventory_resource_count(folders: dict[str, Any]) -> int:
+    total = 0
+    for row in folders.values():
+        if isinstance(row, dict) and isinstance(row.get("models"), list):
+            total += len(row["models"])
+    return total
+
+
+def registry_warnings(folders: dict[str, Any]) -> list[str]:
+    warnings: list[str] = []
+    if not folders:
+        warnings.append("ComfyUI returned no model folder categories from /models.")
+    elif inventory_resource_count(folders) == 0:
+        warnings.append(
+            "ComfyUI returned model folder categories but no model filenames. "
+            "Treat this as a live registry/discovery blocker. Do not infer that the user has no models, "
+            "do not scan the filesystem, and do not create mock media."
+        )
+    return warnings
+
+
 def extract_node_choices(info: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for node_class, schema in sorted(info.items(), key=lambda item: str(item[0]).casefold()):
@@ -88,8 +109,14 @@ def scan(root: Path, url: str, timeout: float = 20.0) -> dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "server": client.base_url,
         "captured_at": now_iso(),
+        "discovery_method": "comfyui-model-registry",
+        "registry_endpoints": ["/models", "/models/{folder}"],
+        "filesystem_scan_used": False,
+        "external_model_paths_supported": True,
         "folders": folders,
+        "resource_count": inventory_resource_count(folders),
         "node_choices": node_choices,
+        "warnings": registry_warnings(folders),
     }
     json_path(root).parent.mkdir(parents=True, exist_ok=True)
     json_path(root).write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -125,7 +152,13 @@ def render_inventory(obj: dict[str, Any]) -> str:
         "",
         "This file contains model names returned by the running ComfyUI server. Story-Film Skills does not choose these files for you.",
         "",
+        "The ComfyUI model registry is authoritative. It includes model directories that ComfyUI registered from `extra_model_paths.yaml` and other supported startup configuration. Story-Film does not scan the local filesystem to rediscover those paths.",
+        "",
+        f"Total server-reported model resources: `{obj.get('resource_count', 0)}`",
+        "",
     ]
+    for warning in obj.get("warnings", []) if isinstance(obj.get("warnings"), list) else []:
+        lines.extend([f"> WARNING: {warning}", ""])
     folders = obj.get("folders") if isinstance(obj.get("folders"), dict) else {}
     for folder in sorted(folders, key=str.casefold):
         row = folders[folder]
@@ -230,7 +263,13 @@ def main() -> int:
     root = Path(args.project_dir).expanduser().resolve()
     if args.command == "scan":
         obj = scan(root, resolve_url(args.url), args.timeout)
-        print(json.dumps({"inventory": str(json_path(root)), "markdown": str(markdown_path(root)), "folder_count": len(obj["folders"])}, indent=2))
+        print(json.dumps({
+            "inventory": str(json_path(root)),
+            "markdown": str(markdown_path(root)),
+            "folder_count": len(obj["folders"]),
+            "resource_count": obj.get("resource_count", 0),
+            "warnings": obj.get("warnings", []),
+        }, indent=2))
         return 0
     obj = load(root)
     if args.command == "show":

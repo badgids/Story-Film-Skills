@@ -62,6 +62,10 @@ python scripts/model_inventory.py scan . --url http://127.0.0.1:8188
 
 When Story-Film Skills is installed as a Pi Git package, Pi can run the copy of this script inside the installed package.
 
+This server inventory also covers model directories registered outside the ComfyUI application directory, including directories configured through `extra_model_paths.yaml`. You do not need to move or duplicate those models into `ComfyUI/models`. Story-Film asks the running server what it can load.
+
+Do not use a filesystem-wide model search as a fallback. If the server unexpectedly reports no models, stop and diagnose the live ComfyUI registry instead of creating mock media or downloading substitute models.
+
 The scan writes:
 
 ```text
