@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.0.16 (00.00.16) - 2026-08-20
+
+- Added a project-generic Fountain screenplay consistency verifier. It derives dialogue speaker identities from `00_project/canon.json` and never hardcodes story-specific character names.
+- Integrated screenplay consistency into the main project validator, screenplay-writing skill, and screenplay-revision skill.
+- Added exact checks for dialogue count, dialogue order, dialogue text, and `CHAR-###` speaker identity between `screenplay.fountain` and `line_manifest.jsonl`.
+- Added typo diagnostics with canonical-name suggestions so a misspelled cue such as `EILIAS` is reported directly instead of causing repeated ad hoc debugging.
+- Added regression coverage proving the verifier accepts arbitrary character names and immediately catches the `ELIAS` versus `EILIAS` failure class.
+
 ## v0.0.15 (00.00.15) - 2026-08-19
 
 - Made the Story-Film Pi Todo compact by default with three visible pipeline rows while preserving a ten-row expanded view.

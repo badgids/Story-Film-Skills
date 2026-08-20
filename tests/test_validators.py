@@ -55,6 +55,7 @@ import batch_recovery
 import editorial_reconcile
 import completeness_audit
 import validate_skills
+import screenplay_consistency
 
 
 class FakeComfyHandler(BaseHTTPRequestHandler):
@@ -1524,6 +1525,40 @@ class Tests(unittest.TestCase):
             migrated = model_preferences.normalize(legacy)
             self.assertEqual(migrated['schema_version'], 2)
             self.assertEqual(migrated['processes']['video_generation']['selected_adapter'], 'ltx-2-5')
+
+    def test_screenplay_consistency_uses_canon_not_hardcoded_names(self):
+        with tempfile.TemporaryDirectory() as td:
+            project = Path(td) / 'film'
+            subprocess.run([sys.executable, str(ROOT / 'scripts/init_story_project.py'), str(project)], check=True, stdout=subprocess.DEVNULL)
+            canon = json.loads((project / '00_project/canon.json').read_text())
+            canon['characters'] = {
+                'CHAR-001': {'name': 'Elias Ruhn'},
+                'CHAR-002': {'name': 'Mara Voss'},
+                'CHAR-003': {'name': 'Zhara Nix', 'screenplay_names': ['ZHARA']},
+            }
+            (project / '00_project/canon.json').write_text(json.dumps(canon, indent=2) + '\n')
+            fountain = (
+                'INT. WORKSHOP - NIGHT\n\n'
+                'ELIAS\nYour last job.\n\n'
+                'MARA\nSeven o\'clock.\n\n'
+                'ZHARA\nThe gate is open.\n'
+            )
+            (project / '02_screenplay/screenplay.fountain').write_text(fountain, encoding='utf-8')
+            rows = [
+                {'line_id': 'LINE-001', 'scene_id': 'SCN-001', 'order': 1, 'kind': 'dialogue', 'character_id': 'CHAR-001', 'text': 'Your last job.'},
+                {'line_id': 'LINE-002', 'scene_id': 'SCN-001', 'order': 2, 'kind': 'dialogue', 'character_id': 'CHAR-002', 'text': "Seven o'clock."},
+                {'line_id': 'LINE-003', 'scene_id': 'SCN-001', 'order': 3, 'kind': 'dialogue', 'character_id': 'CHAR-003', 'text': 'The gate is open.'},
+            ]
+            (project / '02_screenplay/line_manifest.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows), encoding='utf-8')
+            self.assertEqual(screenplay_consistency.validate_project(project), [])
+
+            bad = fountain.replace('ELIAS\n', 'EILIAS\n', 1)
+            (project / '02_screenplay/screenplay.fountain').write_text(bad, encoding='utf-8')
+            errors = screenplay_consistency.validate_project(project)
+            joined = '\n'.join(errors)
+            self.assertIn("unknown dialogue cue 'EILIAS'", joined)
+            self.assertIn("did you mean 'ELIAS'", joined)
+            self.assertNotIn('hardcoded', joined.lower())
 
     def test_project_validator_checks_graphics_compositions_and_documents(self):
         with tempfile.TemporaryDirectory() as td:

@@ -28,6 +28,7 @@ from comfyui_batch import load_manifest as load_offline_batch, validate as valid
 from sequence_manager import validate_manifest as validate_sequence_manifest
 from context_shards import validate_shards as validate_context_shards
 from model_preferences import normalize as normalize_model_preferences, validate as validate_model_preferences
+from screenplay_consistency import validate_project as validate_screenplay_consistency
 
 ID_RX = re.compile(r'^(CHAR|LOC|PROP|CH|SCN|LINE|SHOT|VOICE|MUS|SFX|REF|QST|PROM|TAKE|MEDIA|AUD|EVT|MASTER|TRL|CAMP|SOC|COPY|DELIV|TOOL|CLIP|EDIT|SRC|CLAIM|GFX|COMP|CONTENT|DOC|DEC|UNIT|BATCH|JOB|UP|WIZ|SEQ|CONT)-\d{3,}$')
 
@@ -308,6 +309,16 @@ def main() -> int:
                 errors.append(f'line_manifest.jsonl:{n}: {field} must be boolean')
         if isinstance(lid, str):
             line_records[lid] = obj
+
+    # Fountain dialogue must agree with canon and the stable line manifest.
+    # This parser derives character cues from project canon and never hardcodes story-specific names.
+    screenplay_path = root / '02_screenplay/screenplay.fountain'
+    line_manifest_path = root / '02_screenplay/line_manifest.jsonl'
+    if screenplay_path.exists() and line_manifest_path.exists():
+        try:
+            errors.extend(f'screenplay consistency: {e}' for e in validate_screenplay_consistency(root))
+        except Exception as exc:
+            errors.append(f'screenplay consistency validation failed: {exc}')
 
     # Project-specific executable capability registry.
     capabilities_path = root / '03_preproduction/production_capabilities.json'

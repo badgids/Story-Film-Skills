@@ -17,8 +17,9 @@ license: Apache-2.0
 5. Create `02_screenplay/line_manifest.jsonl` with stable `LINE-###` records for production-relevant dialogue, action, movement, and transitions. Preserve exact dialogue text, scene ID, order, speaker ID where applicable, and whether the unit is audible, on screen, or needs blocking.
 6. Keep scene IDs in the manifest rather than cluttering screenplay dialogue or headings unless the user wants visible IDs.
 7. Update `story-state` with screenplay scene order and mutable state changes that differ from the source plan or adaptation.
-8. Run the style checker.
+8. Run `scripts/screenplay_consistency.py <project>` before checkpointing. Do not write an ad hoc dialogue parser and do not hardcode character names into a verification command.
+9. Run the style checker.
 
 ## Done
 
-The screenplay is complete through FADE OUT or an equivalent ending, scene manifest, line manifest, and story-state scene order agree, and mutable narrative facts remain traceable.
+The screenplay is complete through FADE OUT or an equivalent ending, scene manifest, line manifest, and story-state scene order agree, `screenplay_consistency.py` passes, and mutable narrative facts remain traceable.
