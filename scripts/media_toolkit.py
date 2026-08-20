@@ -77,6 +77,12 @@ MLT_QUERIES = {
 }
 
 
+IMAGEMAGICK_LEGACY_SUBCOMMANDS = {
+    'animate', 'compare', 'composite', 'conjure', 'convert', 'display',
+    'identify', 'import', 'mogrify', 'montage', 'stream',
+}
+
+
 def which(name: str) -> str | None:
     return shutil.which(name)
 
@@ -96,6 +102,47 @@ def first_line(text: str) -> str:
     return next((x.strip() for x in text.splitlines() if x.strip()), '')
 
 
+def is_imagemagick_executable(exe: str) -> bool:
+    info = run_capture([exe, '-version'])
+    return bool(info['available'] and info['returncode'] == 0 and 'imagemagick' in info['output'].lower())
+
+
+def legacy_imagemagick_executable(name: str) -> str | None:
+    exe = which(name)
+    if not exe:
+        return None
+    return exe if is_imagemagick_executable(exe) else None
+
+
+def executable_for(tool: str) -> str | None:
+    if tool == 'magick':
+        magick = which('magick')
+        if magick and is_imagemagick_executable(magick):
+            return magick
+        return legacy_imagemagick_executable('convert')
+    return which(tool)
+
+
+def tool_argv(tool: str, args: list[str]) -> list[str]:
+    if tool != 'magick':
+        exe = which(tool)
+        return [exe, *args] if exe else []
+
+    magick = which('magick')
+    if magick and is_imagemagick_executable(magick):
+        return [magick, *args]
+
+    if args:
+        subcommand = args[0].lower()
+        if subcommand in IMAGEMAGICK_LEGACY_SUBCOMMANDS:
+            legacy = legacy_imagemagick_executable(subcommand)
+            if legacy:
+                return [legacy, *args[1:]]
+
+    convert = legacy_imagemagick_executable('convert')
+    return [convert, *args] if convert else []
+
+
 def discover(deep: bool = False) -> dict[str, Any]:
     out: dict[str, Any] = {
         'schema_version': 1,
@@ -103,7 +150,7 @@ def discover(deep: bool = False) -> dict[str, Any]:
         'tools': {},
     }
     for key in TOOLS:
-        exe = which(key)
+        exe = executable_for(key)
         rec: dict[str, Any] = {'available': bool(exe), 'executable': exe or ''}
         if exe:
             if key in {'ffmpeg', 'ffprobe'}:
@@ -146,17 +193,17 @@ def guard_raw(tool: str, args: list[str], allow_overwrite: bool) -> None:
 
 
 def raw_run(tool: str, args: list[str], cwd: Path | None, allow_overwrite: bool) -> int:
-    exe = which(tool)
-    if not exe:
+    argv = tool_argv(tool, args)
+    if not argv:
         raise MediaRuntimeError(f'{tool} is not installed or not on PATH')
     guard_raw(tool, args, allow_overwrite)
     # No shell is used. Shell metacharacters remain literal arguments.
-    p = subprocess.run([exe] + args, cwd=str(cwd) if cwd else None)
+    p = subprocess.run(argv, cwd=str(cwd) if cwd else None)
     return int(p.returncode)
 
 
 def query(tool: str, category: str | None, name: str | None) -> int:
-    exe = which(tool)
+    exe = executable_for(tool)
     if not exe:
         raise MediaRuntimeError(f'{tool} is not installed or not on PATH')
     if tool == 'ffmpeg':

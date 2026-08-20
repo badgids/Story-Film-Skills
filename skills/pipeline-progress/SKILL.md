@@ -125,6 +125,7 @@ Controls:
 - `Ctrl+Alt+PageUp/PageDown`
 - `Ctrl+Alt+Home`
 - `Ctrl+Alt+T` toggles compact/expanded Story-Film Todo
+- `Ctrl+Alt+Shift+T` is the fallback compact/expanded toggle
 
 Markers:
 

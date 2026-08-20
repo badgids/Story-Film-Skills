@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.0.20 (00.00.20) - 2026-08-20
+
+- Added portable ImageMagick 6 and ImageMagick 7 command resolution to the media toolkit.
+- Kept `magick` as Story-Film's logical tool name while falling back to ImageMagick 6 `convert`, `identify`, `mogrify`, and related executables when the ImageMagick 7 launcher is unavailable.
+- Removed the regression test's direct dependency on a `magick` executable and added deterministic coverage for legacy ImageMagick command resolution.
+- Documented ImageMagick 6/7 runtime compatibility.
+
+## v0.0.19 (00.00.19) - 2026-08-20
+
+- Fixed Story-Film Todo shortcut packaging so the checked-in `story-film-suite` bundle cannot silently lag behind the source extension.
+- Kept `Ctrl+Alt+T` as the primary compact/expanded toggle and added `Ctrl+Alt+Shift+T` as a fallback for terminals or host environments that intercept the primary chord.
+- Made `scripts/build_npx_bundle.py --check` a real read-only drift check instead of rebuilding the bundle and masking stale generated files.
+- Added bundle drift coverage to the existing regression path and updated Todo control documentation/evals.
+
+## v0.0.18 (00.00.18) - 2026-08-20
+
+- Restored reliable Story-Film Todo hotkeys with `Ctrl+Alt` bindings that use fewer terminal modifiers.
+- Added a visible Todo control hint in both compact and expanded views.
+- Added `/story-todo help` and `/story-todo keys` so controls remain discoverable without documentation.
+- Hardened ComfyUI model discovery so the agent cannot bypass `model_inventory.py` with raw `curl`, `wget`, inline Python HTTP parsers, filesystem model scans, or helper scripts.
+- Clarified that `/models` and `/models/{folder}` remain the authoritative ComfyUI server APIs, but Story-Film agents must access them through the bundled inventory tool during production.
+
+## v0.0.17 (00.00.17) - 2026-08-20
+
+- Fixed ComfyUI model discovery for installations that use `extra_model_paths.yaml` or other server-registered external model directories. Story-Film now treats ComfyUI's `/models` and `/models/{folder}` registry as authoritative instead of assuming models live under the ComfyUI application directory.
+- Hardened generation setup so agents must use `scripts/model_inventory.py scan` for model discovery. Ad hoc `/object_info` parsers and filesystem-wide `find` scans are forbidden for deciding which ComfyUI models are installed.
+- Documented the current ComfyUI node schema correctly: node input definitions are under `input.required` and `input.optional`; `/object_info` is for node schemas and is only a secondary source for model-like dropdown choices.
+- Added a deterministic Pi runtime guard that blocks filesystem-wide model scans during an active Story-Film pipeline and redirects the agent to the ComfyUI model inventory.
+- Added explicit handling for empty model inventory results. An empty or inconsistent registry is a blocker to diagnose, not proof that the user owns no models, not permission to download models, and not permission to create mock generated media.
+- Added regression definitions and deterministic coverage for external ComfyUI model directories and the no-filesystem-scan rule.
+
 ## v0.0.16 (00.00.16) - 2026-08-20
 
 - Added a project-generic Fountain screenplay consistency verifier. It derives dialogue speaker identities from `00_project/canon.json` and never hardcodes story-specific character names.

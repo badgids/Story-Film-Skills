@@ -32,7 +32,9 @@ Returns queue information such as `exec_info.queue_remaining`.
 
 ### `GET /object_info`
 
-Returns the live node-class catalog. Each class may describe:
+Returns the live node-class catalog. Current node definitions place input schemas under `input.required` and `input.optional`. Do not look for a top-level `inputs` object.
+
+Each class may describe:
 
 - required and optional inputs
 - input ordering
@@ -58,7 +60,7 @@ Lists model folder categories known to the live server.
 
 ### `GET /models/{folder}`
 
-Lists filenames visible in one model folder category.
+Lists filenames visible in one model folder category. ComfyUI resolves its registered model roots before this call. This includes roots loaded from `extra_model_paths.yaml` and supported startup path configuration. Story-Film should use this server-visible list instead of scanning the filesystem or assuming model files live under the ComfyUI application directory.
 
 ## Inputs and outputs
 

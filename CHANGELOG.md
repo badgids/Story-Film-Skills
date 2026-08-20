@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.0.20 (00.00.20) - 2026-08-20
+
+- Added portable ImageMagick 6 and ImageMagick 7 command resolution to the media toolkit.
+- Kept `magick` as Story-Film's logical tool name while falling back to ImageMagick 6 `convert`, `identify`, `mogrify`, and related executables when the ImageMagick 7 launcher is unavailable.
+- Removed the regression test's direct dependency on a `magick` executable and added deterministic coverage for legacy ImageMagick command resolution.
+- Documented ImageMagick 6/7 runtime compatibility.
+
+## v0.0.19 (00.00.19) - 2026-08-20
+
+- Fixed Story-Film Todo shortcut packaging so the checked-in `story-film-suite` bundle cannot silently lag behind the source extension.
+- Kept `Ctrl+Alt+T` as the primary compact/expanded toggle and added `Ctrl+Alt+Shift+T` as a fallback for terminals or host environments that intercept the primary chord.
+- Made `scripts/build_npx_bundle.py --check` a real read-only drift check instead of rebuilding the bundle and masking stale generated files.
+- Added bundle drift coverage to the existing regression path and updated Todo control documentation/evals.
+
 ## v0.0.18 (00.00.18) - 2026-08-20
 
 - Restored reliable Story-Film Todo hotkeys with `Ctrl+Alt` bindings that use fewer terminal modifiers.

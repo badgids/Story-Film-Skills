@@ -26,6 +26,7 @@ const EXPANDED_ROWS = 10;
 const COLLAPSED_ROWS = 3;
 const SHORTCUTS = {
   toggle: "ctrl+alt+t",
+  toggleFallback: "ctrl+alt+shift+t",
   up: "ctrl+alt+up",
   down: "ctrl+alt+down",
   pageUp: "ctrl+alt+pageUp",
@@ -271,11 +272,11 @@ class Viewport {
     const title = `Story-Film Todo - ${this.value.label || this.value.pipeline_id || "Active pipeline"} [${this.offset + 1}-${end}/${this.lines.length}] ${this.manual ? "manual" : "following"} ${mode}`;
     const out = [title, ...this.lines.slice(this.offset, end)];
     if (this.expanded) {
-      out.push("Keys: Ctrl+Alt+T compact | Ctrl+Alt+Up/Down scroll | Ctrl+Alt+PgUp/PgDn page | Ctrl+Alt+Home follow");
+      out.push("Keys: Ctrl+Alt+T compact | fallback Ctrl+Alt+Shift+T | Ctrl+Alt+Up/Down scroll | Ctrl+Alt+Home follow");
       if (this.value.status !== "complete" && this.value.next_action) out.push(`NEXT -> ${this.value.next_action}`);
       if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
     } else {
-      out.push("Keys: Ctrl+Alt+T expand | Ctrl+Alt+Up/Down scroll | /story-todo help");
+      out.push("Keys: Ctrl+Alt+T expand | fallback Ctrl+Alt+Shift+T | /story-todo help");
       if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
     }
     if (this.resource && this.resource.phase && this.resource.phase !== "idle") {
@@ -380,7 +381,7 @@ export default function storyFilmProgress(pi: any): void {
       if (!state.active) { ctx.ui.notify?.("No active Story-Film pipeline todo is available.", "info"); return; }
       const known = ["up", "down", "page-up", "page-down", "current", "follow", "toggle", "expand", "collapse", "compact", "help", "keys"];
       if (action === "help" || action === "keys") {
-        ctx.ui.notify?.("Story-Film Todo keys: Ctrl+Alt+T toggle compact/expanded; Ctrl+Alt+Up/Down scroll; Ctrl+Alt+PageUp/PageDown page; Ctrl+Alt+Home follow current. Slash commands remain available as /story-todo toggle|up|down|page-up|page-down|current.", "info");
+        ctx.ui.notify?.("Story-Film Todo keys: Ctrl+Alt+T toggles compact/expanded; Ctrl+Alt+Shift+T is the fallback toggle if the primary chord is intercepted; Ctrl+Alt+Up/Down scroll; Ctrl+Alt+PageUp/PageDown page; Ctrl+Alt+Home follows current. Slash commands remain available as /story-todo toggle|up|down|page-up|page-down|current.", "info");
         return;
       }
       if (action === "status" || !known.includes(action)) {
@@ -419,5 +420,6 @@ export default function storyFilmProgress(pi: any): void {
     pi.registerShortcut(SHORTCUTS.pageDown, { description: "Page Story-Film todo down", handler: runShortcut(() => { viewport.page(1); }) });
     pi.registerShortcut(SHORTCUTS.follow, { description: "Follow current Story-Film todo", handler: runShortcut(() => { viewport.follow(); }) });
     pi.registerShortcut(SHORTCUTS.toggle, { description: "Toggle compact Story-Film todo", handler: runShortcut(() => { viewport.toggle(); }) });
+    pi.registerShortcut(SHORTCUTS.toggleFallback, { description: "Toggle compact Story-Film todo (fallback)", handler: runShortcut(() => { viewport.toggle(); }) });
   }
 }

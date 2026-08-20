@@ -24,6 +24,15 @@ type Ui = {
 const KEY = "story-film-pipeline-todo";
 const EXPANDED_ROWS = 10;
 const COLLAPSED_ROWS = 3;
+const SHORTCUTS = {
+  toggle: "ctrl+alt+t",
+  toggleFallback: "ctrl+alt+shift+t",
+  up: "ctrl+alt+up",
+  down: "ctrl+alt+down",
+  pageUp: "ctrl+alt+pageUp",
+  pageDown: "ctrl+alt+pageDown",
+  follow: "ctrl+alt+home",
+} as const;
 const ANSI = /\x1b\[[0-?]*[ -/]*[@-~]/g;
 
 function projectRoot(cwd: string): string | undefined {
@@ -137,7 +146,7 @@ function pipelineGuardPrompt(value: Progress | undefined): string | undefined {
   if (!value?.stages?.length || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
   const flat = flatten(value);
   const currentLine = flat.lines[flat.current] || value.next_action || "current Story-Film target";
-  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n`;
+  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n- For ComfyUI model discovery, use Story-Film's scripts/model_inventory.py scan and menu commands against the live server. ComfyUI's /models registry includes server-registered external model directories such as extra_model_paths.yaml. Do not call /models directly with curl, wget, urllib, requests, or one-off parser scripts. Do not use filesystem-wide find/grep scans to decide that models are missing. Do not infer model absence from an ad hoc /object_info parser.\n`;
 }
 
 function futureSkillBlockReason(value: Progress | undefined, requested: string | undefined): string | undefined {
@@ -169,6 +178,50 @@ function genericTodoBlockReason(value: Progress | undefined, event: any): string
   }
   if (count <= 3) return undefined;
   return `Story-Film already has a detailed authoritative pipeline Todo. Keep Pi's generic Todo to at most three Story-Film mirror items: current target, immediate next target, and requested endpoint. The attempted generic Todo contains ${count} items.`;
+}
+
+function comfyModelFilesystemScanBlockReason(value: Progress | undefined, event: any): string | undefined {
+  if (!value || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  const input = event?.input ?? {};
+  const approvedInventoryText = (text: string): boolean => text.toLowerCase().includes("model_inventory.py");
+  const reason = "Use Story-Film's scripts/model_inventory.py scan/menu for ComfyUI model discovery. The bundled inventory tool owns calls to /models and /models/{folder}, including models registered through extra_model_paths.yaml. Do not write or run one-off curl/wget/Python parsers and do not scan model directories on the filesystem.";
+
+  if (new Set(["bash", "shell", "terminal"]).has(tool)) {
+    const command = String(input.command ?? input.cmd ?? input.script ?? "");
+    const lower = command.toLowerCase();
+    if (approvedInventoryText(command)) return undefined;
+
+    const looksLikeWideFind = /(?:^|[;&|\n]\s*)find\s+(?:\/|\$home|~)(?:\s|$)/i.test(command);
+    const modelTokens = [
+      ".safetensors", ".ckpt", "models/checkpoints", "models/diffusion", "models/vae", "models/loras",
+      "extra_model_paths", "checkpointloader", "vaeloader",
+    ];
+    const modelRelated = modelTokens.some(token => lower.includes(token));
+    const rawRegistryEndpoint = /\/models(?:\/[^\s'\";|)]+)?(?:\b|[?])/i.test(command);
+    const rawHttpClient = /\b(?:curl|wget)\b|urllib(?:\.request)?|urlopen\s*\(|requests\.|httpx\.|aiohttp\./i.test(command);
+    const adHocObjectInfoInventory = lower.includes("/object_info") && modelRelated;
+    const filesystemModelEnumeration = modelRelated && /\b(?:find|locate|ls|du|grep|rg)\b/i.test(command);
+
+    if ((rawRegistryEndpoint && rawHttpClient) || adHocObjectInfoInventory || (looksLikeWideFind && modelRelated) || filesystemModelEnumeration) {
+      return reason;
+    }
+    return undefined;
+  }
+
+  if (new Set(["write", "write_file", "writefile"]).has(tool)) {
+    const path = String(input.path ?? input.file_path ?? input.filepath ?? "");
+    const content = String(input.content ?? input.text ?? input.data ?? "");
+    if (approvedInventoryText(content)) return undefined;
+    const codeFile = /\.(?:py|sh|bash|zsh|js|mjs|cjs|ts)$/i.test(path);
+    const rawRegistryEndpoint = /\/models(?:\/[^\s'\";|)]+)?(?:\b|[?])/i.test(content);
+    const rawHttpClient = /\b(?:curl|wget)\b|urllib(?:\.request)?|urlopen\s*\(|requests\.|httpx\.|aiohttp\./i.test(content);
+    const filesystemModelParser = /extra_model_paths|\.safetensors|models\/checkpoints|models\/diffusion|models\/vae|models\/loras/i.test(content)
+      && /\b(?:find|glob|walk|listdir|scandir|rglob)\b/i.test(content);
+    if (codeFile && ((rawRegistryEndpoint && rawHttpClient) || filesystemModelParser)) return reason;
+  }
+
+  return undefined;
 }
 
 function safeWidth(text: string, width: number): string {
@@ -219,11 +272,12 @@ class Viewport {
     const title = `Story-Film Todo - ${this.value.label || this.value.pipeline_id || "Active pipeline"} [${this.offset + 1}-${end}/${this.lines.length}] ${this.manual ? "manual" : "following"} ${mode}`;
     const out = [title, ...this.lines.slice(this.offset, end)];
     if (this.expanded) {
-      out.push("Ctrl+Alt+Shift+T compact | Up/Down scroll | PgUp/PgDn page | Home follow");
+      out.push("Keys: Ctrl+Alt+T compact | fallback Ctrl+Alt+Shift+T | Ctrl+Alt+Up/Down scroll | Ctrl+Alt+Home follow");
       if (this.value.status !== "complete" && this.value.next_action) out.push(`NEXT -> ${this.value.next_action}`);
       if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
-    } else if (this.value.blocker) {
-      out.push(`BLOCKED -> ${this.value.blocker}`);
+    } else {
+      out.push("Keys: Ctrl+Alt+T expand | fallback Ctrl+Alt+Shift+T | /story-todo help");
+      if (this.value.blocker) out.push(`BLOCKED -> ${this.value.blocker}`);
     }
     if (this.resource && this.resource.phase && this.resource.phase !== "idle") {
       const jobs = this.resource.job_total ? ` | jobs ${this.resource.job_index ?? 0}/${this.resource.job_total}` : "";
@@ -288,7 +342,9 @@ export default function storyFilmProgress(pi: any): void {
   });
   pi.on?.("tool_call", async (event: any, ctx: any) => {
     const value = load(ctx.cwd);
-    const reason = futureSkillBlockReason(value, requestedSkillName(event)) ?? genericTodoBlockReason(value, event);
+    const reason = futureSkillBlockReason(value, requestedSkillName(event))
+      ?? genericTodoBlockReason(value, event)
+      ?? comfyModelFilesystemScanBlockReason(value, event);
     if (!reason) return undefined;
     ctx.ui.notify?.(reason, "warning");
     return { block: true, reason };
@@ -323,11 +379,15 @@ export default function storyFilmProgress(pi: any): void {
         : false;
       const state = viewport.state();
       if (!state.active) { ctx.ui.notify?.("No active Story-Film pipeline todo is available.", "info"); return; }
-      const known = ["up", "down", "page-up", "page-down", "current", "follow", "toggle", "expand", "collapse", "compact"];
+      const known = ["up", "down", "page-up", "page-down", "current", "follow", "toggle", "expand", "collapse", "compact", "help", "keys"];
+      if (action === "help" || action === "keys") {
+        ctx.ui.notify?.("Story-Film Todo keys: Ctrl+Alt+T toggles compact/expanded; Ctrl+Alt+Shift+T is the fallback toggle if the primary chord is intercepted; Ctrl+Alt+Up/Down scroll; Ctrl+Alt+PageUp/PageDown page; Ctrl+Alt+Home follows current. Slash commands remain available as /story-todo toggle|up|down|page-up|page-down|current.", "info");
+        return;
+      }
       if (action === "status" || !known.includes(action)) {
         const value = load(ctx.cwd);
         const extra = value?.blocker ? ` Blocker: ${value.blocker}` : value?.next_action ? ` Next: ${value.next_action}` : "";
-        ctx.ui.notify?.(`Story-Film todo: ${state.expanded ? "expanded" : "compact"}, ${state.rows} visible items, line ${state.offset + 1} of ${state.total}; ${state.manual ? "manual scroll" : "following current"}.${extra} Use /story-todo toggle|expand|collapse|up|down|page-up|page-down|current.`, value?.blocker ? "warning" : "info");
+        ctx.ui.notify?.(`Story-Film todo: ${state.expanded ? "expanded" : "compact"}, ${state.rows} visible items, line ${state.offset + 1} of ${state.total}; ${state.manual ? "manual scroll" : "following current"}.${extra} Use /story-todo help for keys and controls.`, value?.blocker ? "warning" : "info");
       } else if (!changed && !["current", "follow", "expand", "collapse", "compact"].includes(action)) {
         ctx.ui.notify?.("Story-Film todo viewport is already at that boundary.", "info");
       }
@@ -353,11 +413,13 @@ export default function storyFilmProgress(pi: any): void {
   });
 
   if (typeof pi.registerShortcut === "function") {
-    pi.registerShortcut("ctrl+alt+shift+up", { description: "Scroll Story-Film todo up", handler: async () => { viewport.scroll(-1); } });
-    pi.registerShortcut("ctrl+alt+shift+down", { description: "Scroll Story-Film todo down", handler: async () => { viewport.scroll(1); } });
-    pi.registerShortcut("ctrl+alt+shift+pageUp", { description: "Page Story-Film todo up", handler: async () => { viewport.page(-1); } });
-    pi.registerShortcut("ctrl+alt+shift+pageDown", { description: "Page Story-Film todo down", handler: async () => { viewport.page(1); } });
-    pi.registerShortcut("ctrl+alt+shift+home", { description: "Follow current Story-Film todo", handler: async () => { viewport.follow(); } });
-    pi.registerShortcut("ctrl+alt+shift+t", { description: "Toggle compact Story-Film todo", handler: async () => { viewport.toggle(); } });
+    const runShortcut = (action: () => void) => async (ctx: any) => { action(); render(ctx); };
+    pi.registerShortcut(SHORTCUTS.up, { description: "Scroll Story-Film todo up", handler: runShortcut(() => { viewport.scroll(-1); }) });
+    pi.registerShortcut(SHORTCUTS.down, { description: "Scroll Story-Film todo down", handler: runShortcut(() => { viewport.scroll(1); }) });
+    pi.registerShortcut(SHORTCUTS.pageUp, { description: "Page Story-Film todo up", handler: runShortcut(() => { viewport.page(-1); }) });
+    pi.registerShortcut(SHORTCUTS.pageDown, { description: "Page Story-Film todo down", handler: runShortcut(() => { viewport.page(1); }) });
+    pi.registerShortcut(SHORTCUTS.follow, { description: "Follow current Story-Film todo", handler: runShortcut(() => { viewport.follow(); }) });
+    pi.registerShortcut(SHORTCUTS.toggle, { description: "Toggle compact Story-Film todo", handler: runShortcut(() => { viewport.toggle(); }) });
+    pi.registerShortcut(SHORTCUTS.toggleFallback, { description: "Toggle compact Story-Film todo (fallback)", handler: runShortcut(() => { viewport.toggle(); }) });
   }
 }

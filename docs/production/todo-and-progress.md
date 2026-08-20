@@ -63,9 +63,11 @@ You can also use:
 /story-todo expand
 /story-todo collapse
 Ctrl+Alt+T
+Ctrl+Alt+Shift+T
 ```
 
-The shortcut uses `Ctrl+Alt+T` so it does not take over a host's common `Ctrl+T` binding.
+`Ctrl+Alt+T` is the primary toggle. `Ctrl+Alt+Shift+T` is a fallback for terminals,
+window managers, or Pi variants that intercept the primary chord.
 
 ## Keep the two Todo panels small
 
@@ -115,6 +117,7 @@ Keyboard controls:
 
 ```text
 Ctrl+Alt+T                Toggle compact or expanded view
+Ctrl+Alt+Shift+T          Fallback compact/expanded toggle
 Ctrl+Alt+Up/Down          Scroll one row
 Ctrl+Alt+PageUp/PageDown  Scroll one page
 Ctrl+Alt+Home             Follow the current Story-Film item

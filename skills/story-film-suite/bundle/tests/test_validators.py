@@ -1,8 +1,10 @@
 import json
+import struct
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 import threading
 import math
 import wave
@@ -192,11 +194,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.15')
-        self.assertEqual(version_display.display_version(version), 'v0.0.15')
+        self.assertEqual(version, '00.00.20')
+        self.assertEqual(version_display.display_version(version), 'v0.0.20')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.16'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.21'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -330,7 +332,7 @@ class Tests(unittest.TestCase):
 
     def test_pi_progress_extension_contract(self):
         src = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
-        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+shift+home', 'ctrl+alt+shift+t', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items']:
+        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+home', 'ctrl+alt+t', 'ctrl+alt+shift+t', 'Keys: Ctrl+Alt+T expand', '/story-todo help', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items', 'comfyModelFilesystemScanBlockReason', 'extra_model_paths.yaml', 'model_inventory.py scan', 'rawRegistryEndpoint', 'write_file']:
             self.assertIn(token, src)
         install = (ROOT / 'install.sh').read_text(encoding='utf-8')
         self.assertIn('PI_EXTENSIONS_DIR', install)
@@ -342,7 +344,7 @@ class Tests(unittest.TestCase):
         router = (ROOT / 'skills/story-film/SKILL.md').read_text(encoding='utf-8')
         for token in ['three visible pipeline rows', '/story-todo toggle', 'Do not work ahead', 'at most three Story-Film items']:
             self.assertIn(token, pipeline_skill)
-        for token in ['Compact mode shows three pipeline rows', 'Why a Todo can look stale', 'at most three Story-Film items']:
+        for token in ['Compact mode shows three pipeline rows', 'Why a Todo can look stale', 'at most three Story-Film items', 'Ctrl+Alt+T', 'Ctrl+Alt+Shift+T', '/story-todo help']:
             self.assertIn(token, docs)
         self.assertIn('Do not start a later specialist or write a later artifact', router)
 
@@ -1135,14 +1137,25 @@ class Tests(unittest.TestCase):
         self.assertTrue(data['tools']['ffmpeg']['available'])
         self.assertTrue(data['tools']['ffprobe']['available'])
         self.assertIn('magick', data['tools'])
+        self.assertTrue(data['tools']['magick']['available'])
+
+        with patch.object(media_toolkit, 'which', side_effect=lambda name: {
+            'convert': '/usr/bin/convert',
+            'identify': '/usr/bin/identify',
+        }.get(name)), patch.object(media_toolkit, 'is_imagemagick_executable', return_value=True):
+            self.assertEqual(media_toolkit.tool_argv('magick', ['-version']), ['/usr/bin/convert', '-version'])
+            self.assertEqual(media_toolkit.tool_argv('magick', ['identify', 'frame.png']), ['/usr/bin/identify', 'frame.png'])
+
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             out = root / 'result.png'
             rc = media_toolkit.raw_run('magick', ['-size', '64x64', 'xc:red', '-resize', '32x32', str(out)], root, False)
             self.assertEqual(rc, 0)
             self.assertTrue(out.is_file())
-            info = subprocess.run(['magick', 'identify', '-format', '%wx%h', str(out)], check=True, text=True, stdout=subprocess.PIPE)
-            self.assertEqual(info.stdout, '32x32')
+            png = out.read_bytes()
+            self.assertGreaterEqual(len(png), 24)
+            self.assertEqual(png[:8], b'\x89PNG\r\n\x1a\n')
+            self.assertEqual(struct.unpack('>II', png[16:24]), (32, 32))
         with self.assertRaises(Exception):
             media_toolkit.guard_raw('magick', ['mogrify', '-resize', '10x10', 'a.png'], False)
         with self.assertRaises(Exception):
@@ -1525,6 +1538,33 @@ class Tests(unittest.TestCase):
             migrated = model_preferences.normalize(legacy)
             self.assertEqual(migrated['schema_version'], 2)
             self.assertEqual(migrated['processes']['video_generation']['selected_adapter'], 'ltx-2-5')
+
+    def test_comfyui_external_model_paths_use_server_registry_not_filesystem_scan(self):
+        with tempfile.TemporaryDirectory() as td, FakeComfyServer() as srv:
+            project = Path(td) / 'film'
+            subprocess.run([sys.executable, str(ROOT / 'scripts/init_story_project.py'), str(project)], check=True, stdout=subprocess.DEVNULL)
+            inventory = model_inventory.scan(project, srv.url)
+            self.assertEqual(inventory['discovery_method'], 'comfyui-model-registry')
+            self.assertEqual(inventory['registry_endpoints'], ['/models', '/models/{folder}'])
+            self.assertFalse(inventory['filesystem_scan_used'])
+            self.assertTrue(inventory['external_model_paths_supported'])
+            self.assertGreater(inventory['resource_count'], 0)
+            self.assertEqual(model_inventory.registry_warnings({'checkpoints': {'models': []}})[0].split('.')[0], 'ComfyUI returned model folder categories but no model filenames')
+            md = (project / '00_project/comfyui_model_inventory.md').read_text(encoding='utf-8')
+            self.assertIn('extra_model_paths.yaml', md)
+            self.assertIn('does not scan the local filesystem', md)
+
+        setup_skill = (ROOT / 'skills/generation-model-setup/SKILL.md').read_text(encoding='utf-8')
+        discover_skill = (ROOT / 'skills/comfyui-discover/SKILL.md').read_text(encoding='utf-8')
+        extension = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
+        for token in ['extra_model_paths.yaml', '/models', 'Do not run `find /`']:
+            self.assertIn(token, setup_skill)
+        self.assertIn('input.required', discover_skill)
+        self.assertIn('comfyModelFilesystemScanBlockReason', extension)
+        self.assertIn('model_inventory.py scan', extension)
+        self.assertIn('rawRegistryEndpoint', extension)
+        self.assertIn('Do not write or run one-off curl/wget/Python parsers', extension)
+        self.assertIn('Do not replace it with direct `curl`', setup_skill)
 
     def test_screenplay_consistency_uses_canon_not_hardcoded_names(self):
         with tempfile.TemporaryDirectory() as td:

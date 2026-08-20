@@ -12,6 +12,7 @@ Controls:
 - `/story-todo current`
 - `/story-todo help|keys`
 - `Ctrl+Alt+T` toggles compact and expanded views
+- `Ctrl+Alt+Shift+T` is the fallback toggle when the primary chord is intercepted by the terminal or host
 - `Ctrl+Alt+Up/Down` scrolls
 - `Ctrl+Alt+PageUp/PageDown` pages
 - `Ctrl+Alt+Home` follows the current item

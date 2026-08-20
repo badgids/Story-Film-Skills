@@ -40,6 +40,24 @@ Before model-specific ComfyUI work:
 
 Do not infer user preference from file names, folder order, workflow examples, installed nodes, available VRAM, or the fact that a model is installed.
 
+### External ComfyUI model directories
+
+ComfyUI can load model roots that are outside its application directory. A common configuration uses `extra_model_paths.yaml`.
+
+Story-Film does not need the filesystem location of those models. The running ComfyUI process registers those roots, and its `/models` and `/models/{folder}` endpoints return the model filenames that ComfyUI can actually load. Use those server results as the source of truth.
+
+Do not use a filesystem-wide `find` command to locate models. Do not assume an empty local `ComfyUI/models` directory means no models are installed. Do not parse `extra_model_paths.yaml` merely to rediscover paths that the server has already registered.
+
+`/object_info` has a different purpose. It reports installed node schemas. Current node inputs are described under `input.required` and `input.optional`. Story-Film can use dropdown choices from those schemas as secondary evidence, but it must not replace the `/models` registry with an ad hoc node parser.
+
+If `/models` unexpectedly reports no model filenames, record a discovery blocker and diagnose the active server/configuration. Do not download replacement models and do not create mock generated media to bypass the blocker.
+
+### One inventory implementation
+
+The ComfyUI `/models` API is the source of truth, but Story-Film agents must access that API through `scripts/model_inventory.py` during production. This keeps parsing, exact filenames, external model paths, and saved inventory state in one tested implementation.
+
+Do not replace `model_inventory.py` with raw `curl`, `wget`, `urllib`, `requests`, shell loops, or a temporary helper script. Do not write a new model-directory parser. If the inventory tool fails, report that failure as a blocker and repair the tool or server connection.
+
 ## Video default
 
 If the user does not select a video adapter/model family, use `minimax-h3`.

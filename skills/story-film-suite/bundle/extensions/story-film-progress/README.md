@@ -10,8 +10,13 @@ Controls:
 - `/story-todo up|down`
 - `/story-todo page-up|page-down`
 - `/story-todo current`
-- `Ctrl+Alt+Shift+Up/Down`
-- `Ctrl+Alt+PageUp/PageDown`
-- `Ctrl+Alt+Shift+Home`
+- `/story-todo help|keys`
+- `Ctrl+Alt+T` toggles compact and expanded views
+- `Ctrl+Alt+Shift+T` is the fallback toggle when the primary chord is intercepted by the terminal or host
+- `Ctrl+Alt+Up/Down` scrolls
+- `Ctrl+Alt+PageUp/PageDown` pages
+- `Ctrl+Alt+Home` follows the current item
 
 The extension refreshes after tool results and before agent turns, so checkpoints written by `scripts/pipeline_progress.py` appear without maintaining a second state store.
+
+The compact panel always shows a short key hint so the controls stay visible to the end user.

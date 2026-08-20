@@ -23,6 +23,10 @@ Use ImageMagick for deterministic still-image work such as resize, crop, composi
 
 The toolkit respects the installed ImageMagick security policy.
 
+Story-Film uses `magick` as the logical ImageMagick tool name. ImageMagick 7 uses the `magick` launcher. On ImageMagick 6 systems, the toolkit automatically resolves the equivalent `convert`, `identify`, `mogrify`, and other legacy executables.
+
+Do not require users to replace a working ImageMagick 6 installation only because the `magick` launcher is absent.
+
 ## MLT
 
 MLT is an optional timeline and media-service runtime. Story-Film Skills can query installed producers, filters, transitions, consumers, profiles, and presets when `melt` is available.
