@@ -1,6 +1,8 @@
 # Comfy API v2 and comfy-api-proxy
 
-`comfy-api-proxy` exposes the official Comfy API v2 contract in front of a self-hosted ComfyUI. It is optional. A normal local ComfyUI can still be operated through its native API.
+`comfy-api-proxy` exposes the official Comfy API v2 contract in front of a self-hosted ComfyUI. Story-Film installs the proxy into its separate managed official control environment and can start/stop it on loopback through the Pi-native `story_comfy` tool when v2 semantics are needed.
+
+A normal local ComfyUI operation does not require the proxy to be running. Automatic proxy startup does not enable model-directory placement and does not install models or custom nodes.
 
 ## Why v2 matters
 

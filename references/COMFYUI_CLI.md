@@ -1,6 +1,8 @@
 # comfy-cli Integration
 
-`comfy-cli` is the official command-line control surface for installing, locating, launching, extending, and running ComfyUI. Story-Film Skills can use it when present, but does not require it.
+`comfy-cli` is the official command-line engine underneath Story-Film's managed Comfy control runtime. Story-Film installs it into a separate managed Python environment together with comfy-mcp and comfy-api-proxy; the user does not need to install comfy-cli separately.
+
+Story-Film's bootstrap does not invoke ComfyUI installation. It targets the ComfyUI that the user already installed and configured.
 
 ## Stable steering rule
 

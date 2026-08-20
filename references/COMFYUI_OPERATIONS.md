@@ -1,6 +1,8 @@
 # ComfyUI Operations Contract
 
-Story-Film Skills can inspect and operate ComfyUI directly. ComfyUI-Pi-Agent, comfy-mcp, comfy-cli, and comfy-api-proxy are optional interfaces, not runtime requirements.
+Story-Film Skills operates the user's existing ComfyUI through a Story-Film-managed official control stack. Story-Film installs comfy-cli, comfy-mcp, and comfy-api-proxy into a separate external Python environment on first use; their upstream licenses remain separate from Story-Film's Apache-2.0 code.
+
+The user is expected to install ComfyUI itself and the models they want to use. Managed bootstrap never installs ComfyUI, models, or custom nodes.
 
 ## Core rule
 
@@ -8,14 +10,13 @@ Discover the live installation before choosing nodes, models, templates, or work
 
 ## Preferred control surfaces
 
-Use the smallest surface that fits the task.
+1. In Pi, use the native `story_comfy` tool. It speaks MCP stdio directly to Story-Film's managed official comfy-mcp process and exposes the live official tool catalog.
+2. Keep Story-Film's workflow catalog, project-copy preservation, live validation/promotion, deterministic batch, and resource-handoff rules around executable production work.
+3. Use managed comfy-cli underneath comfy-mcp for workspace, lifecycle, workflow, job, model, node, template, and asset operations.
+4. Start the managed comfy-api-proxy on loopback when a workflow/application intentionally needs the Comfy API v2 contract.
+5. Use Story-Film's bundled native HTTP controller as a deterministic fallback or offline implementation detail when the managed official surface cannot perform an operation.
 
-1. Native ComfyUI HTTP API for inspection, API-format workflow validation, input upload, queueing, polling, cancellation, output download, and memory release.
-2. `comfy-cli` when it is installed and its workspace, lifecycle, UI-workflow conversion, template, node, model, cloud, or structured command features materially help.
-3. `comfy-mcp` when the current agent harness already exposes its tools. It is an optional adapter over comfy-cli, not a requirement.
-4. Comfy API v2 through `comfy-api-proxy` or Comfy Cloud only when the user selected that surface or the current workflow requires the v2 contract.
-
-Do not install any of these merely to avoid using the native API. Do not switch from local execution to paid or hosted execution without user intent.
+Do not ask the user to install the control stack or configure a generic Pi MCP server. Do not replace these surfaces with ad hoc curl, urllib, requests, or raw prompt loops. Do not switch from local execution to paid or hosted execution without user intent.
 
 ## Runtime discovery order
 

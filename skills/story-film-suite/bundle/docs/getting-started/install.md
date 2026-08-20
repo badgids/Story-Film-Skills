@@ -19,13 +19,13 @@ You need Pi if you use the native `pi install` method.
 
 You need Git when Pi installs Story-Film Skills from a Git repository.
 
-Python 3 is needed for deterministic Story-Film scripts and validators.
+Python 3.10 or newer is needed for deterministic Story-Film scripts and the managed official Comfy control runtime.
 
-ComfyUI is optional until you want actual AI media generation.
+ComfyUI is optional until you want actual AI media generation. For local generation, install ComfyUI itself and the models you want to use. Story-Film automatically creates a separate managed Python environment and installs `comfy-cli`, `comfy-mcp`, and `comfy-api-proxy` on first Comfy use. You do not need to install or configure those control packages or a generic Pi MCP server yourself.
 
 ## Recommended Pi install
 
-Story-Film Skills is a Pi package. The package manifest loads the direct Story-Film skills and the Pi Todo/resource-status extension.
+Story-Film Skills is a Pi package. The package manifest loads the direct Story-Film skills, the Pi Todo/resource-status extension, and the managed ComfyUI control extension.
 
 For a private GitHub repository that uses SSH authentication:
 

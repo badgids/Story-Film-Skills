@@ -57,6 +57,7 @@ def main() -> int:
         ('standalone validation', [sys.executable, str(ROOT / 'scripts/validate_standalone.py')]),
         ('documentation links', [sys.executable, str(ROOT / 'scripts/check_docs.py')]),
         ('example prompt catalog', [sys.executable, str(ROOT / 'scripts/validate_examples.py')]),
+        ('managed official Comfy runtime', [sys.executable, '-m', 'unittest', 'tests.test_comfy_official_runtime']),
         ('static eval definitions', [sys.executable, str(ROOT / 'scripts/run_evals.py'), '--definitions-only']),
     ]
     for label, cmd in gates:

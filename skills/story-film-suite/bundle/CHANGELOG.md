@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.0.23 (00.00.23) - 2026-08-20
+
+- Added a Pi-native `story_comfy` tool so Story-Film controls the user's existing ComfyUI without requiring a separately configured generic MCP extension.
+- Added a Story-Film-managed external Python runtime that automatically installs official `comfy-cli>=1.14.0`, `comfy-mcp`, and `comfy-api-proxy` packages on first Comfy use while preserving their upstream licenses.
+- Made ComfyUI itself and the user's chosen model collection the only Comfy-side components the end user is expected to install independently; managed bootstrap never runs ComfyUI installation or model/custom-node downloads.
+- Added direct MCP stdio bridging to the official `comfy-mcp` server, including server discovery, live tool search, generic official MCP tool calls, and explicit approval gates for third-party code, version changes, model downloads, and paid-partner execution.
+- Added managed `comfy-api-proxy` lifecycle and generic `/api/v2/` request support on loopback for workflows that need the v2 contract.
+- Added a dedicated runtime steering guard so Pi uses `story_comfy` instead of falling back to permission-gated bash, raw HTTP clients, or a missing generic MCP server during normal interactive ComfyUI work.
+- Kept the existing Story-Film workflow catalog, live validation/promotion, deterministic offline batch, native HTTP fallback, and resource-handoff machinery underneath the managed official control surface.
+- Added deterministic regression coverage for managed-package scope, project ComfyUI URL routing, MCP action routing, and Pi tool registration.
+
 ## v0.0.22 (00.00.22) - 2026-08-20
 
 - Removed the non-working `Ctrl+Alt+T` and `Ctrl+Alt+Shift+T` Story-Film Todo shortcuts completely instead of retaining dead compatibility bindings.

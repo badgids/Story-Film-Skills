@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.22`
-**Canonical version:** `00.00.22`
+**Display version:** `v0.0.23`
+**Canonical version:** `00.00.23`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
