@@ -192,11 +192,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.15')
-        self.assertEqual(version_display.display_version(version), 'v0.0.15')
+        self.assertEqual(version, '00.00.18')
+        self.assertEqual(version_display.display_version(version), 'v0.0.18')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.16'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.19'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -330,7 +330,7 @@ class Tests(unittest.TestCase):
 
     def test_pi_progress_extension_contract(self):
         src = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
-        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+shift+home', 'ctrl+alt+shift+t', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items', 'comfyModelFilesystemScanBlockReason', 'extra_model_paths.yaml', 'model_inventory.py scan']:
+        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+home', 'ctrl+alt+t', 'Keys: Ctrl+Alt+T expand', '/story-todo help', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items', 'comfyModelFilesystemScanBlockReason', 'extra_model_paths.yaml', 'model_inventory.py scan', 'rawRegistryEndpoint', 'write_file']:
             self.assertIn(token, src)
         install = (ROOT / 'install.sh').read_text(encoding='utf-8')
         self.assertIn('PI_EXTENSIONS_DIR', install)
@@ -342,7 +342,7 @@ class Tests(unittest.TestCase):
         router = (ROOT / 'skills/story-film/SKILL.md').read_text(encoding='utf-8')
         for token in ['three visible pipeline rows', '/story-todo toggle', 'Do not work ahead', 'at most three Story-Film items']:
             self.assertIn(token, pipeline_skill)
-        for token in ['Compact mode shows three pipeline rows', 'Why a Todo can look stale', 'at most three Story-Film items']:
+        for token in ['Compact mode shows three pipeline rows', 'Why a Todo can look stale', 'at most three Story-Film items', 'Ctrl+Alt+T', '/story-todo help']:
             self.assertIn(token, docs)
         self.assertIn('Do not start a later specialist or write a later artifact', router)
 
@@ -1549,6 +1549,9 @@ class Tests(unittest.TestCase):
         self.assertIn('input.required', discover_skill)
         self.assertIn('comfyModelFilesystemScanBlockReason', extension)
         self.assertIn('model_inventory.py scan', extension)
+        self.assertIn('rawRegistryEndpoint', extension)
+        self.assertIn('Do not write or run one-off curl/wget/Python parsers', extension)
+        self.assertIn('Do not replace it with direct `curl`', setup_skill)
 
     def test_screenplay_consistency_uses_canon_not_hardcoded_names(self):
         with tempfile.TemporaryDirectory() as td:

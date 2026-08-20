@@ -14,8 +14,8 @@ Use this skill before model-specific ComfyUI generation or when the user wants t
 
 1. Read `../../references/MODEL_SELECTION.md`.
 2. Discover the active ComfyUI server with the native ComfyUI discovery capability.
-3. Run `../../scripts/model_inventory.py scan <project-root> --url <server-url>`. This is the authoritative Story-Film model discovery command.
-4. Treat the ComfyUI `/models` and `/models/{folder}` registry as authoritative for installed model filenames. ComfyUI resolves model roots registered through `extra_model_paths.yaml` and supported startup configuration before these endpoints answer. Do not assume models must live under the ComfyUI application directory.
+3. Run `../../scripts/model_inventory.py scan <project-root> --url <server-url>`. This is the authoritative Story-Film model discovery command. Do not replace it with direct `curl`, `wget`, `urllib`, `requests`, or a helper script.
+4. Treat the ComfyUI `/models` and `/models/{folder}` registry as authoritative for installed model filenames. The bundled `model_inventory.py` tool owns those API calls during Story-Film production. ComfyUI resolves model roots registered through `extra_model_paths.yaml` and supported startup configuration before these endpoints answer. Do not assume models must live under the ComfyUI application directory.
 5. Use `/object_info` only for installed node schemas and model-like dropdown choices. Current ComfyUI node definitions use `input.required` and `input.optional`, not a top-level `inputs` object. Do not use an ad hoc `/object_info` parser as a replacement for the model registry.
 6. Determine which production processes are required.
 7. For each required process, run `../../scripts/model_inventory.py menu <project-root> --process <process-id>`.
@@ -39,7 +39,7 @@ If a ComfyUI folder contains many files, show one process at a time. Group choic
 
 Do not rewrite, shorten, normalize, or guess file names.
 
-Do not run `find /`, `find $HOME`, recursive filesystem searches, or guessed ComfyUI model-directory scans to decide which models are installed. Do not read or parse `extra_model_paths.yaml` unless the user explicitly asks to inspect that configuration. The running ComfyUI server has already resolved those paths.
+Do not run `find /`, `find $HOME`, recursive filesystem searches, guessed ComfyUI model-directory scans, direct `/models` curl loops, or one-off Python/JavaScript parsers to decide which models are installed. Do not read or parse `extra_model_paths.yaml` unless the user explicitly asks to inspect that configuration. The running ComfyUI server has already resolved those paths. Do not write a helper script to enumerate or parse model folders or ComfyUI model-registry endpoints.
 
 If the authoritative inventory returns zero model filenames but the user expects models to exist, stop with a discovery blocker. Re-run the inventory, report the server URL and `/models` result, and ask the user to verify the running ComfyUI instance/configuration if needed. Do not claim that no models are installed, do not download replacements, and do not create mock or simulated generated media.
 

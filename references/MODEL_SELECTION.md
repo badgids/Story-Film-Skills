@@ -52,6 +52,12 @@ Do not use a filesystem-wide `find` command to locate models. Do not assume an e
 
 If `/models` unexpectedly reports no model filenames, record a discovery blocker and diagnose the active server/configuration. Do not download replacement models and do not create mock generated media to bypass the blocker.
 
+### One inventory implementation
+
+The ComfyUI `/models` API is the source of truth, but Story-Film agents must access that API through `scripts/model_inventory.py` during production. This keeps parsing, exact filenames, external model paths, and saved inventory state in one tested implementation.
+
+Do not replace `model_inventory.py` with raw `curl`, `wget`, `urllib`, `requests`, shell loops, or a temporary helper script. Do not write a new model-directory parser. If the inventory tool fails, report that failure as a blocker and repair the tool or server connection.
+
 ## Video default
 
 If the user does not select a video adapter/model family, use `minimax-h3`.

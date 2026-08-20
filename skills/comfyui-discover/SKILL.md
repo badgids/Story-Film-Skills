@@ -35,6 +35,7 @@ python scripts/comfyui_control.py models --folder <category>
 ## Do not
 
 - scan the filesystem for guessed personal ComfyUI paths or model files; use the server model registry instead
+- write one-off model inventory scripts or raw `/models` curl loops when `model_inventory.py` is available; use the bundled inventory tool for Story-Film model selection
 - infer that models are absent because they are outside the ComfyUI application directory
 - create mock media or download substitute models when discovery is incomplete
 - assume a custom node exists from an online workflow

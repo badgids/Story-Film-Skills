@@ -109,9 +109,9 @@ If a retry changes an approved upstream artifact:
 
 The optional Pi extension reads this file and renders a scrollable viewport above the editor.
 
-Compact mode is the default and shows three Story-Film pipeline rows. Expanded mode shows ten rows. Use `/story-todo toggle`, `/story-todo expand`, `/story-todo collapse`, or `Ctrl+Alt+Shift+T`. Both modes can scroll.
+Compact mode is the default and shows three Story-Film pipeline rows. Expanded mode shows ten rows. Use `/story-todo toggle`, `/story-todo expand`, `/story-todo collapse`, or `Ctrl+Alt+T`. Both modes can scroll. The widget always shows a compact key hint so the end user can discover the controls.
 
-It follows the current item unless the user manually scrolls. `Ctrl+Alt+Shift+Home` or `/story-todo current` returns to follow mode.
+It follows the current item unless the user manually scrolls. `Ctrl+Alt+Home` or `/story-todo current` returns to follow mode.
 
 The extension also exposes compact Pi status lines for the active pipeline and next action. It appends a small runtime reminder to each agent turn so the model sees the authoritative current target. It can block a read of a specialist skill that only appears in a future pending pipeline target. This prevents accidental work-ahead without pretending that file existence proves completion.
 

@@ -62,10 +62,10 @@ You can also use:
 ```text
 /story-todo expand
 /story-todo collapse
-Ctrl+Alt+Shift+T
+Ctrl+Alt+T
 ```
 
-The shortcut uses `Ctrl+Alt+Shift+T` so it does not take over a host's common `Ctrl+T` binding.
+The shortcut uses `Ctrl+Alt+T` so it does not take over a host's common `Ctrl+T` binding.
 
 ## Keep the two Todo panels small
 
@@ -106,7 +106,18 @@ Do not repair stale progress by marking files complete only because they exist. 
 /story-todo page-up
 /story-todo page-down
 /story-todo current
+/story-todo help
+/story-todo keys
 /story-resource
+```
+
+Keyboard controls:
+
+```text
+Ctrl+Alt+T                Toggle compact or expanded view
+Ctrl+Alt+Up/Down          Scroll one row
+Ctrl+Alt+PageUp/PageDown  Scroll one page
+Ctrl+Alt+Home             Follow the current Story-Film item
 ```
 
 ## Command-line controls

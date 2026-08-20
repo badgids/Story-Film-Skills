@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.0.18 (00.00.18) - 2026-08-20
+
+- Restored reliable Story-Film Todo hotkeys with `Ctrl+Alt` bindings that use fewer terminal modifiers.
+- Added a visible Todo control hint in both compact and expanded views.
+- Added `/story-todo help` and `/story-todo keys` so controls remain discoverable without documentation.
+- Hardened ComfyUI model discovery so the agent cannot bypass `model_inventory.py` with raw `curl`, `wget`, inline Python HTTP parsers, filesystem model scans, or helper scripts.
+- Clarified that `/models` and `/models/{folder}` remain the authoritative ComfyUI server APIs, but Story-Film agents must access them through the bundled inventory tool during production.
+
 ## v0.0.17 (00.00.17) - 2026-08-20
 
 - Fixed ComfyUI model discovery for installations that use `extra_model_paths.yaml` or other server-registered external model directories. Story-Film now treats ComfyUI's `/models` and `/models/{folder}` registry as authoritative instead of assuming models live under the ComfyUI application directory.
