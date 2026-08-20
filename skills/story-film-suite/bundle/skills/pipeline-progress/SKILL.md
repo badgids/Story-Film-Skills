@@ -121,11 +121,10 @@ Controls:
 - `/story-todo page-up|page-down`
 - `/story-todo current`
 - `/story-todo help|keys`
+- `Ctrl+Alt+End` toggles compact/expanded Story-Film Todo
 - `Ctrl+Alt+Up/Down`
 - `Ctrl+Alt+PageUp/PageDown`
 - `Ctrl+Alt+Home`
-- `Ctrl+Alt+T` toggles compact/expanded Story-Film Todo
-- `Ctrl+Alt+Shift+T` is the fallback compact/expanded toggle
 
 Markers:
 

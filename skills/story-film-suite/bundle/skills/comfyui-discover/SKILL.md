@@ -19,9 +19,10 @@ license: Apache-2.0
 2. Probe the server before doing generation work.
 3. Read system stats and features.
 4. Query exact node classes or filtered node catalog only when the task needs them.
-5. Query model categories and filenames only when model availability matters. Use `/models` and `/models/{folder}` through the bundled client or `model_inventory.py`; these server registries include model roots registered through `extra_model_paths.yaml`.
-6. Use `/object_info` for node schemas. Its node input schema is under `input.required` and `input.optional`. Do not treat an empty result from an incorrectly parsed `inputs` field as evidence that models are missing.
-7. Save a project snapshot to `04_generation/comfyui/server_snapshot.json` when reproducibility or later diagnosis benefits.
+5. Before building a workflow, run the bundled workflow catalog. It combines project workflows/templates, ComfyUI user workflows, official core templates, and installed custom-node example workflows without scanning personal filesystem paths.
+6. Query model categories and filenames only when model availability matters. Use `/models` and `/models/{folder}` through the bundled client or `model_inventory.py`; these server registries include model roots registered through `extra_model_paths.yaml`.
+7. Use `/object_info` for node schemas. Its node input schema is under `input.required` and `input.optional`. Do not treat an empty result from an incorrectly parsed `inputs` field as evidence that models are missing.
+8. Save a project snapshot to `04_generation/comfyui/server_snapshot.json` when reproducibility or later diagnosis benefits.
 
 Bundled commands:
 
@@ -29,6 +30,7 @@ Bundled commands:
 python scripts/comfyui_control.py probe
 python scripts/comfyui_control.py nodes --query <term>
 python scripts/comfyui_control.py models
+python scripts/comfyui_control.py --project PROJECT workflow-catalog --query <term>
 python scripts/comfyui_control.py models --folder <category>
 ```
 
@@ -36,6 +38,7 @@ python scripts/comfyui_control.py models --folder <category>
 
 - scan the filesystem for guessed personal ComfyUI paths or model files; use the server model registry instead
 - write one-off model inventory scripts or raw `/models` curl loops when `model_inventory.py` is available; use the bundled inventory tool for Story-Film model selection
+- write one-off `/workflow_templates`, `/userdata`, `/object_info`, or `/prompt` parsers/loops when the bundled controller already owns workflow discovery and execution
 - infer that models are absent because they are outside the ComfyUI application directory
 - create mock media or download substitute models when discovery is incomplete
 - assume a custom node exists from an online workflow

@@ -19,7 +19,7 @@ This is the ComfyUI router for Story-Film Skills.
 
 ## Route
 
-- inspect server, nodes, models, features, or resources: `comfyui-discover`
+- inspect server, nodes, models, features, resources, existing workflows, or templates: `comfyui-discover`
 - inspect, validate, edit, or prepare workflow JSON: `comfyui-workflow`
 - submit, wait, queue, cancel, free memory, or collect a run: `comfyui-run`
 - upload inputs or download generated outputs: `comfyui-assets`
@@ -33,6 +33,8 @@ This is the ComfyUI router for Story-Film Skills.
 ## Rules
 
 - Discover live capabilities before naming executable nodes, model files, or templates.
+- Before creating an executable graph, catalog existing project workflows/templates, saved ComfyUI user workflows, official core templates, and installed custom-node example workflows. Reuse and minimally patch a suitable source before considering a new graph.
+- A Story-Film prompt adapter name describes prompt grammar only. It never proves that a same-named ComfyUI node, API node, checkpoint, or runtime exists.
 - ComfyUI-Pi-Agent is not a prerequisite for any capability in this skill.
 - Do not require comfy-cli, comfy-mcp, or comfy-api-proxy for ordinary native API operation.
 - Do not install software, custom nodes, or models unless the user asked for or approved that mutation.

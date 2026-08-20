@@ -11,13 +11,12 @@ Controls:
 - `/story-todo page-up|page-down`
 - `/story-todo current`
 - `/story-todo help|keys`
-- `Ctrl+Alt+T` toggles compact and expanded views
-- `Ctrl+Alt+Shift+T` is the fallback toggle when the primary chord is intercepted by the terminal or host
+- `Ctrl+Alt+End` toggles compact and expanded views
 - `Ctrl+Alt+Up/Down` scrolls
 - `Ctrl+Alt+PageUp/PageDown` pages
 - `Ctrl+Alt+Home` follows the current item
 
-The extension keeps the complete keyboard control set visible in both compact and expanded Todo views. It also listens to Pi's raw terminal-input hook and uses Pi's own key parser as a fallback when normal extension shortcut dispatch does not receive the chord.
+The extension keeps the complete keyboard control set visible in both compact and expanded Todo views. It also listens to Pi's raw terminal-input hook and uses Pi's own key parser when normal extension shortcut dispatch does not receive the chord.
 
 The extension refreshes after tool results and before agent turns, so checkpoints written by `scripts/pipeline_progress.py` appear without maintaining a second state store.
 

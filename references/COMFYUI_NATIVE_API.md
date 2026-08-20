@@ -62,6 +62,40 @@ Lists model folder categories known to the live server.
 
 Lists filenames visible in one model folder category. ComfyUI resolves its registered model roots before this call. This includes roots loaded from `extra_model_paths.yaml` and supported startup path configuration. Story-Film should use this server-visible list instead of scanning the filesystem or assuming model files live under the ComfyUI application directory.
 
+## Workflow and template discovery
+
+Story-Film's bundled controller can combine four live/server sources with the project's own workflow directories:
+
+- `04_generation/comfyui/workflows/` - runnable project copies
+- `04_generation/comfyui/templates/` - preserved project templates
+- `GET /userdata?dir=workflows&recurse=true&full_info=true` - workflows saved by the ComfyUI user
+- `GET /templates/index.json` and `GET /templates/{name}.json` - official/core workflow templates provided by the installed frontend/template packages
+- `GET /workflow_templates` plus `/api/workflow_templates/{module}/{name}.json` - example workflows shipped by installed custom nodes
+
+Current ComfyUI deployments may expose application routes with or without the `/api` prefix. The bundled controller tries the compatible forms for user-data and custom-template discovery.
+
+Use:
+
+```text
+python scripts/comfyui_control.py --project PROJECT workflow-catalog
+python scripts/comfyui_control.py --project PROJECT workflow-catalog --query image
+python scripts/comfyui_control.py --project PROJECT workflow-fetch --source user --name saved.json --out 04_generation/comfyui/templates/saved.json
+python scripts/comfyui_control.py --project PROJECT workflow-fetch --source core --name template-name --out 04_generation/comfyui/templates/template-name.json
+python scripts/comfyui_control.py --project PROJECT workflow-fetch --source custom --module custom-node --name example --out 04_generation/comfyui/templates/example.json
+```
+
+Fetched sources are preserved copies. UI-format workflows must use a supported UI-to-run/conversion path such as current comfy-cli or an API export. API-format candidates are not runnable merely because their JSON shape looks correct: validate them against the live node schemas and choices first.
+
+For a newly constructed API candidate, promote it to the runnable workflow directory only after live validation:
+
+```text
+python scripts/comfyui_control.py --project PROJECT workflow-promote \
+  --candidate 04_generation/comfyui/candidate.json \
+  --out 04_generation/comfyui/workflows/SHOT-001.json
+```
+
+Do not bypass this discovery/validation path with one-off `/workflow_templates`, `/userdata`, `/object_info`, or `/prompt` loops. Do not infer an executable node from a Story-Film prompt-adapter name.
+
 ## Inputs and outputs
 
 ### `POST /upload/image`

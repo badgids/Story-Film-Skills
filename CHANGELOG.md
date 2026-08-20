@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.0.22 (00.00.22) - 2026-08-20
+
+- Removed the non-working `Ctrl+Alt+T` and `Ctrl+Alt+Shift+T` Story-Film Todo shortcuts completely instead of retaining dead compatibility bindings.
+- Added `Ctrl+Alt+End` as the single compact/expanded Todo keyboard toggle; `Ctrl+Alt+Home` continues to focus/follow the current item.
+- Added native ComfyUI workflow discovery across project workflows/templates, ComfyUI user workflows, official core templates, and installed custom-node example workflows.
+- Added native workflow fetch and live-validated promotion commands so executable project workflows are sourced or validated before they enter `04_generation/comfyui/workflows/`.
+- Hardened the Pi runtime guard against raw `/prompt`, `/history`, `/object_info`, workflow-template/userdata HTTP loops, and direct writes of guessed executable `class_type` graphs.
+- Made existing validated workflows/templates the required first choice before new graph construction.
+- Clarified that model prompt adapters such as `qwen-image-2512` describe prompt grammar and do not imply any same-named ComfyUI node, API node, checkpoint, or runtime.
+- Added deterministic coverage for workflow catalog/fetch behavior and for removal of the broken Todo key chords.
+
 ## v0.0.21 (00.00.21) - 2026-08-20
 
 - Fixed Story-Film Todo keyboard handling with a raw terminal-input fallback that uses Pi's own key parser when normal extension shortcut dispatch is unavailable or unreliable.

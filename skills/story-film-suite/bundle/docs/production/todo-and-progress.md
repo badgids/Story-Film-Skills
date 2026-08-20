@@ -62,14 +62,10 @@ You can also use:
 ```text
 /story-todo expand
 /story-todo collapse
-Ctrl+Alt+T
-Ctrl+Alt+Shift+T
+Ctrl+Alt+End
 ```
 
-`Ctrl+Alt+T` is the primary toggle. `Ctrl+Alt+Shift+T` is a fallback for terminals,
-window managers, or Pi variants that intercept the primary chord.
-
-The extension also listens to Pi's raw terminal-input hook and routes the same chords through Pi's own key parser. This is a deterministic fallback when normal extension shortcut dispatch is unavailable or unreliable; it does not require the user to run a shell command.
+`Ctrl+Alt+End` is the keyboard toggle. The extension also listens to Pi's raw terminal-input hook and routes the chord through Pi's own key parser when normal extension shortcut dispatch is unavailable; it does not require the user to run a shell command.
 
 ## Keep the two Todo panels small
 
@@ -118,8 +114,7 @@ Do not repair stale progress by marking files complete only because they exist. 
 Keyboard controls:
 
 ```text
-Ctrl+Alt+T                Toggle compact or expanded view
-Ctrl+Alt+Shift+T          Fallback compact/expanded toggle
+Ctrl+Alt+End              Toggle compact or expanded view
 Ctrl+Alt+Up/Down          Scroll one row
 Ctrl+Alt+PageUp/PageDown  Scroll one page
 Ctrl+Alt+Home             Focus/follow the current Story-Film item

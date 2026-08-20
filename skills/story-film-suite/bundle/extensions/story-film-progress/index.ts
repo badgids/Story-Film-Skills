@@ -27,8 +27,7 @@ const KEY = "story-film-pipeline-todo";
 const EXPANDED_ROWS = 10;
 const COLLAPSED_ROWS = 3;
 const SHORTCUTS = {
-  toggle: "ctrl+alt+t",
-  toggleFallback: "ctrl+alt+shift+t",
+  toggle: "ctrl+alt+end",
   up: "ctrl+alt+up",
   down: "ctrl+alt+down",
   pageUp: "ctrl+alt+pageUp",
@@ -39,7 +38,7 @@ const ANSI = /\x1b\[[0-?]*[ -/]*[@-~]/g;
 type ViewportAction = "up" | "down" | "page-up" | "page-down" | "current" | "follow" | "toggle" | "expand" | "collapse" | "compact";
 
 function terminalShortcutAction(data: string): ViewportAction | undefined {
-  if (matchesKey(data, SHORTCUTS.toggle) || matchesKey(data, SHORTCUTS.toggleFallback)) return "toggle";
+  if (matchesKey(data, SHORTCUTS.toggle)) return "toggle";
   if (matchesKey(data, SHORTCUTS.up)) return "up";
   if (matchesKey(data, SHORTCUTS.down)) return "down";
   if (matchesKey(data, SHORTCUTS.pageUp)) return "page-up";
@@ -49,7 +48,7 @@ function terminalShortcutAction(data: string): ViewportAction | undefined {
 }
 
 const CONTROL_HINTS = [
-  "Toggle: Ctrl+Alt+T | fallback: Ctrl+Alt+Shift+T",
+  "Toggle: Ctrl+Alt+End",
   "Scroll: Ctrl+Alt+Up/Down",
   "Page: Ctrl+Alt+PageUp/PageDown",
   "Focus current: Ctrl+Alt+Home | Help: /story-todo help",
@@ -166,7 +165,7 @@ function pipelineGuardPrompt(value: Progress | undefined): string | undefined {
   if (!value?.stages?.length || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
   const flat = flatten(value);
   const currentLine = flat.lines[flat.current] || value.next_action || "current Story-Film target";
-  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n- For ComfyUI model discovery, use Story-Film's scripts/model_inventory.py scan and menu commands against the live server. ComfyUI's /models registry includes server-registered external model directories such as extra_model_paths.yaml. Do not call /models directly with curl, wget, urllib, requests, or one-off parser scripts. Do not use filesystem-wide find/grep scans to decide that models are missing. Do not infer model absence from an ad hoc /object_info parser.\n`;
+  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n- For ComfyUI model discovery, use Story-Film's scripts/model_inventory.py scan and menu commands against the live server. ComfyUI's /models registry includes server-registered external model directories such as extra_model_paths.yaml. Do not call /models directly with curl, wget, urllib, requests, or one-off parser scripts. Do not use filesystem-wide find/grep scans to decide that models are missing. Do not infer model absence from an ad hoc /object_info parser.\n- Before creating or replacing an executable ComfyUI graph, use scripts/comfyui_control.py workflow-catalog. Prefer, in order: a validated project workflow, a project template, a saved ComfyUI user workflow, an official core template, then an installed custom-node example workflow. Only construct a new candidate when no suitable source exists, and promote it only after live validation. Prompt adapters describe prompt grammar; an adapter name never proves that a same-named ComfyUI node, API node, checkpoint, or runtime exists.\n- Use Story-Film's bundled ComfyUI controllers for discovery, validation, submission, history, and batch execution. Do not replace them with one-off curl/urllib/requests scripts or direct /prompt loops.\n`;
 }
 
 function futureSkillBlockReason(value: Progress | undefined, requested: string | undefined): string | undefined {
@@ -239,6 +238,43 @@ function comfyModelFilesystemScanBlockReason(value: Progress | undefined, event:
     const filesystemModelParser = /extra_model_paths|\.safetensors|models\/checkpoints|models\/diffusion|models\/vae|models\/loras/i.test(content)
       && /\b(?:find|glob|walk|listdir|scandir|rglob)\b/i.test(content);
     if (codeFile && ((rawRegistryEndpoint && rawHttpClient) || filesystemModelParser)) return reason;
+  }
+
+  return undefined;
+}
+
+function comfyWorkflowBypassBlockReason(value: Progress | undefined, event: any): string | undefined {
+  if (!value || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  const input = event?.input ?? {};
+  const reason = "Use Story-Film's bundled ComfyUI workflow path: run scripts/comfyui_control.py workflow-catalog first, fetch/preserve an existing workflow or template when available, validate executable API graphs against the live server, and submit through comfyui_control.py/comfyui_batch.py/resource_handoff.py. Do not write guessed class_type graphs directly into 04_generation/comfyui/workflows or bypass Story-Film with raw ComfyUI HTTP loops.";
+  const approved = (text: string): boolean => [
+    "comfyui_control.py",
+    "comfyui_cli_bridge.py",
+    "comfyui_batch.py",
+    "resource_handoff.py",
+    "model_inventory.py",
+  ].some(name => text.toLowerCase().includes(name));
+  const rawHttp = /\b(?:curl|wget)\b|urllib(?:\.request)?|urlopen\s*\(|requests\.|httpx\.|aiohttp\./i;
+  const controlledEndpoint = /\/(?:api\/)?(?:prompt|history|queue|object_info|workflow_templates|userdata)(?:\/|\b)|\/templates\/[^\s'"`]+/i;
+  const workflowPath = /04_generation[\\/]comfyui[\\/]workflows[\\/][^\s'"`]+\.json/i;
+  const executableGraph = /["']class_type["']/i;
+
+  if (new Set(["bash", "shell", "terminal"]).has(tool)) {
+    const command = String(input.command ?? input.cmd ?? input.script ?? "");
+    if (approved(command)) return undefined;
+    if (rawHttp.test(command) && controlledEndpoint.test(command)) return reason;
+    if (workflowPath.test(command) && executableGraph.test(command)) return reason;
+    return undefined;
+  }
+
+  if (new Set(["write", "write_file", "writefile"]).has(tool)) {
+    const path = String(input.path ?? input.file_path ?? input.filepath ?? "");
+    const content = String(input.content ?? input.text ?? input.data ?? "");
+    if (approved(content)) return undefined;
+    if (workflowPath.test(path) && executableGraph.test(content)) return reason;
+    const codeFile = /\.(?:py|sh|bash|zsh|js|mjs|cjs|ts)$/i.test(path);
+    if (codeFile && rawHttp.test(content) && controlledEndpoint.test(content)) return reason;
   }
 
   return undefined;
@@ -386,7 +422,8 @@ export default function storyFilmProgress(pi: any): void {
     const value = load(ctx.cwd);
     const reason = futureSkillBlockReason(value, requestedSkillName(event))
       ?? genericTodoBlockReason(value, event)
-      ?? comfyModelFilesystemScanBlockReason(value, event);
+      ?? comfyModelFilesystemScanBlockReason(value, event)
+      ?? comfyWorkflowBypassBlockReason(value, event);
     if (!reason) return undefined;
     ctx.ui.notify?.(reason, "warning");
     return { block: true, reason };
@@ -417,7 +454,7 @@ export default function storyFilmProgress(pi: any): void {
       if (!state.active) { ctx.ui.notify?.("No active Story-Film pipeline todo is available.", "info"); return; }
       const known = ["up", "down", "page-up", "page-down", "current", "follow", "toggle", "expand", "collapse", "compact", "help", "keys"];
       if (action === "help" || action === "keys") {
-        ctx.ui.notify?.("Story-Film Todo keys: Ctrl+Alt+T toggles compact/expanded; Ctrl+Alt+Shift+T is the fallback toggle if the primary chord is intercepted; Ctrl+Alt+Up/Down scroll; Ctrl+Alt+PageUp/PageDown page; Ctrl+Alt+Home follows current. Slash commands remain available as /story-todo toggle|up|down|page-up|page-down|current.", "info");
+        ctx.ui.notify?.("Story-Film Todo keys: Ctrl+Alt+End toggles compact/expanded; Ctrl+Alt+Up/Down scroll; Ctrl+Alt+PageUp/PageDown page; Ctrl+Alt+Home follows current. Slash commands remain available as /story-todo toggle|up|down|page-up|page-down|current.", "info");
         return;
       }
       if (action === "status" || !known.includes(action)) {
@@ -456,6 +493,5 @@ export default function storyFilmProgress(pi: any): void {
     pi.registerShortcut(SHORTCUTS.pageDown, { description: "Page Story-Film todo down", handler: runShortcut("page-down") });
     pi.registerShortcut(SHORTCUTS.follow, { description: "Focus current Story-Film todo", handler: runShortcut("current") });
     pi.registerShortcut(SHORTCUTS.toggle, { description: "Toggle compact Story-Film todo", handler: runShortcut("toggle") });
-    pi.registerShortcut(SHORTCUTS.toggleFallback, { description: "Toggle compact Story-Film todo (fallback)", handler: runShortcut("toggle") });
   }
 }

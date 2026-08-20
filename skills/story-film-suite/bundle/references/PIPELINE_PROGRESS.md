@@ -109,7 +109,7 @@ If a retry changes an approved upstream artifact:
 
 The optional Pi extension reads this file and renders a scrollable viewport above the editor.
 
-Compact mode is the default and shows three Story-Film pipeline rows. Expanded mode shows ten rows. Use `/story-todo toggle`, `/story-todo expand`, `/story-todo collapse`, or `Ctrl+Alt+T`. If the host intercepts that chord, use `Ctrl+Alt+Shift+T`. Both modes can scroll. The widget always shows a compact key hint so the end user can discover the controls.
+Compact mode is the default and shows three Story-Film pipeline rows. Expanded mode shows ten rows. Use `/story-todo toggle`, `/story-todo expand`, `/story-todo collapse`, or `Ctrl+Alt+End`. Both modes can scroll. The widget always shows a compact key hint so the end user can discover the controls.
 
 It follows the current item unless the user manually scrolls. `Ctrl+Alt+Home` or `/story-todo current` returns to follow mode.
 

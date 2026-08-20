@@ -194,11 +194,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.21')
-        self.assertEqual(version_display.display_version(version), 'v0.0.21')
+        self.assertEqual(version, '00.00.22')
+        self.assertEqual(version_display.display_version(version), 'v0.0.22')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.22'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.23'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -333,9 +333,11 @@ class Tests(unittest.TestCase):
 
     def test_pi_progress_extension_contract(self):
         src = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
-        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+home', 'ctrl+alt+t', 'ctrl+alt+shift+t', '/story-todo help', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items', 'comfyModelFilesystemScanBlockReason', 'extra_model_paths.yaml', 'model_inventory.py scan', 'rawRegistryEndpoint', 'write_file', '@earendil-works/pi-tui', 'matchesKey', 'onTerminalInput', 'terminalShortcutAction', 'consume: true']:
+        for token in ['pipeline_progress.json', 'resource_handoff.json', 'story-todo', 'story-resource', 'agent_end', 'setInterval', 'setWidget', 'ctrl+alt+home', 'ctrl+alt+end', '/story-todo help', 'following current', 'COLLAPSED_ROWS = 3', 'EXPANDED_ROWS = 10', 'systemPromptAppend', 'tool_call', 'Do not work ahead', 'genericTodoBlockReason', 'at most three Story-Film mirror items', 'comfyModelFilesystemScanBlockReason', 'comfyWorkflowBypassBlockReason', 'workflow-catalog', 'extra_model_paths.yaml', 'model_inventory.py scan', 'rawRegistryEndpoint', 'write_file', '@earendil-works/pi-tui', 'matchesKey', 'onTerminalInput', 'terminalShortcutAction', 'consume: true']:
             self.assertIn(token, src)
-        for control in ['Toggle: Ctrl+Alt+T', 'fallback: Ctrl+Alt+Shift+T', 'Scroll: Ctrl+Alt+Up/Down', 'Page: Ctrl+Alt+PageUp/PageDown', 'Focus current: Ctrl+Alt+Home']:
+        self.assertNotIn('ctrl+alt+t', src)
+        self.assertNotIn('ctrl+alt+shift+t', src)
+        for control in ['Toggle: Ctrl+Alt+End', 'Scroll: Ctrl+Alt+Up/Down', 'Page: Ctrl+Alt+PageUp/PageDown', 'Focus current: Ctrl+Alt+Home']:
             self.assertIn(control, src)
         install = (ROOT / 'install.sh').read_text(encoding='utf-8')
         self.assertIn('PI_EXTENSIONS_DIR', install)
@@ -347,8 +349,10 @@ class Tests(unittest.TestCase):
         router = (ROOT / 'skills/story-film/SKILL.md').read_text(encoding='utf-8')
         for token in ['three visible pipeline rows', '/story-todo toggle', 'Do not work ahead', 'at most three Story-Film items']:
             self.assertIn(token, pipeline_skill)
-        for token in ['Compact mode shows three pipeline rows', 'Both compact and expanded modes show the full keyboard control legend', 'Why a Todo can look stale', 'at most three Story-Film items', 'Ctrl+Alt+T', 'Ctrl+Alt+Shift+T', 'Ctrl+Alt+PageUp/PageDown', 'Ctrl+Alt+Home', '/story-todo help']:
+        for token in ['Compact mode shows three pipeline rows', 'Both compact and expanded modes show the full keyboard control legend', 'Why a Todo can look stale', 'at most three Story-Film items', 'Ctrl+Alt+End', 'Ctrl+Alt+PageUp/PageDown', 'Ctrl+Alt+Home', '/story-todo help']:
             self.assertIn(token, docs)
+        self.assertNotIn('Ctrl+Alt+T', docs)
+        self.assertNotIn('Ctrl+Alt+Shift+T', docs)
         self.assertIn('Do not start a later specialist or write a later artifact', router)
 
     def test_feature_sequence_and_context_shards(self):
@@ -1617,6 +1621,44 @@ class Tests(unittest.TestCase):
             proc=subprocess.run([sys.executable,str(ROOT/'scripts/validate_story_project.py'),str(project)],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
             self.assertNotEqual(proc.returncode,0)
             self.assertIn('COMP-###',proc.stdout)
+
+    def test_comfyui_workflow_catalog_reuses_existing_sources_and_rejects_guesses(self):
+        workflow = {
+            '1': {'class_type': 'TestNode', 'inputs': {'choice': 'a', 'value': 3}},
+            '2': {'class_type': 'SaveTest', 'inputs': {'data': ['1', 0]}},
+        }
+        with tempfile.TemporaryDirectory() as td:
+            project = Path(td) / 'film'
+            workflows = project / '04_generation/comfyui/workflows'
+            templates = project / '04_generation/comfyui/templates'
+            workflows.mkdir(parents=True)
+            templates.mkdir(parents=True)
+            (workflows / 'local.json').write_text(json.dumps(workflow), encoding='utf-8')
+            client = comfyui_control.Client('http://127.0.0.1:1')
+            with patch.object(client, 'user_workflows', return_value=[
+                {'source': 'user', 'name': 'saved.json', 'path': 'workflows/saved.json'}
+            ]), patch.object(client, 'template_catalog', return_value=([
+                {'source': 'core', 'name': 'core-image'},
+                {'source': 'custom', 'module': 'CustomPack', 'name': 'custom-example'},
+            ], [])):
+                catalog = client.workflow_catalog(project)
+            self.assertEqual(
+                [x['source'] for x in catalog['workflows'][:4]],
+                ['project-workflow', 'user', 'core', 'custom'],
+            )
+            with patch.object(client, '_get_first', return_value=workflow):
+                self.assertEqual(client.fetch_workflow_source('user', 'saved.json'), workflow)
+                self.assertEqual(client.fetch_workflow_source('custom', 'custom-example', module='CustomPack'), workflow)
+            with patch.object(client, 'get', return_value={'nodes': [{'id': 1, 'type': 'TestNode'}], 'links': []}):
+                core = client.fetch_workflow_source('core', 'core-image')
+            self.assertEqual(comfyui_workflow.detect_format(core), 'ui')
+            with self.assertRaises(ValueError):
+                client.fetch_workflow_source('core', '../escape')
+        with FakeComfyServer() as srv:
+            guessed = {'1': {'class_type': 'QwenImageTextToImageApi', 'inputs': {}}}
+            verdict = comfyui_control.Client(srv.url).validate_workflow(guessed)
+            self.assertFalse(verdict['valid'])
+            self.assertTrue(any('not installed' in item for item in verdict['errors']))
 
 if __name__ == '__main__':
     unittest.main()
