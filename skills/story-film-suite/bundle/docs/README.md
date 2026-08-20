@@ -38,7 +38,7 @@ These documents use controlled, simple English. Sentences are short. Terms stay 
 ### 4. Image, audio, and video generation
 
 - [ComfyUI generation](generation/comfyui.md)
-- [Choose the video generation model](generation/model-selection.md)
+- [Choose generation models and ComfyUI resources](generation/model-selection.md)
 - [Resource-safe local generation](generation/resource-safe.md)
 - [RAM and VRAM generation budgets](generation/memory-budget.md)
 - [Recover a partial generation batch](generation/batch-recovery.md)

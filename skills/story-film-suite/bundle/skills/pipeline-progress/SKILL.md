@@ -31,6 +31,8 @@ python scripts/pipeline_progress.py init <project-root> --playbook <playbook-nam
 
 ## Checkpoint rule
 
+Do not work ahead. The current leaf in `pipeline_progress.json` is a hard execution boundary. Do not start a later Story-Film specialist, write its artifact, or mark a generic Pi Todo ahead until the current leaf is complete.
+
 After each actionable leaf step/substep:
 
 1. perform the work
@@ -38,6 +40,9 @@ After each actionable leaf step/substep:
 3. checkpoint only after validation succeeds
 4. include changed files when practical
 5. let the checkpoint advance to the next pending leaf
+6. reread the progress ledger before starting that new target
+
+If Pi also has a generic Todo tool, use it only as a small mirror. Keep at most three Story-Film items there: the current target, the immediate next target, and the requested endpoint. Update that mirror immediately after each Story-Film checkpoint. Never duplicate the complete Story-Film playbook into Pi's generic Todo. When the host exposes a compatible generic Todo initialization tool, the Story-Film extension blocks a new mirrored list with more than three items.
 
 Example:
 
@@ -106,15 +111,19 @@ Resetting progress does not restore creative files or infer dependency impact. I
 
 When the optional Pi extension is installed, it displays stage, step, and substep state above the editor and follows the current item automatically.
 
+The Story-Film viewport starts in compact mode with three visible pipeline rows. Expanded mode shows ten rows. Both modes can scroll and follow the real current target.
+
 Controls:
 
 - `/story-todo status`
+- `/story-todo toggle|expand|collapse`
 - `/story-todo up|down`
 - `/story-todo page-up|page-down`
 - `/story-todo current`
 - `Ctrl+Alt+Shift+Up/Down`
 - `Ctrl+Alt+PageUp/PageDown`
 - `Ctrl+Alt+Shift+Home`
+- `Ctrl+Alt+Shift+T` toggles compact/expanded Story-Film Todo
 
 Markers:
 

@@ -18,6 +18,7 @@ Minimum shape:
   "source_state": "00_project/state.json",
   "canon": "00_project/canon.json",
   "model_preferences": "00_project/model_preferences.json",
+  "model_inventory": "00_project/comfyui_model_inventory.json",
   "reference_manifest": "03_preproduction/references/reference_manifest.json",
   "shot_briefs": "04_generation/shot_briefs.jsonl",
   "image_briefs": "04_generation/image_briefs.jsonl",
@@ -26,6 +27,7 @@ Minimum shape:
   "sfx_cues": "04_generation/sfx_cues.jsonl",
   "prompt_roots": {},
   "requested_models": [],
+  "requested_resources": {},
   "required_inputs": [],
   "expected_outputs": [],
   "stale_ids": [],
@@ -42,7 +44,8 @@ All paths are project-relative.
 The package may specify:
 
 - stable shot or cue ID
-- user-selected model family, or the MiniMax H3 video default when no video model was selected
+- user-selected adapter/model family, or the MiniMax H3 video adapter default when no video adapter was selected
+- exact user-selected ComfyUI resource names by process and adapter profile
 - model family requested
 - prompt file
 - reference IDs and roles
@@ -59,7 +62,7 @@ Do not guess:
 
 - ComfyUI node class names
 - widget indices
-- local model file paths
+- local model file paths outside the names returned by ComfyUI
 - API endpoints
 - custom-node serialization
 - another project's private workflow schema

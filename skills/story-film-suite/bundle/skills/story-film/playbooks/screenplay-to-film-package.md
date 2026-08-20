@@ -1,5 +1,8 @@
 # Screenplay to Film Package
 
+
+> Before model-specific prompts or ComfyUI workflows, run `generation-model-setup`. Poll the live ComfyUI model inventory and record the user-selected adapter plus exact model resources for each production process. MiniMax H3 is only the default video adapter. Do not guess concrete model files, VAEs, text encoders, LoRAs, audio models, or upscalers.
+
 1. `continuity-check`: establish a clean baseline.
 2. Ensure `scene_manifest.json` and `line_manifest.jsonl` are synchronized with the approved screenplay.
 3. `production-breakdown`: one breakdown per scene.

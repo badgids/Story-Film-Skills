@@ -1,5 +1,8 @@
 # ComfyUI Portable Package
 
+
+> Before model-specific prompts or ComfyUI workflows, run `generation-model-setup`. Poll the live ComfyUI model inventory and record the user-selected adapter plus exact model resources for each production process. MiniMax H3 is only the default video adapter. Do not guess concrete model files, VAEs, text encoders, LoRAs, audio models, or upscalers.
+
 1. Run `project-impact` if upstream artifacts changed since the last generation package.
 2. Read the requested scene, shot, cue, or sequence scope.
 3. Ensure required `reference-assets` are approved or explicitly missing.

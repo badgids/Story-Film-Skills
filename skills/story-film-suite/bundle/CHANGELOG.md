@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.0.16 (00.00.16) - 2026-08-20
+
+- Added a project-generic Fountain screenplay consistency verifier. It derives dialogue speaker identities from `00_project/canon.json` and never hardcodes story-specific character names.
+- Integrated screenplay consistency into the main project validator, screenplay-writing skill, and screenplay-revision skill.
+- Added exact checks for dialogue count, dialogue order, dialogue text, and `CHAR-###` speaker identity between `screenplay.fountain` and `line_manifest.jsonl`.
+- Added typo diagnostics with canonical-name suggestions so a misspelled cue such as `EILIAS` is reported directly instead of causing repeated ad hoc debugging.
+- Added regression coverage proving the verifier accepts arbitrary character names and immediately catches the `ELIAS` versus `EILIAS` failure class.
+
+## v0.0.15 (00.00.15) - 2026-08-19
+
+- Made the Story-Film Pi Todo compact by default with three visible pipeline rows while preserving a ten-row expanded view.
+- Added `/story-todo toggle`, `/story-todo expand`, `/story-todo collapse`, and `Ctrl+Alt+Shift+T`. Compact and expanded modes both support scrolling and current-target follow mode.
+- Added a per-turn runtime prompt guard that tells the active model the exact authoritative Story-Film target from `pipeline_progress.json`.
+- Added a deterministic future-specialist read guard. When a specialist exists only in a later pending pipeline target, the Pi extension blocks opening that specialist until the current target is validated and checkpointed.
+- Strengthened pipeline rules so the agent cannot intentionally work ahead and then leave the Todo cursor behind. File existence still never proves completion.
+- Added a host-Todo mirror rule: if Pi provides its own generic Todo, Story-Film work uses at most three mirrored items there: current target, immediate next target, and requested endpoint. Compatible generic Todo initialization calls with more than three items are blocked. The host Todo remains secondary to `pipeline_progress.json`.
+- Documented the boundary that Story-Film cannot portably force a host-owned Todo panel's row count or expansion state through the public extension API.
+
+## v0.0.14 (00.00.14) - 2026-08-19
+
+- Added user-controlled generation configuration for image generation, image editing, video generation, TTS, music, SFX/Foley, image upscaling, video upscaling, and frame interpolation.
+- Added live ComfyUI model inventory polling through the public `/models`, `/models/{folder}`, and `/object_info` APIs. Story-Film Skills now records exact server-reported model folders and model-like node choices before model-specific generation.
+- Expanded `00_project/model_preferences.json` to schema version 2 with per-process, per-adapter profiles. A profile can preserve exact checkpoints, diffusion models, VAEs, text encoders, LoRAs, audio encoders, upscalers, frame-interpolation models, custom model folders, and node-provided model choices.
+- MiniMax H3 remains the default video adapter only. The default no longer implies any checkpoint, VAE, text encoder, LoRA, or other concrete ComfyUI resource. Other generation processes have no forced adapter default and require a user selection or explicit delegation before model-specific generation.
+- Added `scripts/model_inventory.py` and the `generation-model-setup` skill. Pi must show the user the installed choices for each required production process and record the exact selections instead of choosing from file order or model availability.
+- Added backward-compatible migration from the v0.0.13 video-only model preference schema and kept `set-video` and `reset-video` command aliases.
+- Added deterministic tests for live inventory polling, model-specific VAE/text-encoder profiles, LoRA strengths, per-process selection, inactive profile preservation, missing-resource blocking, and v1-to-v2 preference migration.
+
 ## v0.0.13 (00.00.13) - 2026-08-19
 
 - Fixed video-generation model selection. The user owns the video-model choice; Story-Film Skills no longer chooses LTX or another adapter merely because it appears to fit the shot.

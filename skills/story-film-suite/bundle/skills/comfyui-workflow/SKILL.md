@@ -13,17 +13,19 @@ license: Apache-2.0
 - `../../references/COMFYUI_WORKFLOWS.md`
 - `../../references/COMFYUI_NATIVE_API.md`
 - `../../references/COMFYUI_SECURITY.md`
+- `../../references/MODEL_SELECTION.md`
 
 ## Procedure
 
 1. Identify the workflow format.
 2. If API format, inspect its required class types and links.
 3. When a live server is available, validate every class against `/object_info` and verify required inputs.
-4. Decide whether this is a throwaway graph or reusable source. For reusable/growing work and an available current comfy-cli, prefer template -> slots/decompose -> fragment/blueprint -> compose. For a small one-time API graph, patch the exact named input in a preserved copy.
-5. For a UI-format workflow, use comfy-cli's supported run/conversion path when available or obtain an API export before native submission.
-6. For a new graph, discover live nodes or an approved current template first. Do not construct class names from memory.
-7. Confirm the requested result reaches a live output node or documented retrievable output path.
-8. Save runnable project workflows under `04_generation/comfyui/workflows/`.
+4. Read `00_project/model_preferences.json` and the current ComfyUI model inventory when model-specific resources are part of the graph. A selected workflow must use the user's exact active profile. If the graph names a different checkpoint, diffusion model, VAE, text encoder, LoRA, audio model, upscaler, or other selected resource, block and repair the mapping instead of letting the workflow override the user's selection.
+5. Decide whether this is a throwaway graph or reusable source. For reusable/growing work and an available current comfy-cli, prefer template -> slots/decompose -> fragment/blueprint -> compose. For a small one-time API graph, patch the exact named input in a preserved copy.
+6. For a UI-format workflow, use comfy-cli's supported run/conversion path when available or obtain an API export before native submission.
+7. For a new graph, discover live nodes or an approved current template first. Do not construct class names from memory.
+8. Confirm the requested result reaches a live output node or documented retrievable output path.
+9. Save runnable project workflows under `04_generation/comfyui/workflows/`.
 
 Bundled offline commands:
 

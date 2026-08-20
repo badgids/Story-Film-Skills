@@ -18,7 +18,9 @@ A Story-Film Skills project uses this layout.
   decision_map.json                   large-project decision compass
   decision_map.md                     human-readable compass companion
   resource_policy.json                local LLM and ComfyUI lifecycle policy
-  model_preferences.json              user-owned generation-model choices; MiniMax H3 is the default video model
+  model_preferences.json              per-process adapter and exact ComfyUI resource choices; MiniMax H3 is the default video adapter
+  comfyui_model_inventory.json         latest model folders and choices reported by the active ComfyUI server
+  comfyui_model_inventory.md           human-readable ComfyUI model inventory
   resource_handoff.json               model-free runtime handoff status
   resource_events.jsonl               append-only resource transition events
   RESOURCE_RESUME.md                  post-generation resume pointer

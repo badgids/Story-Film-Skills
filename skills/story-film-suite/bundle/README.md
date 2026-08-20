@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.13`
-**Canonical version:** `00.00.13`
+**Display version:** `v0.0.16`
+**Canonical version:** `00.00.16`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -15,6 +15,7 @@ v0.0.11 completes the initial prototype-building phase. The project now includes
 
 - [What it can do](#what-it-can-do)
 - [Feature-length production](#feature-length-production)
+- [Choose generation models](#choose-generation-models)
 - [Install](#install)
   - [Install with Pi](#install-with-pi-recommended)
   - [Project-only Pi install](#project-only-pi-install)
@@ -43,6 +44,7 @@ Story-Film Skills can manage a project from a loose idea to a finished release p
 - scene geography, blocking, shooting scripts, shot lists, storyboards, and previz;
 - voice, dialogue, music, ambience, Foley, and SFX planning;
 - ComfyUI workflow validation and execution;
+- user-controlled per-process ComfyUI model stacks, including exact VAEs, text encoders, LoRAs, audio models, upscalers, and custom model choices;
 - resource-safe offline ComfyUI batches for machines that cannot hold an LLM and generation model at the same time;
 - deterministic media QC and take selection;
 - FFmpeg/FFprobe, ImageMagick, optional MLT, Kdenlive, and Shotcut workflows;
@@ -67,6 +69,14 @@ v0.0.11 adds nine controls for long films:
 9. **Final completeness auditing** blocks a false completion claim until required production evidence is present.
 
 Read the [Feature-scale production guide](docs/production/feature-scale.md).
+
+## Choose generation models
+
+Story-Film Skills polls the active ComfyUI server before model-specific generation. Pi can then show the installed choices for image generation, image editing, video, TTS, music, SFX/Foley, upscaling, frame interpolation, VAEs, text encoders, LoRAs, and other server-reported model folders.
+
+The user owns these choices. MiniMax H3 is the default video adapter only when the user did not choose a video adapter. That default does not choose a concrete checkpoint, VAE, text encoder, or LoRA.
+
+Read [Choose generation models and ComfyUI resources](docs/generation/model-selection.md).
 
 ## Install
 

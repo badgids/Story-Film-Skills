@@ -1,5 +1,8 @@
 # Short Film
 
+
+> Before model-specific prompts or ComfyUI workflows, run `generation-model-setup`. Poll the live ComfyUI model inventory and record the user-selected adapter plus exact model resources for each production process. MiniMax H3 is only the default video adapter. Do not guess concrete model files, VAEs, text encoders, LoRAs, audio models, or upscalers.
+
 1. `story-brief`: include target runtime.
 2. `story-architecture`: one central dramatic question and minimal subplot load.
 3. `character-bible`: only characters who affect the film.

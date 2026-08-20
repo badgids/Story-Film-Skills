@@ -75,6 +75,8 @@ The model does not estimate counts. Counts come from the selected playbook files
 
 A step is completed only after its required artifact validation succeeds.
 
+The current leaf is also a hard work boundary. An agent must not open a future Story-Film specialist or create that later specialist's artifact while the current leaf is still pending/current/blocked. Complete, validate, checkpoint, then move. The Pi extension adds a runtime guard for future specialist reads when the requested skill is represented later in the active pipeline.
+
 A validation error changes the active leaf to `blocked`; it does not select the next leaf. Repair stays scoped to the same current target until it passes.
 
 ## Recovery
@@ -107,9 +109,13 @@ If a retry changes an approved upstream artifact:
 
 The optional Pi extension reads this file and renders a scrollable viewport above the editor.
 
+Compact mode is the default and shows three Story-Film pipeline rows. Expanded mode shows ten rows. Use `/story-todo toggle`, `/story-todo expand`, `/story-todo collapse`, or `Ctrl+Alt+Shift+T`. Both modes can scroll.
+
 It follows the current item unless the user manually scrolls. `Ctrl+Alt+Shift+Home` or `/story-todo current` returns to follow mode.
 
-The extension also exposes compact Pi status lines for the active pipeline and next action.
+The extension also exposes compact Pi status lines for the active pipeline and next action. It appends a small runtime reminder to each agent turn so the model sees the authoritative current target. It can block a read of a specialist skill that only appears in a future pending pipeline target. This prevents accidental work-ahead without pretending that file existence proves completion.
+
+Pi or another harness may also provide its own generic Todo panel. That panel is owned by the host, not by the Story-Film extension. When the agent uses it during a Story-Film run, it must mirror at most three Story-Film items: current, immediate next, and endpoint. `pipeline_progress.json` remains authoritative if the two displays disagree. On compatible Pi Todo tools, the extension also blocks initialization of a generic Story-Film mirror with more than three items.
 
 The UI owns no pipeline state and can be removed without damaging project resumability.
 

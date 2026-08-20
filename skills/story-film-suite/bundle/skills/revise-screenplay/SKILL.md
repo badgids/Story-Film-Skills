@@ -18,8 +18,9 @@ license: Apache-2.0
 6. Update the scene manifest and `02_screenplay/line_manifest.jsonl` immediately after screenplay changes. Preserve existing `LINE-###` IDs for surviving units; retire or remove deleted units and assign new IDs only to genuinely new production units.
 7. Mark downstream preproduction and generation artifacts stale in state.
 
-8. Apply the `project-impact` procedure after accepted screenplay changes and mark affected production artifacts stale.
+8. Run `scripts/screenplay_consistency.py <project>` after screenplay or line-manifest edits. Do not verify dialogue with a hand-written list of character names.
+9. Apply the `project-impact` procedure after accepted screenplay changes and mark affected production artifacts stale.
 
 ## Done
 
-Screenplay, scene manifest, and line manifest agree, accepted notes are resolved, and no stale production artifact is still marked approved.
+Screenplay, scene manifest, and line manifest agree, `screenplay_consistency.py` passes, accepted notes are resolved, and no stale production artifact is still marked approved.

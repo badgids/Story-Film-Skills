@@ -22,7 +22,7 @@ This is the general entry point for Story-Film Skills. The package is standalone
 8. If no project exists, initialize one with `../../scripts/init_story_project.py` or create the same structure manually.
 9. For any playbook with more than one ordered step, read `../pipeline-progress/SKILL.md`. If no active matching progress ledger exists, initialize it with `../../scripts/pipeline_progress.py init`. If one already exists, resume its current target instead of reconstructing progress from chat history.
 10. Execute the playbook in order. Before each specialist step, read the named sibling `SKILL.md`.
-11. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance.
+11. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance. Do not start a later specialist or write a later artifact until the current leaf is validated and checkpointed.
 12. Update `00_project/state.json` after each completed artifact.
 13. If an approved upstream artifact changes, run `project-impact` before rebuilding downstream work.
 14. Run continuity, narrative-state, production-coverage when applicable, dramaturgy, prompt, standalone, and style checks at the gates required by the playbook.
@@ -35,6 +35,8 @@ Do not invent a new workflow while a listed playbook fits. If more than one fits
 
 Work one artifact at a time. Save it. Validate it. Checkpoint the corresponding pipeline leaf. Then continue. For long work, process one chapter, scene, sequence, or stale dependency slice at a time. After restart or compaction, read `00_project/pipeline_progress.json` and `00_project/HANDOFF.md` before opening unrelated context.
 
+If the host provides a generic Todo tool, do not duplicate the full Story-Film playbook there. Mirror at most three Story-Film items: current target, immediate next target, and requested endpoint. Refresh that mirror only after the authoritative Story-Film checkpoint advances.
+
 ## Standalone rule
 
 Never stop required creative or preproduction work because another skill pack is missing. Create the native portable artifact defined by this suite. ComfyUI is optional for planning and packaging. When the user asks to operate or generate through an available ComfyUI server, route through the native `comfyui` capability rather than assuming another agent extension is installed.
@@ -42,6 +44,11 @@ Never stop required creative or preproduction work because another skill pack is
 ## Creative planning routing
 
 If the user wants to pressure-test an idea, resolve creative ambiguity, turn existing discussion into a durable production specification, split a large production into executable work units, or chart a project whose route is not yet clear, route through `playbooks/creative-planning-and-execution.md`. Facts that can be discovered from files or tools are agent work; creative decisions remain the user's unless explicitly delegated.
+
+
+## Generation model and resource selection
+
+Before creating model-specific prompts or ComfyUI workflows, read `../generation-model-setup/SKILL.md`. Poll the active ComfyUI model inventory and show the user the available choices for every production process that applies. Record the adapter/model family and exact concrete resources in `00_project/model_preferences.json`. Do not infer VAEs, text encoders, LoRAs, checkpoints, audio models, upscalers, or other installed resources from adapter names or installed file order. MiniMax H3 remains the default video adapter only when the user did not choose a video adapter.
 
 ## Resource-safe local generation routing
 
