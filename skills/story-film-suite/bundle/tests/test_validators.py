@@ -195,11 +195,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.25')
-        self.assertEqual(version_display.display_version(version), 'v0.0.25')
+        self.assertEqual(version, '00.00.26')
+        self.assertEqual(version_display.display_version(version), 'v0.0.26')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.26'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.27'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -321,6 +321,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(package.get('peerDependencies', {}).get('@earendil-works/pi-tui'), '*')
         manifest = package.get('pi', {})
         self.assertIn('./extensions/story-film-progress/index.ts', manifest.get('extensions', []))
+        self.assertIn('./extensions/story-film-comfy-workflow/index.ts', manifest.get('extensions', []))
         skills = manifest.get('skills', [])
         self.assertIn('./skills/*/SKILL.md', skills)
         self.assertIn('!./skills/story-film-suite/SKILL.md', skills)

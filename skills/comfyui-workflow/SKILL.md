@@ -14,8 +14,23 @@ license: Apache-2.0
 - `../../references/COMFYUI_NATIVE_API.md`
 - `../../references/COMFYUI_SECURITY.md`
 - `../../references/MODEL_SELECTION.md`
+- `../../references/COMFYUI_BOUNDED_WORKFLOW.md`
 
 ## Procedure
+
+### Bounded production workflow path
+
+For ordinary Story-Film production recovery or workflow creation, use the Pi-native `story_comfy_workflow` tool before the lower-level procedure below.
+
+1. Call `story_comfy_workflow` with `action=prepare`, a concrete workflow/model query, and the media type.
+2. The deterministic script owns source discovery/fetching, live node/model snapshots, and the build contract.
+3. If no directly finalizable source exists, the LLM may adapt a preserved source or author exactly one canonical API graph using only the live schemas. The LLM builds the graph; it does not fan out shots or build the batch.
+4. Put `__STORY_FILM_PROMPT__` in the positive-prompt input. Optional deterministic markers are `__STORY_FILM_NEGATIVE_PROMPT__` and `__STORY_FILM_FILENAME_PREFIX__`.
+5. Pass the single canonical graph to `story_comfy_workflow` with `action=finalize`. Deterministic code owns live validation, approved-prompt reuse, per-shot fan-out, quarantine, offline-batch rebuild, and resource-handoff arming.
+6. If finalization reports a graph error, repair only the canonical graph and retry. Do not create/install custom nodes as a fallback.
+7. When finalization returns `waiting-for-agent-end`, stop backend work and end the agent turn cleanly.
+
+See `../../references/COMFYUI_BOUNDED_WORKFLOW.md`.
 
 1. Run `scripts/comfyui_control.py --project PROJECT workflow-catalog` before constructing a new executable graph.
 2. Select the first suitable source in this order: already validated project workflow; project template; saved ComfyUI user workflow; official core template; installed custom-node example workflow.

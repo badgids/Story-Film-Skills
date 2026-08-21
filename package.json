@@ -1,6 +1,6 @@
 {
   "name": "story-film-skills",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "private": true,
   "description": "Local-first Agent Skills for story, book, screenplay, image, audio, video, film, postproduction, and release workflows.",
   "license": "Apache-2.0",
@@ -27,7 +27,8 @@
   "pi": {
     "extensions": [
       "./extensions/story-film-progress/index.ts",
-      "./extensions/story-film-comfy/index.ts"
+      "./extensions/story-film-comfy/index.ts",
+      "./extensions/story-film-comfy-workflow/index.ts"
     ],
     "skills": [
       "./skills/*/SKILL.md",

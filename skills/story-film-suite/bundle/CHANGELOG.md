@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.0.26 (00.00.26) - 2026-08-20
+
+- Added the Pi-native `story_comfy_workflow` bounded orchestration tool. The LLM may author exactly one canonical API-format ComfyUI graph; deterministic code owns discovery, safe source fetching, live validation, approved-prompt reuse, per-shot fan-out, offline-batch rebuild, and resource-handoff arming.
+- `prepare` now searches project, saved-user, core, and custom-node workflow sources without allowing stale project SHOT workflows to starve other source classes, refreshes the complete live model inventory, captures live node schemas, and writes a bounded build contract.
+- `finalize` rejects hallucinated node classes, missing required inputs, invalid live model choices, invalid output indexes, and incompatible links before touching runnable workflows, then transactionally compiles and validates every per-shot workflow.
+- Interrupted productions now prefer the existing offline batch as the authoritative job/source ordering so Story-Film preserves job IDs, source IDs, dependencies, output directories, timeouts, and retry policy instead of reconstructing them from guesses.
+- Per-shot fan-out now reuses already-prepared Story-Film prompt artifacts under `04_generation/prompts/<adapter>/<source-id>.md` when present rather than asking the LLM to rewrite prompts that were completed earlier in the pipeline.
+- Fixed nested saved-user workflow fetching by preserving path separators in `/userdata/workflows/...` routes.
+- Added a bounded-phase Pi guard that prevents the agent from manually writing SHOT workflows or `offline_batch.json`, invoking backend batch/handoff scripts, or using unrelated `story_comfy` actions while the deterministic workflow pipeline owns the step.
+- The bounded pipeline never creates, installs, or updates ComfyUI custom nodes. Custom-node development remains a separate action that requires an explicit user request.
+- Added deterministic regression coverage for nested saved workflows, source starvation, one-graph LLM authorship, offline-batch recovery, approved-prompt reuse, transactional failure behavior, fan-out, quarantine, batch validation, and handoff arming.
+
 ## v0.0.25 (00.00.25) - 2026-08-20
 
 - Added Pi-native workflow catalog/fetch, live node search/info/path, workflow validation, and validated promotion actions that do not depend on MCP tool-name discovery.

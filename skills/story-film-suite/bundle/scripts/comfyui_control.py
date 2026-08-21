@@ -384,8 +384,9 @@ class Client:
                 rel = "workflows/" + rel
             if not rel.lower().endswith(".json"):
                 rel += ".json"
-            encoded = urllib.parse.quote(rel, safe="")
-            out = self._get_first([f"userdata/{encoded}", f"api/userdata/{encoded}"])
+            encoded = urllib.parse.quote(rel, safe="/")
+            legacy_encoded = urllib.parse.quote(rel, safe="")
+            out = self._get_first([f"userdata/{encoded}", f"api/userdata/{encoded}", f"userdata/{legacy_encoded}", f"api/userdata/{legacy_encoded}"])
         elif source == "core":
             clean = self._safe_template_segment(name, "core template name")
             out = self.get(f"templates/{urllib.parse.quote(clean, safe='')}.json")
