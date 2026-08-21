@@ -68,6 +68,7 @@ def main() -> int:
         'scripts/comfyui_cli_bridge.py',
         'scripts/comfy_api_v2.py',
         'scripts/comfy_official_runtime.py',
+        'scripts/comfy_workflow_runtime.py',
         'references/HIERARCHICAL_PRODUCTION_PLANNING.md',
         'references/PRODUCTION_CAPABILITIES.md',
         'references/PERFORMANCE_BLOCKING.md',

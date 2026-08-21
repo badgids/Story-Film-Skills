@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.0.25 (00.00.25) - 2026-08-20
+
+- Added Pi-native workflow catalog/fetch, live node search/info/path, workflow validation, and validated promotion actions that do not depend on MCP tool-name discovery.
+- Workflow discovery now searches project workflows/templates, saved ComfyUI user workflows, official/core templates, and installed custom-node example workflows before graph synthesis.
+- Added deterministic live type-link validation so a candidate cannot be promoted when an installed node output is wired to an incompatible input type or output index.
+- Made MCP optional for normal workflow construction: `server-info` falls back to the native ComfyUI probe, and `mcp-status` reports MCP failure without hiding native ComfyUI availability.
+- Strengthened runtime steering so workflow synthesis uses only node classes, inputs, outputs, model choices, and type paths reported by the running ComfyUI instance.
+- Explicitly separated workflow composition from custom-node development: Story-Film must not author/install/update custom nodes as a workflow fallback unless the user explicitly requests and approves that action.
+- Added regression coverage for saved-workflow search, installed-node-only synthesis, type-compatible wiring, hallucinated-node rejection, promotion gating, and MCP-independent workflow control.
+
 ## v0.0.24 (00.00.24) - 2026-08-20
 
 - Added native `story_comfy` `model-inventory` and `model-search` actions backed by Story-Film's deterministic live ComfyUI model registry scan.

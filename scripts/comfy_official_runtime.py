@@ -37,6 +37,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import model_inventory
+import comfy_workflow_runtime
 
 OFFICIAL_PACKAGES = ("comfy-cli>=1.14.0", "comfy-mcp", "comfy-api-proxy")
 DEFAULT_COMFYUI_URL = "http://127.0.0.1:8188"
@@ -450,7 +451,45 @@ def dispatch_request(req: dict[str, Any], *, project: str | Path | None = None) 
         state["proxy"] = _proxy_health(v2_url)
         return {"ok": True, "action": action, "runtime": state}
     if action == "server-info":
-        return _run_mcp({"action": "call", "tool": "server_info", "arguments": {}}, comfyui_url, 120.0)
+        try:
+            return _run_mcp({"action": "call", "tool": "server_info", "arguments": {}}, comfyui_url, 120.0)
+        except (RuntimeErrorDetail, subprocess.TimeoutExpired, OSError) as exc:
+            return comfy_workflow_runtime.server_info(comfyui_url, mcp_error=str(exc))
+    if action == "mcp-status":
+        try:
+            result = _run_mcp({"action": "list-tools"}, comfyui_url, 120.0)
+            return {
+                "ok": True,
+                "action": action,
+                "transport": "managed-comfy-mcp-stdio",
+                "comfyui_url": comfyui_url,
+                "tool_count": len(_tool_records(result)),
+            }
+        except (RuntimeErrorDetail, subprocess.TimeoutExpired, OSError) as exc:
+            native = comfy_workflow_runtime.server_info(comfyui_url, mcp_error=str(exc))
+            return {
+                "ok": False,
+                "action": action,
+                "comfyui_url": comfyui_url,
+                "error": str(exc),
+                "native_comfyui": native.get("result"),
+            }
+    if action in {
+        "workflow-catalog",
+        "workflow-fetch",
+        "node-search",
+        "node-info",
+        "node-path",
+        "workflow-validate",
+        "workflow-promote",
+    }:
+        root = _find_project(project)
+        if root is None:
+            raise RuntimeErrorDetail("workflow operations require a Story-Film project with 00_project state")
+        try:
+            return comfy_workflow_runtime.dispatch(req, project=root, comfyui_url=comfyui_url)
+        except comfy_workflow_runtime.WorkflowRuntimeError as exc:
+            raise RuntimeErrorDetail(str(exc)) from exc
     if action in {"model-inventory", "model-search"}:
         root = _find_project(project)
         if root is None:
