@@ -21,6 +21,10 @@ license: Apache-2.0
    - camera instructions are physically compatible and motivated by the shot brief
    - lighting does not contradict itself
    - character, wardrobe, prop, and location continuity match canon
+   - no canonical `must_not_be` trait is requested
+   - required speech/movement/stillness intent is not accidentally contradicted
+   - required visible-dialogue line, speaker, mouth visibility, cut policy, and timing survive adaptation
+   - required end-frame state and capture behavior survive without conflicting camera instructions
    - negative constraints do not fight positive instructions
    - model-specific fields and section order are correct
 3. Fix prompt-level defects directly. Escalate canon conflicts to the upstream artifact.

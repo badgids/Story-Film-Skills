@@ -31,6 +31,7 @@ One JSON object per line:
   "action_capability_keys": ["open-hand"],
   "camera": "slow push in from chest-up to hand and face",
   "movement_reason": "The push begins when her hand opens and new information becomes visible.",
+  "capture_behavior": "stable exposure, deliberate focus response, restrained operator motion",
   "eye_trace": "eyes first, then right hand",
   "action": "She keeps eye contact off-screen while opening her right hand below frame line.",
   "environmental_pressure": "cold draft moves the loose cuff thread",
@@ -42,12 +43,14 @@ One JSON object per line:
   "music": "none",
   "sfx": ["small metal key shifts against skin"],
   "references": ["REF-001", "REF-007"],
+  "lip_sync": [],
+  "end_frame": null,
   "cut_intent": "cut after the key is readable but before the off-screen guard answers",
   "constraints": ["guard never visible", "no readable text"]
 }
 ```
 
-The extra dramaturgy fields are production intent. They are not provider syntax. They help adapters preserve why the shot exists.
+The extra dramaturgy fields are production intent. They are not provider syntax. They help adapters preserve why the shot exists. `capture_behavior`, `lip_sync`, and `end_frame` remain model-neutral. Use `VISIBLE_DIALOGUE_SYNC.md` for their exact contracts.
 
 ## Image brief JSONL
 
@@ -90,3 +93,11 @@ Normalized box order is `[x0, y0, x1, y1]` in the range 0 through 1, with `x0 < 
 Do not invent boxes from vague prose. Prefer semantic placement such as `frame-left`, `center`, `background-right`, or a previz-derived screen region unless exact normalized bounds are intentionally chosen. Adapters may omit the box when the target model has no meaningful spatial-conditioning control.
 
 `camera_capability_key` and `action_capability_keys` may point into `03_preproduction/production_capabilities.json` when the production route has an explicit executable vocabulary. They are portable constraint identities, not model tokens.
+
+## Optional visible dialogue, capture behavior, and end frame
+
+Use `capture_behavior` for visible optical/operator behavior that must survive model adaptation without inventing a camera brand.
+
+Use `lip_sync` only when an exact `LINE-###` must be visibly spoken by its canonical `CHAR-###` speaker. Off-screen dialogue does not require it.
+
+Use `end_frame` only when a chained generation, last-frame-conditioned workflow, match on action, or editorial handoff needs an explicit final visual state. Subject, prop, and reference IDs must resolve.

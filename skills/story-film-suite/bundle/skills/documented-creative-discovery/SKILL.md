@@ -13,7 +13,8 @@ Maintain:
 
 - `00_project/creative_decisions.jsonl` for `DEC-###` decisions
 - `00_project/production_glossary.md` for project-specific production/story terms that an agent could misinterpret
-- existing canon/story-state artifacts for facts that become canon
+- existing canon/story-state artifacts for facts that become canon or mutable narrative state
+- `00_project/creative_production_spec.md` for durable project production conventions that are not story canon
 - `SRC-###` and `CLAIM-###` when a decision depends on factual evidence
 - `00_project/decision_map.*` when the effort is too large for one session
 

@@ -12,7 +12,7 @@ Run:
 python scripts/regression_suite.py
 ```
 
-This gate runs skill validation, standalone validation, static future-eval validation, and the deterministic unit/integration suite.
+This gate runs skill validation, standalone validation, character-profile validation, visible-dialogue sync validation, static future-eval validation, and the deterministic unit/integration suite.
 
 ## Local-model smoke tests
 

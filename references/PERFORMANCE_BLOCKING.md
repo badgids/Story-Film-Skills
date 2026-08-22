@@ -46,12 +46,14 @@ It complements previz. Previz describes scene geometry. Performance blocking des
 ## Rules
 
 1. Use existing `LINE-###`, `SCN-###`, and `CHAR-###` IDs.
-2. Separate movement that changes position from gestures or performance actions that do not.
-3. Describe playable behavior, not abstract emotion. `looks at the exit and folds the receipt` is playable. `feels conflicted` is not enough.
-4. Preserve initial and end state when the action changes posture, position, possession, or orientation.
-5. When a capability registry exists, use its exact action or anchor key for hard execution constraints.
-6. Do not invent an exact coordinate when a relative anchor is sufficient.
-7. Dialogue timing may begin as estimated and later change to measured after voice generation.
+2. Read canonical speech, movement, and stillness signatures when present. Treat them as character defaults, not mandatory gestures.
+3. Read current relationship, injury, possession, and knowledge state from `story_state.json` when it affects the beat.
+4. Separate movement that changes position from gestures or performance actions that do not.
+5. Describe playable behavior, not abstract emotion. `looks at the exit and folds the receipt` is playable. `feels conflicted` is not enough.
+6. Preserve initial and end state when the action changes posture, position, possession, or orientation.
+7. When a capability registry exists, use its exact action or anchor key for hard execution constraints.
+8. Do not invent an exact coordinate when a relative anchor is sufficient.
+9. Dialogue timing may begin as estimated and later change to measured after voice generation.
 
 ## Complex interactions
 

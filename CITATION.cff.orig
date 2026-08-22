@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: Story-Film Skills
+message: "If you reference Story-Film Skills in research or documentation, please cite the software and credit Alan Guice (Badgids)."
+type: software
+authors:
+  - family-names: Guice
+    given-names: Alan
+    alias: Badgids
+version: 0.0.26
+date-released: 2026-08-20
+license: Apache-2.0

@@ -17,7 +17,9 @@ Each shard contains:
 - the sequence scene IDs
 - related stable IDs
 - only the matching scene, line, blocking, shot, generation, take, media, and timeline records that can be traced into that sequence
-- hashes of source control files used to build the shard
+- only the relevant character, location, prop, and relationship-baseline canon records
+- only the relevant current character and prop state from `story_state.json`
+- hashes of source control files used to build the shard, including canon and story state when present
 - a short Markdown summary
 
 Read the shard first. Open a full source file only when the shard points to it or a global validator needs it.

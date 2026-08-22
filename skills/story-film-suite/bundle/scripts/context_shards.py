@@ -36,6 +36,41 @@ def read_records(root: Path, rel: str, kind: str) -> list[dict[str, Any]]:
     return records_from_json(load_json(path, {}))
 
 
+def scoped_canon_and_state(root: Path, active: set[str]) -> tuple[dict[str, Any], dict[str, Any]]:
+    canon = load_json(root / '00_project/canon.json', {}) or {}
+    story_state = load_json(root / '01_story/story_state.json', {}) or {}
+    char_ids = {x for x in active if x.startswith('CHAR-')}
+    loc_ids = {x for x in active if x.startswith('LOC-')}
+    prop_ids = {x for x in active if x.startswith('PROP-')}
+
+    canon_subset = {
+        'characters': {k: v for k, v in (canon.get('characters', {}) or {}).items() if k in char_ids},
+        'locations': {k: v for k, v in (canon.get('locations', {}) or {}).items() if k in loc_ids},
+        'props': {k: v for k, v in (canon.get('props', {}) or {}).items() if k in prop_ids},
+        'relationship_baselines': {},
+    }
+    baselines = canon.get('relationship_baselines', {}) if isinstance(canon.get('relationship_baselines', {}), dict) else {}
+    for key, record in baselines.items():
+        pair = record.get('characters', []) if isinstance(record, dict) else []
+        if isinstance(pair, list) and len(pair) == 2 and all(cid in char_ids for cid in pair):
+            canon_subset['relationship_baselines'][key] = record
+
+    state_characters = {}
+    for cid, record in (story_state.get('characters', {}) or {}).items():
+        if cid not in char_ids or not isinstance(record, dict):
+            continue
+        copy = dict(record)
+        relationships = copy.get('relationships')
+        if isinstance(relationships, dict):
+            copy['relationships'] = {target: value for target, value in relationships.items() if target in char_ids}
+        state_characters[cid] = copy
+    state_subset = {
+        'characters': state_characters,
+        'props': {k: v for k, v in (story_state.get('props', {}) or {}).items() if k in prop_ids},
+    }
+    return canon_subset, state_subset
+
+
 def build_one(root: Path, seq: dict[str, Any], all_sources: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
     active: set[str] = set(seq.get('scene_ids') or []) | {seq['sequence_id']}
     selected: dict[str, list[dict[str, Any]]] = {name: [] for name, _, _ in SOURCES}
@@ -56,8 +91,10 @@ def build_one(root: Path, seq: dict[str, Any], all_sources: dict[str, list[dict[
         if not changed:
             break
     refs = sorted(x for x in active if x.startswith(('CHAR-', 'LOC-', 'PROP-', 'REF-')))
+    canon_subset, state_subset = scoped_canon_and_state(root, active)
     source_files = []
-    for _, relpath, _ in SOURCES:
+    source_paths = [relpath for _, relpath, _ in SOURCES] + ['00_project/canon.json', '01_story/story_state.json']
+    for relpath in source_paths:
         path = root / relpath
         if path.is_file():
             source_files.append({'path': relpath, 'sha256': sha256_file(path)})
@@ -69,6 +106,8 @@ def build_one(root: Path, seq: dict[str, Any], all_sources: dict[str, list[dict[
         'related_ids': sorted(active),
         'reference_ids': refs,
         'records': {name: rows for name, rows in selected.items() if rows},
+        'canon': canon_subset,
+        'story_state': state_subset,
         'source_snapshots': source_files,
         'generated_at': now(),
         'rule': 'Load this shard first. Load a source file only when the shard points to it or validation requires it.',
@@ -89,6 +128,15 @@ def render_md(shard: dict[str, Any]) -> str:
     lines += ['', '## Record counts', '']
     for name, rows in shard.get('records', {}).items():
         lines.append(f'- {name}: {len(rows)}')
+    canon = shard.get('canon', {})
+    state = shard.get('story_state', {})
+    lines += ['', '## Scoped canon and current state', '']
+    lines.append(f"- canon characters: {len(canon.get('characters', {}))}")
+    lines.append(f"- canon locations: {len(canon.get('locations', {}))}")
+    lines.append(f"- canon props: {len(canon.get('props', {}))}")
+    lines.append(f"- relationship baselines: {len(canon.get('relationship_baselines', {}))}")
+    lines.append(f"- current character states: {len(state.get('characters', {}))}")
+    lines.append(f"- current prop states: {len(state.get('props', {}))}")
     lines += ['', '## Related stable IDs', '']
     ids = shard.get('related_ids', [])
     if ids:

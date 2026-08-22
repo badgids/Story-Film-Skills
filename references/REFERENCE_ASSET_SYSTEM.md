@@ -153,13 +153,21 @@ Example:
   "version": 1,
   "inherits": [],
   "must_preserve": ["face identity", "scar under left eye"],
+  "must_not_be": ["scar under right eye"],
   "may_vary": ["expression", "pose"],
+  "drift_risks": ["hair length tends to increase in side views"],
   "source": "generated",
   "rights_note": "project-created asset",
   "verification": "approved by project",
   "notes": ""
 }
 ```
+
+## Exclusions and drift risks
+
+`must_not_be` is a canonical exclusion inherited from approved identity or world facts. A reference or prompt may not silently contradict it.
+
+`drift_risks` is a production observation about recurring generation failure. It is not canon. Record risks such as mirrored scars, changing hair length, disappearing jewelry, or geometry drift so later local generations can defend against known failure without rewriting identity.
 
 ## Provenance and rights
 

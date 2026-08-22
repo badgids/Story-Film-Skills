@@ -195,11 +195,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.26')
-        self.assertEqual(version_display.display_version(version), 'v0.0.26')
+        self.assertEqual(version, '00.00.27')
+        self.assertEqual(version_display.display_version(version), 'v0.0.27')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.27'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.28'], check=True)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -208,6 +208,8 @@ class Tests(unittest.TestCase):
             subprocess.run([sys.executable, str(ROOT / 'scripts/validate_story_project.py'), str(project)], check=True)
             state = json.loads((project / '00_project/state.json').read_text())
             self.assertEqual(state['project_title'], 'Test')
+            canon = json.loads((project / '00_project/canon.json').read_text())
+            self.assertEqual(canon['relationship_baselines'], {})
             self.assertTrue((project / '03_preproduction/previz').is_dir())
             self.assertTrue((project / '03_preproduction/references/music').is_dir())
             self.assertTrue((project / '04_generation/comfyui/workflows').is_dir())
@@ -307,7 +309,7 @@ class Tests(unittest.TestCase):
 
     def test_pipeline_progress_all_playbooks_compile(self):
         playbooks = sorted((ROOT / 'skills/story-film/playbooks').glob('*.md'))
-        self.assertEqual(len(playbooks), 36)
+        self.assertEqual(len(playbooks), 37)
         for path in playbooks:
             value = pipeline_progress.compile_pipeline(path, max_depth=3)
             pipeline_progress.validate_progress(value)

@@ -11,9 +11,11 @@ Never require another skill pack to finish:
 - story or book development
 - screenplay work
 - character, world, continuity, or visual bibles
+- character performance identity and ensemble relationship baselines
 - reference planning
 - production breakdowns
 - directing documents
+- visible-dialogue synchronization planning and end-frame continuity handoff
 - previz specifications
 - shot lists or storyboards
 - model-neutral generation briefs

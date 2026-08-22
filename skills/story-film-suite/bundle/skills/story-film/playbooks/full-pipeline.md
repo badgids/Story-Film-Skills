@@ -7,7 +7,7 @@
 2. Run `story-to-screenplay.md`, using the new story as source.
 3. Run `screenplay-to-film-package.md`.
 4. If the project format is `feature-film`, run `feature-scale-production` before large generation or editorial work.
-5. Final `continuity-check` across canon, story, screenplay, shots, prompts, voices, music, and SFX before generation.
+5. Final `continuity-check` across canon, character performance signatures, current story state, screenplay, visible-dialogue requirements, end-frame handoffs, shots, prompts, voices, music, and SFX before generation.
 6. Resolve video generation through `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`.
 7. If the user requested actual media, run `comfyui-handoff` and the ComfyUI Generate playbook for each approved generation scope. Register every concrete output with `asset-approval`; use `media-qc` and `take-selection` for picture candidates.
 8. When the requested endpoint is a complete finished film, run `film-finishing`.

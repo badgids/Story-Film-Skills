@@ -38,6 +38,7 @@ It does not replace the Fountain screenplay. It compiles approved screenplay lin
   "moves": [],
   "actions": [],
   "shot_ids": ["SHOT-001"],
+  "lip_sync": [],
   "timing": {
     "source": "estimated",
     "speech_duration_s": null,
@@ -60,6 +61,10 @@ Movement that changes character position is stored under `moves`. Gestures, post
 ## Camera
 
 `shot_ids` reference the approved model-neutral shot briefs. Do not replace stable shot IDs with a model-specific node, workflow, camera token, or prompt fragment.
+
+## Visible dialogue
+
+When a line must be visibly spoken, compile the matching `lip_sync` record defined by `VISIBLE_DIALOGUE_SYNC.md`. The shooting-script line, speaker, covering shot, and shot-brief sync record must agree. Off-screen dialogue does not require this record.
 
 ## Timing
 

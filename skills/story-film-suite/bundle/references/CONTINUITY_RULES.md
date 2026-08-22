@@ -19,11 +19,14 @@ For every scene and shot, check:
 - spatial geography
 - injuries and fatigue
 - knowledge each character currently has
-- relationship state
+- relationship state, including baseline versus chronology-specific changes
+- canonical physical exclusions and known identity locks
+- unintended speech-signature, movement-signature, or stillness-signature drift
 - unfinished actions carried across cuts
 - match-on-action phase and direction across cuts
 - intentional versus accidental 180-degree axis crossing
-- dialogue wording when lip sync matters
+- exact dialogue wording, visible speaker identity, mouth visibility, and timing when lip sync matters
+- explicit end-frame handoff when the next shot depends on the exact endpoint
 - ambient sound and score continuity
 
 Use `01_story/story_state.json` for mutable chronology, character knowledge, life state, prop state, open questions, and promises/payoffs when present. A continuity conflict must name the two conflicting sources and identify which source wins under `CORE_CONTRACT.md`. Deterministic validation can catch ordering and schema conflicts, but it does not replace creative review of motive, suspense, pacing, or performance.

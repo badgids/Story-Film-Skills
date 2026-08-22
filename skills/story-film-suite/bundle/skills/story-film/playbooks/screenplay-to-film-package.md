@@ -14,9 +14,9 @@
 9. `performance-blocking`: compile playable movement and action for production-relevant `LINE-###` units.
 10. `shot-design` and `shot-list`: create coverage tied back to source line IDs.
 11. `storyboard-prompts`: develop only the visual depth each scope needs.
-12. `dialogue-voice`, `score-plan`, and `sound-design` as needed. Preserve line IDs and exact dialogue.
-13. `shooting-script`: compile line, blocking, camera, and timing into a portable execution plan.
-14. `production-coverage`: prove that the requested screenplay scope has not been silently dropped.
+12. `dialogue-voice`, `score-plan`, and `sound-design` as needed. Preserve line IDs and exact dialogue. Propagate measured speech timing where available.
+13. `shooting-script`: compile line, blocking, camera, visible-dialogue sync when required, and timing into a portable execution plan.
+14. `production-coverage`: prove that the requested screenplay scope, including required visible-dialogue synchronization, has not been silently dropped.
 15. `generation-pack`, then resolve the video model from `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`. Run the selected model adapters and `prompt-qc`.
 16. If actual generation occurs, register concrete media with `asset-approval`; run `media-qc`, then `take-selection` for picture candidates.
 17. `edit-plan` and `editorial-package` as requested.

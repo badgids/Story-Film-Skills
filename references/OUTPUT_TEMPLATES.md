@@ -19,6 +19,58 @@ Production constraints:
 Open decisions:
 ```
 
+## Character profile
+
+```text
+## CHAR-001 - Name
+
+### Story function
+Role:
+Objective:
+Fear or limit:
+Contradiction:
+Pressure behavior:
+
+### Canonical identity
+Physical identifiers:
+Must preserve:
+Must not be:
+May vary:
+
+### Speech signature
+Register:
+Texture:
+Cadence:
+Default volume:
+Vocabulary:
+Habits:
+Changes under pressure:
+
+### Movement signature
+Gesture quality:
+Body carriage:
+Gait:
+Habitual actions:
+Changes under pressure:
+
+### Stillness signature
+Posture:
+Hands:
+Gaze:
+Breath:
+Resting expression:
+
+### Relationships and ensemble behavior
+
+### Story information
+Private knowledge:
+Behaviorally relevant backstory:
+Arc start:
+Arc target:
+
+### Open decisions
+```
+
 ## Beat
 
 ```text

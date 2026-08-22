@@ -21,6 +21,9 @@ Story, character, world, dialogue, visual, performance, sound, music, and editor
 ## Production Requirements
 Generation routes, production capabilities, editable-project needs, output formats, resource constraints, and human approval gates.
 
+## Project Production Conventions
+Durable project-specific naming, prompt formatting, generation, handoff, review, and delivery conventions that affect production execution but are not story canon. Preserve the user's exact rule wording when it is already clear.
+
 ## User Outcomes
 A long numbered list in the form: `As <participant>, I need <result>, so that <benefit>.` Participants may include the audience, writer, director, editor, performer, compositor, sound designer, marketing operator, or end user.
 

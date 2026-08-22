@@ -7,6 +7,8 @@ import argparse
 import json
 from pathlib import Path
 
+from dialogue_sync import build_coverage as build_dialogue_sync_coverage
+
 
 def read_json(path: Path, default):
     if not path.exists():
@@ -145,11 +147,18 @@ def build_report(root: Path, scene_ids: set[str] | None = None):
     missing_line_manifest = screenplay_exists and not line_path.exists()
     empty_line_manifest = screenplay_exists and line_path.exists() and not lines
     missing_shooting_script = bool(lines) and not shooting_path.exists()
+    dialogue_sync = build_dialogue_sync_coverage(root, scene_ids)
+    sync_blockers = any(dialogue_sync.get(key) for key in (
+        'missing_lip_sync_coverage',
+        'lip_sync_speaker_conflicts',
+        'lip_sync_timing_conflicts',
+        'lip_sync_line_conflicts',
+    ))
     blockers = bool(
         invalid_lines or duplicate_lines or missing_voice or missing_shot_coverage or
         missing_blocking or missing_shooting_unit or text_drift or unresolved_shots or timing_conflicts or
         orphan_voice or orphan_blocking or orphan_shooting or orphan_shot_links or
-        missing_line_manifest or empty_line_manifest or missing_shooting_script
+        missing_line_manifest or empty_line_manifest or missing_shooting_script or sync_blockers
     )
     report = {
         'schema_version': 1,
@@ -179,6 +188,7 @@ def build_report(root: Path, scene_ids: set[str] | None = None):
         'orphan_shooting_lines': orphan_shooting,
         'orphan_shot_line_links': orphan_shot_links,
     }
+    report.update(dialogue_sync)
     return report
 
 
@@ -199,6 +209,10 @@ def markdown(report):
         ('Text drift', report['text_drift']),
         ('Unresolved shots', report['unresolved_shots']),
         ('Timing conflicts', report['timing_conflicts']),
+        ('Missing visible-dialogue sync coverage', report.get('missing_lip_sync_coverage', [])),
+        ('Visible-dialogue speaker conflicts', report.get('lip_sync_speaker_conflicts', [])),
+        ('Visible-dialogue timing conflicts', report.get('lip_sync_timing_conflicts', [])),
+        ('Visible-dialogue line conflicts', report.get('lip_sync_line_conflicts', [])),
         ('Orphan voice lines', report['orphan_voice_lines']),
         ('Orphan blocking lines', report['orphan_blocking_lines']),
         ('Orphan shooting lines', report['orphan_shooting_lines']),

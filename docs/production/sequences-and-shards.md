@@ -42,7 +42,7 @@ python scripts/sequence_manager.py set PROJECT SEQ-001 in-production
 
 A context shard is a small package of records related to one sequence.
 
-It includes matching scene, line, shot, blocking, generation, take, media, and timeline records when those records exist.
+It includes matching scene, line, shot, blocking, generation, take, media, and timeline records when those records exist. It also includes only the relevant character/location/prop canon, relationship baselines, and current character/prop story state for the sequence.
 
 ## Build shards
 

@@ -41,6 +41,23 @@ Use movement only when it has a reason:
 
 Describe start and end framing for meaningful moves. Record the movement reason separately when the shot schema supports it.
 
+## Dynamic register
+
+A scene may optionally use a semantic dynamic register:
+
+- `restrained`: movement is rare or absent; composition and performance carry the scene
+- `responsive`: modest motivated camera or performer adjustment follows changes
+- `kinetic`: frequent motivated physical or camera changes
+- `extreme`: deliberately aggressive or unstable movement when the scene earns it
+
+Dynamic register never creates movement by itself. If nothing changes, a locked camera can still be the correct choice.
+
+## Capture behavior
+
+Describe visible capture behavior instead of inventing camera brands or fixed hardware. Useful properties include operator stability, focus response, exposure response, depth-of-field tendency, motion cadence, rolling-shutter behavior, consumer sharpening, HDR behavior, grain or noise, and lens distortion.
+
+A visual bible can define reusable capture behavior for an era, sequence, or project. A shot brief should resolve only the behavior that matters to that shot.
+
 ## Screen geography
 
 Maintain eyelines, entrances, exits, dominant screen direction, and the 180-degree axis unless a deliberate break has a stated audience purpose.

@@ -122,6 +122,7 @@ def main():
             'characters': {},
             'locations': {},
             'props': {},
+            'relationship_baselines': {},
             'world_rules': [],
             'visual_rules': [],
             'audio_rules': [],

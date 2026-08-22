@@ -19,7 +19,8 @@ license: Apache-2.0
 
 ## Rules
 
-- Do not load the full feature-film state when a sequence shard is sufficient.
+- Do not load the full feature-film state when a sequence shard is sufficient. A shard includes the relevant canon and current story-state subset needed for its related character/location/prop IDs.
+- Do not treat a shard as a second canon; authoritative project files still win.
 - Do not infer completion from file existence alone.
 - Do not hide an exception. Record the exception and the reason.
 - Preserve stable IDs and project-relative paths.

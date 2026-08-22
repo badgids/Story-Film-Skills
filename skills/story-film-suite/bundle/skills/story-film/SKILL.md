@@ -43,6 +43,8 @@ Never stop required creative or preproduction work because another skill pack is
 
 ## Creative planning routing
 
+If the requested endpoint is a story bible, deep character/world lock, or durable cast/world development, route through `playbooks/story-bible-development.md`. Story-Film uses its existing distributed brief/canon/story/character/world/state artifacts instead of creating a project-specific skill as a second canon database.
+
 If the user wants to pressure-test an idea, resolve creative ambiguity, turn existing discussion into a durable production specification, split a large production into executable work units, or chart a project whose route is not yet clear, route through `playbooks/creative-planning-and-execution.md`. Facts that can be discovered from files or tools are agent work; creative decisions remain the user's unless explicitly delegated.
 
 

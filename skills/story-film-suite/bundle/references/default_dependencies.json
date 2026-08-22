@@ -70,7 +70,9 @@
       "scope": "global",
       "depends_on": [
         "scene-outline",
-        "canon"
+        "canon",
+        "characters",
+        "world"
       ]
     },
     "scene-manifest": {
@@ -93,6 +95,7 @@
       "scope": "global",
       "depends_on": [
         "canon",
+        "characters",
         "screenplay",
         "scene-manifest",
         "story-state"
@@ -103,6 +106,7 @@
       "scope": "global",
       "depends_on": [
         "screenplay",
+        "characters",
         "continuity"
       ]
     },
@@ -120,6 +124,7 @@
       "scope": "global",
       "depends_on": [
         "canon",
+        "characters",
         "continuity",
         "director-book",
         "visual-bible"
@@ -196,6 +201,7 @@
       "scope": "global",
       "depends_on": [
         "canon",
+        "characters",
         "world",
         "screenplay"
       ]
@@ -215,6 +221,7 @@
       "scope": "line",
       "depends_on": [
         "line-manifest",
+        "characters",
         "continuity",
         "director-book",
         "production-capabilities",

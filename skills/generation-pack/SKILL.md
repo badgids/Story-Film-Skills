@@ -13,9 +13,9 @@ license: Apache-2.0
 1. Read core contract, prompt packet schema, model selection, model routing, canon, continuity, reference manifest, and requested production artifacts.
 2. Normalize all generation work into the appropriate JSONL files under `04_generation/`.
 3. Keep one task per object. A shot, keyframe, voice line, music cue, or SFX cue is one task.
-4. Use stable IDs and explicit reference IDs with roles and preserve rules.
+4. Use stable IDs and explicit reference IDs with roles and preserve rules. Carry character performance constraints, canonical exclusions, capture behavior, visible-dialogue sync, and end-frame state when they are relevant to the task.
 5. Do not choose model-specific syntax here. Preserve an explicit user model choice when one exists. For video work with no user choice, the downstream default is `minimax-h3`.
-6. Mark whether identity, exact text, lip sync, first frame, last frame, reference audio, or duration is hard-required.
+6. Mark whether identity, exact text, visible lip sync, first frame, last frame, end-frame state, reference audio, or duration is hard-required. If a selected local route cannot honor a hard requirement, record a blocker rather than deleting the requirement.
 
 ## Done
 

@@ -6,13 +6,13 @@
 Use for a full-length film package. Never attempt all screenplay pages, shots, references, and prompts in one working buffer.
 
 1. `story-brief`: include target runtime and production constraints.
-2. `story-architecture`, `character-bible`, `world-bible`, `beat-sheet`, and `scene-outline`.
+2. `story-architecture`, `character-bible`, `world-bible`, `beat-sheet`, and `scene-outline`. Lock recurring character identity, speech/movement/stillness signatures, and ensemble baselines globally before sequence production.
 3. `write-screenplay` in sequential scene batches. After each batch, update the scene manifest, line manifest, `story-state`, and continuity state.
 4. `revise-screenplay` on the whole script after a complete draft exists.
-5. Freeze an approved screenplay baseline before shot production. Then run `feature-scale-production` to create `SEQ-###` boundaries, sequence shards, recovery controls, and feature-scale gates.
+5. Freeze an approved screenplay baseline before shot production. Then run `feature-scale-production` to create `SEQ-###` boundaries, sequence shards, recovery controls, and feature-scale gates. Rebuild context shards after relevant canon or story-state changes so each sequence carries only its applicable character/location/prop canon and current state.
 6. `visual-bible`: lock visual rules that must survive across sequences.
 7. Build global `reference-assets` for recurring characters, locations, props, voices, and visual rules before sequence production. Add sequence-specific references only when needed.
-8. Run `production-capabilities` for the selected production route. Divide production into sequences of related `SCN-###` IDs. Process one sequence at a time through `production-breakdown`, `director-book`, optional `production-diagrams`, optional `previz-plan`, `performance-blocking`, `shot-design`, `shot-list`, progressive `storyboard-prompts`, `dialogue-voice` where needed, `shooting-script`, `production-coverage`, and `generation-pack`. Do not advance an uncovered sequence into generation.
+8. Run `production-capabilities` for the selected production route. Divide production into sequences of related `SCN-###` IDs. Process one sequence at a time through `production-breakdown`, `director-book`, optional `production-diagrams`, optional `previz-plan`, `performance-blocking`, `shot-design`, `shot-list`, progressive `storyboard-prompts`, `dialogue-voice` where needed, `shooting-script`, `production-coverage`, and `generation-pack`. Required visible-dialogue sync is part of coverage. Do not advance an uncovered sequence into generation.
 9. Before video adapters, resolve the project video model from `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`. Then run model adapters and `prompt-qc` per sequence. When candidates are generated, run `media-qc` before `take-selection`. Do not wait until the end to discover continuity drift.
 10. Run `dialogue-voice`, `score-plan`, and `sound-design` across the full film after sequence needs are known. Lock recurring voice and motif identities globally.
 11. `edit-plan` and `editorial-package`: reconcile sequence durations, audio bridges, subtitles, stems, placeholders, and pickups.

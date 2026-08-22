@@ -12,7 +12,7 @@ license: Apache-2.0
 
 1. Read core contract and `PRODUCTION_COVERAGE.md`.
 2. Run `python scripts/production_coverage.py <project>` for the requested scope.
-3. Inspect missing dialogue cues, missing shot coverage, blocking gaps, text drift, unresolved shot references, and timing conflicts.
+3. Inspect missing dialogue cues, missing shot coverage, blocking gaps, text drift, unresolved shot references, timing conflicts, and required visible-dialogue sync gaps or speaker/timing conflicts.
 4. Fix the smallest upstream artifact that owns the error. Do not invent coverage inside the report.
 5. Re-run until `ready` is true for the intended production scope or record the blocker.
 

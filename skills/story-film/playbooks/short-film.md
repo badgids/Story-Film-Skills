@@ -14,7 +14,7 @@
 9. `production-breakdown`, `director-book`, and `visual-bible` when visual rules need to persist.
 10. `reference-assets`: create only continuity-critical references the short uses.
 11. `previz-plan` or `production-diagrams` for scenes whose blocking or geography needs them.
-12. Run `production-capabilities`, `performance-blocking`, `shot-design`, `shot-list`, `storyboard-prompts`, audio skills as needed, then `shooting-script` and `production-coverage`.
+12. Run `production-capabilities`, `performance-blocking`, `shot-design`, `shot-list`, `storyboard-prompts`, audio skills as needed, then `shooting-script` and `production-coverage`. Required visible dialogue must preserve exact line, speaker, timing, and covering-shot sync before generation.
 13. Run `generation-pack`. Resolve the video model from `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`. Then run the selected adapters, `prompt-qc`, `edit-plan`, and `editorial-package` as needed. If media is generated, run `media-qc` before `take-selection`.
 14. Use `comfyui-handoff` when the user wants a portable generation package.
 15. If the user also wants actual ComfyUI rendering, follow the ComfyUI Generate playbook after the handoff and keep prompt IDs and outputs tied to the originating shot/cue IDs. Register concrete outputs with `asset-approval`.

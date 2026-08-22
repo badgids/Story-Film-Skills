@@ -10,8 +10,8 @@ license: Apache-2.0
 
 ## Workflow
 
-1. Read core contract, `PERFORMANCE_BLOCKING.md`, screenplay, line manifest, continuity, director book, previz when present, and production capabilities.
-2. Work one scene at a time.
+1. Read core contract, `CHARACTER_PROFILE.md`, `PERFORMANCE_BLOCKING.md`, screenplay, line manifest, canon, current story state, continuity, director book, previz when present, and production capabilities.
+2. Work one scene at a time. Use movement and stillness signatures as defaults, then record the specific playable behavior this scene requires.
 3. Write `03_preproduction/performance_blocking.jsonl` using stable `LINE-###`, `SCN-###`, and character IDs.
 4. Separate position-changing moves from gestures, posture, expressions, prop interactions, and other actions.
 5. Preserve initial and end performer state when position, posture, possession, or orientation changes.

@@ -18,8 +18,9 @@ Use for a continuous take, performance, or image-to-video shot.
 4. Describe action as a clear physical sequence.
 5. Describe recurring characters with the same canon identifiers.
 6. State camera movement relative to the subject, including how framing changes after the move.
-7. Describe ambience, effects, speech, singing, and music. Put spoken dialogue in quotation marks.
-8. A normal single-shot prompt is often about 4 to 8 descriptive sentences, adjusted for complexity.
+7. Describe ambience, effects, speech, singing, and music. Put spoken dialogue in quotation marks. When visible-dialogue sync is required, preserve the exact speaker, mouth-visibility intent, cut policy, and measured timing from the source brief without paraphrasing the line.
+8. Preserve source capture behavior as visible optical/operator behavior. If `end_frame.required` is present, finish the chronological action in that explicit state.
+9. A normal single-shot prompt is often about 4 to 8 descriptive sentences, adjusted for complexity.
 
 ## Multi-shot mode
 

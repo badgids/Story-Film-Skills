@@ -12,8 +12,8 @@ license: Apache-2.0
 
 1. Read `../../references/CORE_CONTRACT.md`, `STORY_CRAFT.md`, `STYLE_RULES.md`, and the brief.
 2. Write `01_story/logline.md` with one primary logline plus a one-sentence dramatic question.
-3. Write `01_story/story_bible.md` with protagonist goal, opposition, stakes, internal pressure, central relationships, causal spine, escalation strategy, climax choice, ending state, and intentionally unresolved material.
-4. Choose structure because it fits the story. Do not label acts or beats unless they help execution.
+3. Write `01_story/story_bible.md` with protagonist goal, opposition, stakes, internal pressure, central relationships, causal spine, escalation strategy, climax choice, ending state, and intentionally unresolved material. Add a thematic tension when the project has a recurring human/value conflict, and recurring narrative engines only when the story genuinely reuses recognizable scene or sequence shapes.
+4. Choose structure because it fits the story. Do not label acts, beats, themes, or engines merely to fill a formula.
 5. Test causality from setup through climax. Replace "and then" chains with consequence where possible.
 
 ## Done

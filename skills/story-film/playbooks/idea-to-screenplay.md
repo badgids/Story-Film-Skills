@@ -2,8 +2,8 @@
 
 1. `story-brief`.
 2. `story-architecture`.
-3. `character-bible`.
-4. `world-bible` when persistent setting rules matter.
+3. `character-bible`: lock consequential character identity plus speech/movement/stillness and ensemble baselines before dialogue drafting.
+4. `world-bible` when persistent setting rules matter. Keep chronology-sensitive current state in `story-state`.
 5. `beat-sheet`.
 6. `scene-outline`.
 7. `write-screenplay`: write `02_screenplay/screenplay.fountain`, `scene_manifest.json`, and `line_manifest.jsonl`.

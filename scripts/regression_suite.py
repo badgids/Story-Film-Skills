@@ -60,6 +60,8 @@ def main() -> int:
         ('managed official Comfy runtime', [sys.executable, '-m', 'unittest', 'tests.test_comfy_official_runtime']),
         ('Comfy workflow schema runtime', [sys.executable, '-m', 'unittest', 'tests.test_comfy_workflow_runtime']),
         ('bounded Comfy workflow pipeline', [sys.executable, '-m', 'unittest', 'tests.test_comfy_workflow_pipeline']),
+        ('character profile contracts', [sys.executable, '-m', 'unittest', 'tests.test_character_profiles']),
+        ('visible dialogue sync contracts', [sys.executable, '-m', 'unittest', 'tests.test_dialogue_sync']),
         ('static eval definitions', [sys.executable, str(ROOT / 'scripts/run_evals.py'), '--definitions-only']),
     ]
     for label, cmd in gates:

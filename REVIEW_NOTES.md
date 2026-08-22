@@ -1,8 +1,35 @@
-# Reviewed Project Notes through v0.0.10 (00.00.10)
+# Reviewed Project Notes through v0.0.27 (00.00.27)
 
 This file records what was learned from the requested repositories and what was deliberately added to Story-Film Skills.
 
 None of these projects is a runtime dependency.
+
+## v0.0.27 character and directing skill review
+
+The user-authored character/story-bible and cinema-director skill material was reviewed as an internal design source. No external attribution or runtime dependency is required.
+
+Adopted in Story-Film-native form:
+
+- function-first character development
+- canonical visual exclusions plus non-canonical generation drift risks
+- separate speech, movement, and stillness performance signatures
+- canonical ensemble baselines separated from mutable current relationship state
+- optional recurring narrative engines and era-specific visual treatment
+- model-neutral capture behavior and optional dynamic register
+- visible-dialogue synchronization requirements tied to exact `LINE-###` and `CHAR-###` identities
+- optional end-frame continuity handoffs
+
+Deliberately not adopted:
+
+- monolithic project-as-skill canon storage
+- provider-specific video prompting or cloud generation dependencies
+- universal fixed prompt block layouts
+- magic focal-length/FOV prescriptions
+- universal negative-prompt batteries
+- camera-must-always-move rules
+- diegetic-only audio policy
+- a universal no-character-names prompt rule
+- migration of durable Story-Film project state from JSON/JSONL to YAML
 
 ## smixs/visual-skills
 

@@ -18,12 +18,15 @@ For each `LINE-###` record in `02_screenplay/line_manifest.jsonl`, check as appl
 
 ## Output
 
+- required visible dialogue has the same `LINE-###` and speaker in the shooting script and at least one covering shot
+- required visible speakers are actually shot subjects
+- visible-dialogue timing and hold-through-line policy fit the covering shot
 The script can write:
 
 - `03_preproduction/production_coverage.json`
 - `03_preproduction/production_coverage.md`
 
-The JSON report contains totals, missing coverage, text drift, unresolved references, timing conflicts, and a `ready` boolean.
+The JSON report contains totals, missing coverage, text drift, unresolved references, timing conflicts, visible-dialogue sync conflicts, and a `ready` boolean.
 
 ## Scope rule
 

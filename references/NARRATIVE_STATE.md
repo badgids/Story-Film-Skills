@@ -46,6 +46,23 @@ A character entry may contain:
 
 Allowed life states are `alive`, `dead`, `unknown`, and `not-yet-introduced`.
 
+Relationship state is mutable. The preferred form records a traceable change:
+
+```json
+{
+  "relationships": {
+    "CHAR-002": {
+      "state": "guarded trust",
+      "power_balance": "CHAR-002 controls access to the evidence",
+      "last_changed_in": "SCN-014",
+      "notes": ""
+    }
+  }
+}
+```
+
+Legacy string relationship values remain valid. Canonical or starting ensemble behavior belongs in `canon.relationship_baselines`; do not rewrite that baseline merely because the relationship changes later in the story.
+
 Knowledge belongs to the character, not to the narrator. Store concise facts as keys or records with the scene where the character learned them. A character simulation or dialogue pass may use only knowledge available at the requested story moment.
 
 ## Prop state

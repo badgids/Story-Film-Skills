@@ -219,6 +219,7 @@ Minimum shape:
   "characters": {},
   "locations": {},
   "props": {},
+  "relationship_baselines": {},
   "world_rules": [],
   "visual_rules": [],
   "audio_rules": [],
@@ -228,9 +229,11 @@ Minimum shape:
 
 Dictionary keys are stable IDs. Put the human-readable name inside each object.
 
+`characters` may contain the richer optional identity and performance fields defined by `CHARACTER_PROFILE.md`. `relationship_baselines` stores canonical pair behavior only. Current relationship state belongs in `01_story/story_state.json`.
+
 ## Narrative and production execution
 
-Use `NARRATIVE_STATE.md`, `HIERARCHICAL_PRODUCTION_PLANNING.md`, `PRODUCTION_CAPABILITIES.md`, `PERFORMANCE_BLOCKING.md`, `SHOOTING_SCRIPT.md`, and `PRODUCTION_COVERAGE.md`. `LINE-###` records keep exact screenplay events traceable through voice, blocking, shots, generation, and postproduction.
+Use `NARRATIVE_STATE.md`, `CHARACTER_PROFILE.md`, `HIERARCHICAL_PRODUCTION_PLANNING.md`, `PRODUCTION_CAPABILITIES.md`, `PERFORMANCE_BLOCKING.md`, `VISIBLE_DIALOGUE_SYNC.md`, `SHOOTING_SCRIPT.md`, and `PRODUCTION_COVERAGE.md`. `LINE-###` records keep exact screenplay events traceable through voice, blocking, shots, generation, and postproduction.
 
 ## Generated media and approval
 
@@ -306,7 +309,7 @@ Use `PRODUCTION_DOCUMENTS.md`, `PDF_TOOLKIT.md`, and `DESIGN_SYSTEM.md`.
 Use `FEATURE_SCALE_PRODUCTION.md` for long films.
 
 - `00_project/sequence_manifest.json` and `.md` define `SEQ-###` production boundaries.
-- `00_project/shards/` stores per-sequence context shards and an index.
+- `00_project/shards/` stores per-sequence context shards and an index. Sequence shards include only relevant canon and current story-state subsets instead of copying the full project state.
 - `00_project/health_report.json` and `.md` summarize deterministic production health.
 - `03_preproduction/continuity/anchors.jsonl` stores `CONT-###` long-range continuity anchors.
 - `03_preproduction/continuity/observations.jsonl` stores continuity observations.

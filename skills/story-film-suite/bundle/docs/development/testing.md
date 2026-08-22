@@ -24,7 +24,7 @@ Run:
 python scripts/regression_suite.py
 ```
 
-This validates skills, standalone requirements, eval definitions, and deterministic unit/integration tests.
+This validates skills, standalone requirements, eval definitions, character-profile contracts, visible-dialogue synchronization contracts, and deterministic unit/integration tests.
 
 Some media tests require installed public runtimes such as FFmpeg or ImageMagick. A test must state clearly when a runtime is unavailable.
 

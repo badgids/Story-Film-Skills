@@ -24,6 +24,8 @@ from design_system import validate as validate_design_system
 from work_units import validate as validate_work_units
 from decision_map import validate as validate_decision_map
 from document_companions import audit as audit_document_companions
+from character_profiles import validate_project as validate_character_profiles
+from dialogue_sync import validate_project as validate_dialogue_sync
 from comfyui_batch import load_manifest as load_offline_batch, validate as validate_offline_batch
 from sequence_manager import validate_manifest as validate_sequence_manifest
 from context_shards import validate_shards as validate_context_shards
@@ -131,6 +133,16 @@ def main() -> int:
             video_shot_overrides = video_preferences.get('overrides', {}) if isinstance(video_preferences.get('overrides', {}), dict) else {}
         except Exception as exc:
             errors.append(f'00_project/model_preferences.json: {exc}')
+
+    # Character identity/performance and model-neutral visible-dialogue contracts.
+    try:
+        errors.extend(f'character profiles: {e}' for e in validate_character_profiles(root))
+    except Exception as exc:
+        errors.append(f'character profile validation failed: {exc}')
+    try:
+        errors.extend(f'dialogue sync: {e}' for e in validate_dialogue_sync(root))
+    except Exception as exc:
+        errors.append(f'dialogue sync validation failed: {exc}')
 
     # Every rich/binary document artifact must have a human-readable Markdown companion.
     for rel in audit_document_companions(root):

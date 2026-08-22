@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.26`
-**Canonical version:** `00.00.26`
+**Display version:** `v0.0.27`
+**Canonical version:** `00.00.27`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -40,8 +40,11 @@ Story-Film Skills can manage a project from a loose idea to a finished release p
 - creative decision interviews and production specifications;
 - screenplay writing and revision;
 - character, world, location, visual, and continuity bibles;
+- deep character performance profiles with speech, movement, stillness, visual exclusions, and ensemble baselines;
+- mutable relationship state separated from canonical relationship behavior;
 - `SCN-###`, `LINE-###`, `SHOT-###`, `TAKE-###`, and other stable production identities;
 - scene geography, blocking, shooting scripts, shot lists, storyboards, and previz;
+- model-neutral visible-dialogue synchronization and explicit end-frame continuity handoffs;
 - voice, dialogue, music, ambience, Foley, and SFX planning;
 - ComfyUI workflow validation and execution;
 - user-controlled per-process ComfyUI model stacks, including exact VAEs, text encoders, LoRAs, audio models, upscalers, and custom model choices;

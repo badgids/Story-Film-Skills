@@ -76,13 +76,23 @@ Never renumber an existing ID merely to make a list prettier.
 
 Never assume another model or future session remembers chat context. Generation prompts must be self-contained. Use `01_story/story_state.json` for mutable narrative state when present; it is derived from approved narrative material and does not overrule canon or the source prose/screenplay.
 
+Keep authority layers separate:
+
+- canonical character identity, performance signature, and baseline ensemble behavior belong in `00_project/canon.json`
+- current trust, hostility, knowledge, injury, possession, location, and other chronology-sensitive state belong in `01_story/story_state.json`
+- project-specific production conventions belong in `00_project/creative_production_spec.md`
+- scene-specific playable behavior belongs in the director book and performance blocking
+- model-specific expression belongs in adapter prompts
+
+Read `CHARACTER_PROFILE.md` when creating or consuming rich character profiles.
+
 ## 7. Refine without dropping source material
 
 For film production, preserve traceability from screenplay scene and `LINE-###` units through blocking, shots, voice cues, shooting script, generated takes, QC, and selection. A difficult action is a constraint to solve or escalate, not permission to omit the source event.
 
 ## 8. Separate intent from adapter syntax
 
-Create a model-neutral brief first, then adapt it for Qwen, Krea, H3, LTX, TTS, music, or sound models.
+Create a model-neutral brief first, then adapt it for Qwen, Krea, H3, LTX, TTS, music, or sound models. Visible-dialogue synchronization, end-frame handoff, and capture behavior are model-neutral production intent when present. Read `VISIBLE_DIALOGUE_SYNC.md` before compiling required visible speech.
 
 Read `MODEL_SELECTION.md` before any model-specific generation. The user owns adapter/model-family choices and the concrete ComfyUI resource choices for each production process. Poll the active ComfyUI inventory before asking the user to select checkpoints, diffusion models, VAEs, text encoders, LoRAs, audio encoders, upscalers, or other model files. MiniMax H3 is the default video adapter only when the user has not chosen a video adapter. Do not infer concrete resource choices from the adapter default.
 

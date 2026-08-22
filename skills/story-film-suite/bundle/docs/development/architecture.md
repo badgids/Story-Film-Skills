@@ -51,6 +51,24 @@ Use code for facts that code can decide, such as:
 
 Use the LLM for semantic work such as story decisions, critique, writing, and creative repair.
 
+## Character and performance state flow
+
+Character production uses the same layered authority model:
+
+```text
+canon identity / performance / ensemble baseline
+                |
+story-state current condition
+                |
+director book and performance blocking
+                |
+model-neutral shot brief
+                |
+selected local adapter or workflow
+```
+
+A lower layer may express or stage an approved fact. It may not silently rewrite the higher layer.
+
 ## Related pages
 
 - [Testing](testing.md)

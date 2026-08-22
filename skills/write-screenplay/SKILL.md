@@ -10,9 +10,9 @@ license: Apache-2.0
 
 ## Workflow
 
-1. Read core contract, style rules, screenplay craft, canon, brief, and scene outline or adaptation map.
+1. Read core contract, `CHARACTER_PROFILE.md`, style rules, screenplay craft, canon, brief, `01_story/characters.md`, `01_story/world.md` when present, current story state, and scene outline or adaptation map.
 2. Write `02_screenplay/screenplay.fountain` in present tense and filmable language.
-3. Keep action paragraphs short and dialogue character-specific.
+3. Keep action paragraphs short and dialogue character-specific. Use speech signatures and current relationship state without turning profile notes into exposition.
 4. Create `02_screenplay/scene_manifest.json` with one object per `SCN-###`: heading, location ID, time, characters, purpose, outcome, source beat, and approximate runtime.
 5. Create `02_screenplay/line_manifest.jsonl` with stable `LINE-###` records for production-relevant dialogue, action, movement, and transitions. Preserve exact dialogue text, scene ID, order, speaker ID where applicable, and whether the unit is audible, on screen, or needs blocking.
 6. Keep scene IDs in the manifest rather than cluttering screenplay dialogue or headings unless the user wants visible IDs.
