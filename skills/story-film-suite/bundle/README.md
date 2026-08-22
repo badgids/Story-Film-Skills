@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.28`
-**Canonical version:** `00.00.28`
+**Display version:** `v0.0.29`
+**Canonical version:** `00.00.29`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -90,19 +90,21 @@ Read [Choose generation models and ComfyUI resources](docs/generation/model-sele
 
 ### Install with Pi (recommended)
 
-Story-Film Skills is a native Pi package. Pi can install the skills and the optional Todo/resource-status extension from the same repository. Pi packages can be installed from Git, HTTPS, SSH, or a local directory.
+Story-Film Skills is a native Pi package. The official repository is public. Use HTTPS by default so installation does not depend on a configured GitHub SSH key.
 
-For a private GitHub repository over SSH:
+Recommended user-wide install:
+
+```bash
+pi install https://github.com/badgids/Story-Film-Skills.git
+```
+
+If GitHub SSH authentication is already configured on this machine, the SSH form is also valid:
 
 ```bash
 pi install git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
-For an HTTPS repository:
-
-```bash
-pi install https://github.com/badgids/Story-Film-Skills
-```
+The SSH form requires a working GitHub SSH key. The HTTPS form does not require SSH setup for this public repository.
 
 This is a user-wide install. Pi records it in the user package settings. Start a new Pi session after installation.
 
@@ -112,7 +114,7 @@ Use this mode for beta testing or when one project needs Story-Film Skills but y
 
 ```bash
 cd /path/to/MyFilmProject
-pi install -l git:git@github.com:badgids/Story-Film-Skills.git
+pi install -l https://github.com/badgids/Story-Film-Skills.git
 ```
 
 The `-l` option uses project-local Pi settings and package storage under that project's `.pi/` directory. It does not add Story-Film Skills to the normal user-wide Pi package settings.
@@ -133,7 +135,7 @@ Read the [Pi installation and project-isolation guide](docs/getting-started/pi-i
 For a temporary test that should disappear when the Pi process exits:
 
 ```bash
-pi -e git:git@github.com:badgids/Story-Film-Skills.git
+pi -e https://github.com/badgids/Story-Film-Skills.git
 ```
 
 From a local checkout:
@@ -149,7 +151,7 @@ This is useful for a quick smoke test. Use `pi install -l` when you want the pac
 `install.sh` remains available as a compatibility and recovery fallback. It is no longer the preferred Pi installation method.
 
 ```bash
-git clone git@github.com:badgids/Story-Film-Skills.git
+git clone https://github.com/badgids/Story-Film-Skills.git
 cd Story-Film-Skills
 bash install.sh
 ```
@@ -166,10 +168,10 @@ bash install.sh --skills-only
 
 The repository also contains a self-contained skill named `story-film-suite` for the open Agent Skills ecosystem.
 
-For a private repository:
+For the public repository:
 
 ```bash
-npx skills add git@github.com:badgids/Story-Film-Skills.git --skill story-film-suite -g -y
+npx skills add https://github.com/badgids/Story-Film-Skills.git --skill story-film-suite -g -y
 ```
 
 The `npx skills` route remains useful outside Pi. For Pi itself, prefer `pi install` because the Pi package can load both the direct Story-Film skills and the Pi Todo/resource-status extension together.

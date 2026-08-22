@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.0.29 (00.00.29) - 2026-08-22
+
+- Fixed Pi installation documentation so the public Story-Film Skills repository uses HTTPS as the canonical install source.
+- Project-local, one-session, pinned, removal, Git clone, command-reference, and npx examples now use the public HTTPS repository URL.
+- Kept SSH installation as an optional path only for machines that already have working GitHub SSH authentication.
+- Corrected the GitHub-ready guide to describe the official repository as public while retaining support for private forks.
+- Added a documentation regression guard that fails when required public HTTPS install examples are missing or project/session examples regress to SSH.
+
 ## v0.0.28 (00.00.28) - 2026-08-22
 
 - Added typed `REF-###` authority scopes and `must_not_control` boundaries so identity, composition, temporal continuity, location, style, and prop/context references cannot silently become authority for the wrong concern.

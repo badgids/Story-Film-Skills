@@ -81,23 +81,25 @@ python scripts/local_smoke.py --help
 
 ## Pi package installation
 
-Install for the user:
+Install the public repository for the user:
 
 ```bash
-pi install git:git@github.com:badgids/Story-Film-Skills.git
+pi install https://github.com/badgids/Story-Film-Skills.git
 ```
 
 Install only for the current project:
 
 ```bash
-pi install -l git:git@github.com:badgids/Story-Film-Skills.git
+pi install -l https://github.com/badgids/Story-Film-Skills.git
 ```
 
 Load only for the current Pi process:
 
 ```bash
-pi -e git:git@github.com:badgids/Story-Film-Skills.git
+pi -e https://github.com/badgids/Story-Film-Skills.git
 ```
+
+If GitHub SSH authentication is already configured, the equivalent SSH source is `git:git@github.com:badgids/Story-Film-Skills.git`.
 
 Install a local checkout only for the current project:
 

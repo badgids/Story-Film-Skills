@@ -27,17 +27,19 @@ ComfyUI is optional until you want actual AI media generation. For local generat
 
 Story-Film Skills is a Pi package. The package manifest loads the direct Story-Film skills, the Pi Todo/resource-status extension, and the managed ComfyUI control extension.
 
-For a private GitHub repository that uses SSH authentication:
+The official repository is public. Use HTTPS by default:
+
+```bash
+pi install https://github.com/badgids/Story-Film-Skills.git
+```
+
+If GitHub SSH authentication is already configured on this machine, this optional SSH form also works:
 
 ```bash
 pi install git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
-For HTTPS:
-
-```bash
-pi install https://github.com/badgids/Story-Film-Skills
-```
+SSH requires a working GitHub SSH key. HTTPS does not require SSH setup for the public repository.
 
 This install is user-wide. Use it only when you want Story-Film Skills available in all normal Pi projects.
 
@@ -49,7 +51,7 @@ First, enter the target project directory. Then use `-l`:
 
 ```bash
 cd /path/to/MyFilmProject
-pi install -l git:git@github.com:badgids/Story-Film-Skills.git
+pi install -l https://github.com/badgids/Story-Film-Skills.git
 ```
 
 Pi writes the package declaration to `.pi/settings.json` in that project. Git packages are stored under that project's `.pi/git/` directory. This does not add Story-Film Skills to the user-wide Pi package settings.
@@ -63,7 +65,7 @@ See [Pi install and project isolation](pi-install.md) for removal, pinning, and 
 Use `-e` when you want to load the package only for the current Pi process:
 
 ```bash
-pi -e git:git@github.com:badgids/Story-Film-Skills.git
+pi -e https://github.com/badgids/Story-Film-Skills.git
 ```
 
 The temporary package is not added to persistent package settings.
@@ -89,7 +91,7 @@ pi -e /absolute/path/to/Story-Film-Skills
 The shell installer remains a fallback for older setups or manual recovery.
 
 ```bash
-git clone git@github.com:badgids/Story-Film-Skills.git
+git clone https://github.com/badgids/Story-Film-Skills.git
 cd Story-Film-Skills
 bash install.sh
 ```
@@ -105,7 +107,7 @@ bash install.sh --skills-only
 Story-Film Skills includes the self-contained `story-film-suite` skill for the open Agent Skills ecosystem.
 
 ```bash
-npx skills add git@github.com:badgids/Story-Film-Skills.git --skill story-film-suite -g -y
+npx skills add https://github.com/badgids/Story-Film-Skills.git --skill story-film-suite -g -y
 ```
 
 Use this route for agents that use the `skills` CLI. For Pi, prefer `pi install`.

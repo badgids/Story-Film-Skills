@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 LINK_RX = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+PUBLIC_REPO_HTTPS = "https://github.com/badgids/Story-Film-Skills.git"
+PUBLIC_REPO_SSH = "git:git@github.com:badgids/Story-Film-Skills.git"
 
 
 def target_exists(page: Path, target: str) -> bool:
@@ -69,6 +71,45 @@ def main() -> int:
         errors.append("README.md: missing Table of contents")
     if "docs/README.md" not in readme:
         errors.append("README.md: documentation home is not linked")
+
+    # Public install guidance must not require GitHub SSH configuration.
+    public_install_checks = {
+        ROOT / "README.md": [
+            f"pi install {PUBLIC_REPO_HTTPS}",
+            f"pi install -l {PUBLIC_REPO_HTTPS}",
+            f"pi -e {PUBLIC_REPO_HTTPS}",
+        ],
+        DOCS / "getting-started/install.md": [
+            f"pi install {PUBLIC_REPO_HTTPS}",
+            f"pi install -l {PUBLIC_REPO_HTTPS}",
+            f"pi -e {PUBLIC_REPO_HTTPS}",
+        ],
+        DOCS / "getting-started/pi-install.md": [
+            f"pi install {PUBLIC_REPO_HTTPS}",
+            f"pi install -l {PUBLIC_REPO_HTTPS}",
+            f"pi -e {PUBLIC_REPO_HTTPS}",
+            f"pi remove -l {PUBLIC_REPO_HTTPS}",
+        ],
+        DOCS / "reference/commands.md": [
+            f"pi install {PUBLIC_REPO_HTTPS}",
+            f"pi install -l {PUBLIC_REPO_HTTPS}",
+            f"pi -e {PUBLIC_REPO_HTTPS}",
+        ],
+        DOCS / "development/github-ready.md": [
+            f"pi install {PUBLIC_REPO_HTTPS}",
+            f"pi install -l {PUBLIC_REPO_HTTPS}",
+        ],
+    }
+    forbidden_project_ssh = f"pi install -l {PUBLIC_REPO_SSH}"
+    forbidden_session_ssh = f"pi -e {PUBLIC_REPO_SSH}"
+    for page, required_commands in public_install_checks.items():
+        text = page.read_text(encoding="utf-8")
+        rel = page.relative_to(ROOT)
+        for command in required_commands:
+            if command not in text:
+                errors.append(f"{rel}: missing canonical public HTTPS install example: {command}")
+        if forbidden_project_ssh in text or forbidden_session_ssh in text:
+            errors.append(f"{rel}: public project/session install must default to HTTPS, not SSH")
 
     for warning in warnings[:50]:
         print("WARN", warning)

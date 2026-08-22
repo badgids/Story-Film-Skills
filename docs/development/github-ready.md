@@ -5,7 +5,7 @@
 ## Table of contents
 
 - [Before the first push](#before-the-first-push)
-- [Private repository](#private-repository)
+- [Repository visibility](#repository-visibility)
 - [Pi package install](#pi-package-install)
 - [Continuous integration](#continuous-integration)
 - [Release check](#release-check)
@@ -29,9 +29,9 @@ CITATION.cff
 .github/workflows/validate.yml
 ```
 
-## Private repository
+## Repository visibility
 
-Create a private GitHub repository. Then push this project with normal Git commands.
+The official `badgids/Story-Film-Skills` repository is public. Private forks are also supported.
 
 Do not commit local secrets, generated model files, large temporary media, or private machine configuration.
 
@@ -39,18 +39,20 @@ Do not commit local secrets, generated model files, large temporary media, or pr
 
 `package.json` contains the Pi package manifest. It loads the direct Story-Film skills and the `story-film-progress` extension. It excludes the self-contained `story-film-suite` copy so Pi does not discover duplicate skill names.
 
-After the private repository exists, test both scopes:
+Test the public repository over HTTPS:
 
 ```bash
-pi install git:git@github.com:badgids/Story-Film-Skills.git
+pi install https://github.com/badgids/Story-Film-Skills.git
 ```
 
 Use a disposable test project for project-local verification:
 
 ```bash
 cd /path/to/TestFilmProject
-pi install -l git:git@github.com:badgids/Story-Film-Skills.git
+pi install -l https://github.com/badgids/Story-Film-Skills.git
 ```
+
+Use the SSH source only when GitHub SSH authentication is already configured on the test machine.
 
 For an unpushed checkout:
 

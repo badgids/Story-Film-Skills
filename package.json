@@ -1,6 +1,6 @@
 {
   "name": "story-film-skills",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "private": true,
   "description": "Local-first Agent Skills for story, book, screenplay, image, audio, video, film, postproduction, and release workflows.",
   "license": "Apache-2.0",
