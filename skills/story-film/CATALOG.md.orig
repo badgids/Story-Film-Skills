@@ -4,6 +4,7 @@
 
 - `playbooks/idea-to-book.md`: idea to complete novel, novella, or narrative book
 - `playbooks/idea-to-story.md`: idea or premise to complete prose story
+- `playbooks/story-bible-development.md`: durable Story-Film story, character, world, state, and optional visual-bible development
 - `playbooks/idea-to-screenplay.md`: idea directly to complete screenplay
 - `playbooks/story-to-screenplay.md`: adapt an existing story or manuscript to screenplay
 - `playbooks/screenplay-to-film-package.md`: screenplay to directing and generation package

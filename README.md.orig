@@ -87,13 +87,13 @@ Story-Film Skills is a native Pi package. Pi can install the skills and the opti
 For a private GitHub repository over SSH:
 
 ```bash
-pi install git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 For an HTTPS repository:
 
 ```bash
-pi install https://github.com/YOUR_GITHUB_USER/Story-Film-Skills
+pi install https://github.com/badgids/Story-Film-Skills
 ```
 
 This is a user-wide install. Pi records it in the user package settings. Start a new Pi session after installation.
@@ -104,7 +104,7 @@ Use this mode for beta testing or when one project needs Story-Film Skills but y
 
 ```bash
 cd /path/to/MyFilmProject
-pi install -l git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install -l git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 The `-l` option uses project-local Pi settings and package storage under that project's `.pi/` directory. It does not add Story-Film Skills to the normal user-wide Pi package settings.
@@ -125,7 +125,7 @@ Read the [Pi installation and project-isolation guide](docs/getting-started/pi-i
 For a temporary test that should disappear when the Pi process exits:
 
 ```bash
-pi -e git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi -e git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 From a local checkout:
@@ -141,7 +141,7 @@ This is useful for a quick smoke test. Use `pi install -l` when you want the pac
 `install.sh` remains available as a compatibility and recovery fallback. It is no longer the preferred Pi installation method.
 
 ```bash
-git clone git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+git clone git@github.com:badgids/Story-Film-Skills.git
 cd Story-Film-Skills
 bash install.sh
 ```
@@ -161,7 +161,7 @@ The repository also contains a self-contained skill named `story-film-suite` for
 For a private repository:
 
 ```bash
-npx skills add git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git --skill story-film-suite -g -y
+npx skills add git@github.com:badgids/Story-Film-Skills.git --skill story-film-suite -g -y
 ```
 
 The `npx skills` route remains useful outside Pi. For Pi itself, prefer `pi install` because the Pi package can load both the direct Story-Film skills and the Pi Todo/resource-status extension together.

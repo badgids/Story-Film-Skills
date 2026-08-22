@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "contracts": {
+    "minimax-h3-t2v": {
+      "media_type": "video",
+      "required_node_classes": [
+        "MiniMaxH3ImageToVideo",
+        "SamplerCustomAdvanced",
+        "SaveVideo"
+      ],
+      "dependencies": []
+    },
+    "minimax-h3-i2v": {
+      "media_type": "video",
+      "required_node_classes": [
+        "MiniMaxH3ImageToVideo",
+        "LoadImage",
+        "SaveVideo"
+      ],
+      "dependencies": []
+    },
+    "minimax-h3-r2v": {
+      "media_type": "video",
+      "required_node_classes": [
+        "MiniMaxH3ReferenceToVideo",
+        "SaveVideo"
+      ],
+      "dependencies": []
+    },
+    "minimax-h3-r2v-exact-audio": {
+      "media_type": "video",
+      "required_node_classes": [
+        "MiniMaxH3ReferenceToVideo",
+        "MiniMaxH3TimedAudio",
+        "MiniMaxH3ExactAudioLock",
+        "MiniMaxH3AddGuide",
+        "SaveVideo",
+        "VHS_LoadVideo"
+      ],
+      "dependencies": [
+        "comfyui-h3-exact-audio-lock",
+        "videohelpersuite"
+      ]
+    },
+    "character-reference-sheet": {
+      "media_type": "image",
+      "required_node_classes": [
+        "OrbitSheetsCharacterPrompt",
+        "OrbitSheetsFrameSelect",
+        "OrbitSheetsContactSheet",
+        "OrbitSheetsAttentionBackend",
+        "UnetLoaderGGUF"
+      ],
+      "dependencies": [
+        "comfyui-orbitsheets",
+        "comfyui-gguf"
+      ]
+    },
+    "location-reference-sheet": {
+      "media_type": "image",
+      "required_node_classes": [
+        "OrbitSheetsLocationPrompt",
+        "OrbitSheetsFrameSelect",
+        "OrbitSheetsContactSheet",
+        "OrbitSheetsAttentionBackend",
+        "UnetLoaderGGUF"
+      ],
+      "dependencies": [
+        "comfyui-orbitsheets",
+        "comfyui-gguf"
+      ]
+    },
+    "prop-reference-sheet": {
+      "media_type": "image",
+      "required_node_classes": [
+        "OrbitSheetsFrameSelect",
+        "OrbitSheetsContactSheet",
+        "OrbitSheetsAttentionBackend",
+        "UnetLoaderGGUF"
+      ],
+      "dependencies": [
+        "comfyui-orbitsheets",
+        "comfyui-gguf"
+      ]
+    },
+    "film-frame-interpolation": {
+      "media_type": "video",
+      "required_node_classes": [
+        "FrameInterpolationModelLoader",
+        "FrameInterpolate",
+        "VHS_LoadVideo",
+        "VHS_VideoCombine"
+      ],
+      "dependencies": [
+        "videohelpersuite"
+      ]
+    },
+    "rtx-video-upscale": {
+      "media_type": "video",
+      "required_node_classes": [
+        "RTXVideoSuperResolution",
+        "VHS_LoadVideo",
+        "VHS_VideoCombine"
+      ],
+      "dependencies": [
+        "nvidia-rtx-nodes",
+        "videohelpersuite"
+      ]
+    },
+    "qwen3-tts-flybird": {
+      "media_type": "audio",
+      "required_node_classes": [
+        "FB_Qwen3TTSVoiceDesign",
+        "FB_Qwen3TTSVoiceClone",
+        "SaveAudio"
+      ],
+      "dependencies": [
+        "qwen3-tts-flybird"
+      ]
+    },
+    "stable-audio-sfx": {
+      "media_type": "audio",
+      "required_node_classes": [
+        "EmptyLatentAudio",
+        "VAEDecodeAudio",
+        "SaveAudio"
+      ],
+      "dependencies": []
+    },
+    "minimax-music-api": {
+      "media_type": "audio",
+      "required_node_classes": [
+        "MiniMaxMusicNode",
+        "SaveAudio"
+      ],
+      "dependencies": [
+        "comfyui-vlm-nodes"
+      ],
+      "remote_service": true
+    }
+  }
+}

@@ -17,8 +17,9 @@ license: Apache-2.0
 5. Expand only anchors that need temporal clarification into `03_preproduction/storyboards/sequence_boards/`. Use the minimum frames needed to show start state, decisive action/gaze change, and end or cut state.
 6. Check 180-degree axis, eyeline match, screen direction, match on action, prop handoffs, entrances/exits, and physical plausibility.
 7. Write model-neutral still briefs to `04_generation/image_briefs.jsonl` and motion handoff records to `03_preproduction/storyboards/motion_handoff.jsonl` when video generation needs them. When a shot has `end_frame.required = true`, make that endpoint inspectable in the sequence board or motion handoff. If an approved last-frame image becomes authoritative, register it as a `REF-###` with role `last frame`.
-8. Adapt with `krea-2` for exploratory boards or `qwen-image-2512` for locked production frames. Use `qwen-image-edit-2511` to revise an established frame while preserving approved identity or composition.
-9. A generated panel is a candidate, not approval. If alternatives are generated, use `take-selection` before downstream work treats one as authoritative.
+8. When one edit would overload composition, environment/style, and identity constraints, use staged reference grounding: establish composition, then environment/style, then character/prop identity. Record the prompt, seed when applicable, input references, authority scopes, and candidate output for each pass.
+9. Adapt with `krea-2` for exploratory boards or `qwen-image-2512` for locked production frames. Use `qwen-image-edit-2511` to revise an established frame while preserving approved identity or composition.
+10. A generated panel is a candidate, not approval. If alternatives are generated, use `take-selection` before downstream work treats one as authoritative.
 
 ## Done
 

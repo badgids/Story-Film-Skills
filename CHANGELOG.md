@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.0.28 (00.00.28) - 2026-08-22
+
+- Added typed `REF-###` authority scopes and `must_not_control` boundaries so identity, composition, temporal continuity, location, style, and prop/context references cannot silently become authority for the wrong concern.
+- Added optional end-frame plus visual-only temporal-tail handoffs, including deterministic FFmpeg extraction with audio stripping and SHA-256 lineage.
+- Added approved dialogue-audio authority records that bind `LINE-###`, `CHAR-###`, `MEDIA-###`, exact timing, visible-sync intent, and generation/review waveform hashes.
+- Added dialogue timing preflight that measures approved WAV files before expensive generation and blocks impossible timing instead of silently speeding, truncating, rewriting, or reassigning speech.
+- Added ComfyUI reference-binding audits and reusable workflow-family contracts on top of the existing bounded live-schema workflow pipeline.
+- Added sanitized ComfyUI blueprint workflows for MiniMax H3 T2V/I2V/Ref2VA/exact-audio, character/location/prop reference sheets, FILM interpolation, RTX video upscale, Qwen3-TTS, Stable Audio SFX, and MiniMax Music API reference use.
+- Added optional custom-node dependency documentation and live-capability policy. Story-Film does not bundle or silently install custom nodes.
+- Documented `badgids/ComfyUI-H3-ExactAudioLock`, OrbitSheets, VideoHelperSuite, ComfyUI-GGUF, FlyBird Qwen3-TTS, NVIDIA RTX nodes, and ComfyUI VLM Nodes as optional packages for specific blueprints.
+- Added character/location/prop reference-sheet contracts with functional prop views and optional staged storyboard grounding.
+- Added explicit rejected-media physical cleanup with path/approval safety checks and a durable cleanup ledger, plus approved-output runtime-copy repair without regeneration.
+- Replaced repository documentation owner placeholders with the canonical `badgids/Story-Film-Skills` GitHub path and added a standalone validation guard against reintroducing unresolved owner placeholders.
+- Added deterministic v0.0.28 production-integrity tests and integrated the new contracts into project and regression validation.
+
 ## v0.0.27 (00.00.27) - 2026-08-22
 
 - Added deep Story-Film-native character profiles with canonical visual identity, explicit exclusions, speech, movement, and stillness signatures.

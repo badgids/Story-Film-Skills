@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.27`
-**Canonical version:** `00.00.27`
+**Display version:** `v0.0.28`
+**Canonical version:** `00.00.28`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -45,11 +45,16 @@ Story-Film Skills can manage a project from a loose idea to a finished release p
 - `SCN-###`, `LINE-###`, `SHOT-###`, `TAKE-###`, and other stable production identities;
 - scene geography, blocking, shooting scripts, shot lists, storyboards, and previz;
 - model-neutral visible-dialogue synchronization and explicit end-frame continuity handoffs;
+- typed reference authority so identity, composition, temporal continuity, location, style, and props cannot silently control the wrong production concern;
+- visual-only temporal motion tails plus approved end frames for stronger shot-to-shot continuity;
+- approved dialogue-audio authority with SHA-256 parity, pre-generation timing checks, and visible-speaker separation;
+- character, location, and prop reference-sheet plans including functional/mechanical prop views and optional staged grounding;
 - voice, dialogue, music, ambience, Foley, and SFX planning;
-- ComfyUI workflow validation and execution;
+- ComfyUI workflow validation, reference-binding audits, reusable workflow contracts, and sanitized workflow blueprints;
 - user-controlled per-process ComfyUI model stacks, including exact VAEs, text encoders, LoRAs, audio models, upscalers, and custom model choices;
 - resource-safe offline ComfyUI batches for machines that cannot hold an LLM and generation model at the same time;
 - deterministic media QC and take selection;
+- explicit safe cleanup of rejected registered media and repair of missing disposable runtime copies from approved media;
 - FFmpeg/FFprobe, ImageMagick, optional MLT, Kdenlive, and Shotcut workflows;
 - executable film, trailer, teaser, social, and release timelines;
 - production documents with required Markdown equivalents;
@@ -90,13 +95,13 @@ Story-Film Skills is a native Pi package. Pi can install the skills and the opti
 For a private GitHub repository over SSH:
 
 ```bash
-pi install git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 For an HTTPS repository:
 
 ```bash
-pi install https://github.com/YOUR_GITHUB_USER/Story-Film-Skills
+pi install https://github.com/badgids/Story-Film-Skills
 ```
 
 This is a user-wide install. Pi records it in the user package settings. Start a new Pi session after installation.
@@ -107,7 +112,7 @@ Use this mode for beta testing or when one project needs Story-Film Skills but y
 
 ```bash
 cd /path/to/MyFilmProject
-pi install -l git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install -l git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 The `-l` option uses project-local Pi settings and package storage under that project's `.pi/` directory. It does not add Story-Film Skills to the normal user-wide Pi package settings.
@@ -128,7 +133,7 @@ Read the [Pi installation and project-isolation guide](docs/getting-started/pi-i
 For a temporary test that should disappear when the Pi process exits:
 
 ```bash
-pi -e git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi -e git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 From a local checkout:
@@ -144,7 +149,7 @@ This is useful for a quick smoke test. Use `pi install -l` when you want the pac
 `install.sh` remains available as a compatibility and recovery fallback. It is no longer the preferred Pi installation method.
 
 ```bash
-git clone git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+git clone git@github.com:badgids/Story-Film-Skills.git
 cd Story-Film-Skills
 bash install.sh
 ```
@@ -164,7 +169,7 @@ The repository also contains a self-contained skill named `story-film-suite` for
 For a private repository:
 
 ```bash
-npx skills add git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git --skill story-film-suite -g -y
+npx skills add git@github.com:badgids/Story-Film-Skills.git --skill story-film-suite -g -y
 ```
 
 The `npx skills` route remains useful outside Pi. For Pi itself, prefer `pi install` because the Pi package can load both the direct Story-Film skills and the Pi Todo/resource-status extension together.

@@ -43,8 +43,10 @@ Use stable labels such as `<Picture 1>`, `<Video 1>`, and `<Audio 1>` everywhere
 
 - Preserve dialogue and visible scene text exactly in the requested language.
 - When the source brief requires visible-dialogue sync, preserve the exact speaker, mouth-visibility intent, cut policy, and measured speech duration in the chronological audiovisual description.
-- Keep reference labels consistent.
+- Keep reference labels consistent and preserve Story-Film reference authority scopes. A character atlas is not automatically composition authority and a temporal tail is not identity authority.
 - Tie first or last frames to the timeline explicitly in keyframe modes. When `end_frame.required` is present, end the described timeline in that state and use FL2VA/L2VA only when the selected local workflow actually uses last-frame conditioning.
+- For Ref2VA continuation, a registered visual-only previous-shot tail may carry temporal continuity. Its audio must be stripped before it becomes a visual reference.
+- When approved dialogue audio exists, preserve the model-neutral seconds and exact approved source. If live ComfyUI exposes `MiniMaxH3TimedAudio` and `MiniMaxH3ExactAudioLock`, the optional exact-audio profile may convert start seconds to H3's 24 fps target timeline and pair the lock with core `MiniMaxH3AddGuide` at the same frame. If those nodes are absent, report the capability as unavailable; never install them silently.
 - Preserve source `capture_behavior` as visible capture properties rather than inventing camera hardware.
 - Use concrete image and sound descriptions instead of generic quality adjectives.
 - Save under `04_generation/prompts/minimax-h3/<shot-id>.md`.

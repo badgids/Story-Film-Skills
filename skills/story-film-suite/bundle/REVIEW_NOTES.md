@@ -1,8 +1,35 @@
-# Reviewed Project Notes through v0.0.27 (00.00.27)
+# Reviewed Project Notes through v0.0.28 (00.00.28)
 
 This file records what was learned from the requested repositories and what was deliberately added to Story-Film Skills.
 
 None of these projects is a runtime dependency.
+
+## v0.0.28 Pippa Production Studio v6.4.61 production-hardening review
+
+The user-authored Pippa Pebblehoof Production Studio v6.4.61 was reviewed as an internal production benchmark. The reusable parts were adapted into Story-Film-native contracts rather than importing Pippa's project state engine, fixed clip numbering, project-specific manifest, or custom-node source code.
+
+Adopted in generalized form:
+
+- typed reference authority and negative authority boundaries;
+- exact end-frame plus visual-only motion-tail continuity;
+- approved dialogue waveform identity, hashes, timing, visible-speaker separation, and generation/review parity;
+- ComfyUI prompt/reference-to-graph binding audits;
+- reusable workflow-family capability contracts;
+- character, location, and prop reference sheets with functional prop views;
+- staged storyboard grounding that separates composition, environment/style, and identity passes;
+- safe explicit cleanup of rejected registered media;
+- repair of missing disposable runtime copies from approved media without regeneration;
+- pre-generation dialogue timing classification;
+- sanitized workflow blueprints and optional custom-node dependency documentation.
+
+Not adopted as universal policy:
+
+- Pippa's SQLite/project stage engine;
+- fixed view counts, fixed motion-tail duration, fixed resolution, sampler, model filenames, or LoRA choices;
+- automatic custom-node installation;
+- H3's 24 fps frame indexing in model-neutral state;
+- cloud/API music as a default route;
+- any personal machine path or project-specific Pippa prompt/output name.
 
 ## v0.0.27 character and directing skill review
 

@@ -15,7 +15,7 @@ license: Apache-2.0
 3. Append or update the take's record in `04_generation/take_qc.jsonl`.
 4. Use pass, warn, fail, not-applicable, or not-checked for each relevant dimension and provide concise evidence.
 5. Optional automated metrics may be recorded with evaluator/version metadata, but do not convert them into taste judgments automatically.
-6. Set `overall` to fail for hard script, identity, continuity, physics, corruption, or sync failures that make the take unusable as planned.
+6. Set `overall` to fail for hard script, identity, continuity, physics, corruption, or sync failures that make the take unusable as planned. For visible dialogue with approved-audio authority, treat wrong speaker ownership, unexpected mouth movement on a non-speaker, or generation/review audio hash drift as a hard sync failure.
 7. Pass the QC record to `take-selection`.
 
 ## Done

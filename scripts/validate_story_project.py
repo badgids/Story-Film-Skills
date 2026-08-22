@@ -26,6 +26,7 @@ from decision_map import validate as validate_decision_map
 from document_companions import audit as audit_document_companions
 from character_profiles import validate_project as validate_character_profiles
 from dialogue_sync import validate_project as validate_dialogue_sync
+from production_integrity import validate_project as validate_production_integrity
 from comfyui_batch import load_manifest as load_offline_batch, validate as validate_offline_batch
 from sequence_manager import validate_manifest as validate_sequence_manifest
 from context_shards import validate_shards as validate_context_shards
@@ -143,6 +144,10 @@ def main() -> int:
         errors.extend(f'dialogue sync: {e}' for e in validate_dialogue_sync(root))
     except Exception as exc:
         errors.append(f'dialogue sync validation failed: {exc}')
+    try:
+        errors.extend(validate_production_integrity(root))
+    except Exception as exc:
+        errors.append(f'production integrity validation failed: {exc}')
 
     # Every rich/binary document artifact must have a human-readable Markdown companion.
     for rel in audit_document_companions(root):

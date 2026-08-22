@@ -52,6 +52,10 @@ If the user wants to pressure-test an idea, resolve creative ambiguity, turn exi
 
 Before creating model-specific prompts or ComfyUI workflows, read `../generation-model-setup/SKILL.md`. Poll the active ComfyUI model inventory and show the user the available choices for every production process that applies. Record the adapter/model family and exact concrete resources in `00_project/model_preferences.json`. Do not infer VAEs, text encoders, LoRAs, checkpoints, audio models, upscalers, or other installed resources from adapter names or installed file order. MiniMax H3 remains the default video adapter only when the user did not choose a video adapter.
 
+## Production-integrity routing
+
+For reference-driven generation, preserve `REF-###` authority scopes and run `reference-authority`. When adjacent approved shots need motion continuity, use `temporal-continuity`; previous-shot tails are visual-only and cannot import prior audio. When approved dialogue audio exists, use `dialogue-audio-authority` and `dialogue-timing-preflight` before expensive visible-speech generation. For ComfyUI reference graphs, use `comfyui-binding-audit` after staging or conversion. Physical cleanup of rejected media or repair of a disposable runtime copy routes through `media-lifecycle`, never directory sweeps or regeneration of an approved source.
+
 ## Resource-safe local generation routing
 
 If the local LLM and ComfyUI cannot safely coexist in RAM or VRAM, route generation through `playbooks/resource-safe-comfyui.md`. All prompts, workflows, uploads, parameters, dependencies, output destinations, and validation decisions must be finalized before the local LLM is unloaded. While the LLM is unavailable, only the deterministic batch runner and Pi progress extension may advance or report generation state.

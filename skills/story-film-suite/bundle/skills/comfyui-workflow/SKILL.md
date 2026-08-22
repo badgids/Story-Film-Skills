@@ -15,6 +15,9 @@ license: Apache-2.0
 - `../../references/COMFYUI_SECURITY.md`
 - `../../references/MODEL_SELECTION.md`
 - `../../references/COMFYUI_BOUNDED_WORKFLOW.md`
+- `../../references/COMFYUI_WORKFLOW_CONTRACTS.md`
+- `../../references/REFERENCE_AUTHORITY.md`
+- `../../references/DIALOGUE_AUDIO_AUTHORITY.md`
 
 ## Procedure
 
@@ -32,7 +35,7 @@ For ordinary Story-Film production recovery or workflow creation, use the Pi-nat
 
 See `../../references/COMFYUI_BOUNDED_WORKFLOW.md`.
 
-1. Run `scripts/comfyui_control.py --project PROJECT workflow-catalog` before constructing a new executable graph.
+1. Run `scripts/comfyui_control.py --project PROJECT workflow-catalog` before constructing a new executable graph. Sanitized blueprints under `references/comfyui_workflows/` are preserved topology sources only; resolve them through the same discovery/preservation path rather than submitting them directly.
 2. Select the first suitable source in this order: already validated project workflow; project template; saved ComfyUI user workflow; official core template; installed custom-node example workflow.
 3. Fetch/copy the selected source without overwriting it. A failed runnable copy is repaired minimally; it is never replaced wholesale by a guessed model-family graph.
 4. Identify the workflow format.
@@ -42,8 +45,10 @@ See `../../references/COMFYUI_BOUNDED_WORKFLOW.md`.
 8. Decide whether this is a throwaway graph or reusable source. For reusable/growing work and an available current comfy-cli, prefer template -> slots/decompose -> fragment/blueprint -> compose. For a small one-time API graph, patch the exact named input in a preserved copy.
 9. For a UI-format workflow, use comfy-cli's supported run/conversion path when available or obtain an API export before native submission.
 10. Only when no suitable existing source exists may a new API candidate be constructed from live-discovered schemas. Do not construct class names from memory. Write it outside the runnable workflows directory first, then use `workflow-promote`; invalid candidates are not promoted.
-11. Confirm the requested result reaches a live output node or documented retrievable output path.
-12. Save only live-validated runnable API graphs under `04_generation/comfyui/workflows/`.
+11. Validate the selected workflow-family contract when one exists. Inspect `references/comfyui_workflow_dependencies.json` and report any missing optional custom-node packages without installing them.
+12. For reference-driven graphs, write/audit `04_generation/comfyui/reference_bindings.jsonl` so prompt ordinals, graph inputs, `REF-###`/`MEDIA-###`, staged paths, and hashes agree after conversion or patching.
+13. Confirm the requested result reaches a live output node or documented retrievable output path.
+14. Save only live-validated runnable API graphs under `04_generation/comfyui/workflows/`.
 
 Prompt adapters such as `qwen-image-2512` are not executable workflow specifications. Never translate an adapter/model-family label into a guessed `class_type`, API node, checkpoint name, or loader chain.
 

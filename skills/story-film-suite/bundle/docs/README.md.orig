@@ -22,6 +22,7 @@ These documents use controlled, simple English. Sentences are short. Terms stay 
 ### 2. Main workflows
 
 - [Story to finished film](workflows/story-to-film.md)
+- [Build a story bible](workflows/story-bible.md)
 - [Create a book](workflows/book.md)
 - [Create a screenplay](workflows/screenplay.md)
 - [Create a feature film](workflows/feature-film.md)
@@ -30,6 +31,8 @@ These documents use controlled, simple English. Sentences are short. Terms stay 
 ### 3. Feature-film production
 
 - [Feature-scale production](production/feature-scale.md)
+- [Character performance](production/character-performance.md)
+- [Visible dialogue synchronization](production/dialogue-sync.md)
 - [Sequences and context shards](production/sequences-and-shards.md)
 - [Production health](production/health.md)
 - [Long-range continuity](production/continuity.md)

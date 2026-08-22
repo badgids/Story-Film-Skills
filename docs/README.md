@@ -33,6 +33,12 @@ These documents use controlled, simple English. Sentences are short. Terms stay 
 - [Feature-scale production](production/feature-scale.md)
 - [Character performance](production/character-performance.md)
 - [Visible dialogue synchronization](production/dialogue-sync.md)
+- [Dialogue audio authority](production/dialogue-audio-authority.md)
+- [Dialogue timing preflight](production/dialogue-timing.md)
+- [Reference authority](production/reference-authority.md)
+- [Reference sheets and staged grounding](production/reference-sheets.md)
+- [Temporal continuity](production/temporal-continuity.md)
+- [Safe media lifecycle](production/media-lifecycle.md)
 - [Sequences and context shards](production/sequences-and-shards.md)
 - [Production health](production/health.md)
 - [Long-range continuity](production/continuity.md)
@@ -41,6 +47,8 @@ These documents use controlled, simple English. Sentences are short. Terms stay 
 ### 4. Image, audio, and video generation
 
 - [ComfyUI generation](generation/comfyui.md)
+- [Sanitized ComfyUI workflows](generation/sanitized-workflows.md)
+- [Optional ComfyUI custom nodes](generation/comfyui-optional-nodes.md)
 - [Choose generation models and ComfyUI resources](generation/model-selection.md)
 - [Resource-safe local generation](generation/resource-safe.md)
 - [RAM and VRAM generation budgets](generation/memory-budget.md)

@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.0.27 (00.00.27) - 2026-08-22
+
+- Added deep Story-Film-native character profiles with canonical visual identity, explicit exclusions, speech, movement, and stillness signatures.
+- Added canonical ensemble relationship baselines while keeping current relationship, knowledge, injury, possession, and chronology-sensitive state in `story_state.json`.
+- Added the `story-bible-development` playbook, which builds the existing distributed Story-Film brief, canon, story, character, world, state, and optional visual-bible artifacts instead of a monolithic project skill.
+- Added model-neutral visible-dialogue synchronization across shot briefs, shooting scripts, project validation, production coverage, local adapters, and prompt QC.
+- Added optional end-frame continuity handoffs for chained generation, storyboards, match-on-action, and editorial continuity.
+- Extended reference records with canonical `must_not_be` exclusions and non-canonical `drift_risks` observations.
+- Added optional capture-behavior and dynamic-register vocabulary while preserving Story-Film's motivated-camera rule.
+- Expanded feature context shards with only the relevant character/location/prop canon, relationship baselines, and current story state needed by each sequence.
+- Added deterministic character-profile and dialogue-sync validators, regression tests, weak-model eval cases, and local-model smoke cases.
+- Kept v0.0.27 local-first: no new cloud provider, generation provider, model default, or runtime dependency was added.
+
 ## v0.0.26 (00.00.26) - 2026-08-20
 
 - Added the Pi-native `story_comfy_workflow` bounded orchestration tool. The LLM may author exactly one canonical API-format ComfyUI graph; deterministic code owns discovery, safe source fetching, live validation, approved-prompt reuse, per-shot fan-out, offline-batch rebuild, and resource-handoff arming.

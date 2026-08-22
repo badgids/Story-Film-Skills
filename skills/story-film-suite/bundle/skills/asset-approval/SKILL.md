@@ -15,9 +15,9 @@ license: Apache-2.0
 3. Preserve the domain source ID such as `TAKE-###`, `VOICE-###`, `MUS-###`, `SFX-###`, `REF-###`, `TRL-###`, or `SOC-###`.
 4. Use one approval group per decision scope.
 5. Inspect media and relevant QC before selecting a primary.
-6. Keep useful alternates. Keep rejected and superseded history.
+6. Keep useful alternates. Keep rejected and superseded history. Rejection changes state; it does not physically delete a file.
 7. Never select a QC-failed candidate without explicit `qc_override: true` and a concrete user-approved reason.
-8. Use `scripts/media_registry.py` for deterministic state changes when available.
+8. Use `scripts/media_registry.py` for deterministic state changes when available. Use `scripts/media_lifecycle.py` only after an explicit deletion or runtime-copy-repair request; it may delete only an exact eligible registered path and records the cleanup operation.
 9. If a primary replacement affects downstream timing, identity, content, or continuity, run `project-impact`.
 
 ## Weak-model rule

@@ -46,11 +46,11 @@ Story and books: `story-research`, `evidence-research`, `story-brief`, `story-ar
 
 Screen: `adapt-screenplay`, `write-screenplay`, `revise-screenplay`, `continuity-check`.
 
-Preproduction: `production-breakdown`, `director-book`, `production-capabilities`, `performance-blocking`, `shooting-script`, `production-coverage`, `visual-bible`, `reference-assets`, `production-diagrams`, `previz-plan`, `shot-design`, `shot-list`, `storyboard-prompts`, `take-selection`, `project-impact`.
+Preproduction: `production-breakdown`, `director-book`, `production-capabilities`, `performance-blocking`, `shooting-script`, `production-coverage`, `visual-bible`, `reference-assets`, `reference-authority`, `reference-sheets`, `temporal-continuity`, `production-diagrams`, `previz-plan`, `shot-design`, `shot-list`, `storyboard-prompts`, `take-selection`, `project-impact`.
 
-Generation: `generation-pack`, `prompt-qc`, `media-qc`, `comfyui-handoff`, `comfyui`, `comfyui-discover`, `comfyui-workflow`, `comfyui-run`, `comfyui-assets`, `comfyui-cli`, `comfyui-mcp`, `comfyui-api-v2`, `comfyui-troubleshoot`.
+Generation: `generation-pack`, `prompt-qc`, `media-qc`, `dialogue-audio-authority`, `dialogue-timing-preflight`, `comfyui-handoff`, `comfyui`, `comfyui-discover`, `comfyui-workflow`, `comfyui-binding-audit`, `comfyui-run`, `comfyui-assets`, `comfyui-cli`, `comfyui-mcp`, `comfyui-api-v2`, `comfyui-troubleshoot`.
 
-Audio and post: `dialogue-voice`, `edit-assist`, `motion-graphics`, `programmatic-video`, `pdf-toolkit`, `score-plan`, `sound-design`, `edit-plan`, `editorial-package`, `asset-approval`, `audio-master`, `video-finishing`, `timeline-assembly`, `film-master`, `media-toolkit`, `ffmpeg`, `mlt`, `imagemagick`, `mlt-export`, `editor-project-export`, `kdenlive-export`, `shotcut-export`, `delivery-qc`.
+Audio and post: `dialogue-voice`, `edit-assist`, `motion-graphics`, `programmatic-video`, `pdf-toolkit`, `score-plan`, `sound-design`, `edit-plan`, `editorial-package`, `asset-approval`, `media-lifecycle`, `audio-master`, `video-finishing`, `timeline-assembly`, `film-master`, `media-toolkit`, `ffmpeg`, `mlt`, `imagemagick`, `mlt-export`, `editor-project-export`, `kdenlive-export`, `shotcut-export`, `delivery-qc`.
 
 Release and marketing: `campaign-brand`, `content-repurpose`, `design-system`, `production-documents`, `trailer-plan`, `trailer-assets`, `trailer-edit`, `trailer-master`, `social-campaign`, `social-cutdown`, `social-reframe`, `social-copy`, `marketing-art`, `campaign-delivery`, `release-package`.
 

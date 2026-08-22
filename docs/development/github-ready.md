@@ -42,14 +42,14 @@ Do not commit local secrets, generated model files, large temporary media, or pr
 After the private repository exists, test both scopes:
 
 ```bash
-pi install git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 Use a disposable test project for project-local verification:
 
 ```bash
 cd /path/to/TestFilmProject
-pi install -l git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install -l git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 For an unpushed checkout:

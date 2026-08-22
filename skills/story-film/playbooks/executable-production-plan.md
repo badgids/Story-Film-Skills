@@ -11,8 +11,10 @@ Use when the user wants a shooting script, detailed performance blocking, execut
 7. `shot-design`: design coverage and link shots to `LINE-###` source units where applicable.
 8. `shot-list`: compile practical setups.
 9. `dialogue-voice` when audible dialogue is in scope. Preserve `LINE-###` and exact text.
-10. `shooting-script`: compile positions, moves, actions, shot IDs, dialogue, and timing into one portable execution record.
-11. `production-coverage`: prove the requested scope has no missing machine-readable line, shot, voice, or blocking links.
-12. If measured speech or generated-media timing later changes, refresh only affected units and rerun coverage.
+10. `dialogue-audio-authority` when a dialogue take is approved. Bind the exact `MEDIA-###`, speaker, start time, and SHA-256 used for generation/review.
+11. `dialogue-timing-preflight` before expensive dialogue-heavy generation. An impossible line returns to shot design; never silently speed, crop, rewrite, or reassign it.
+12. `shooting-script`: compile positions, moves, actions, shot IDs, dialogue, and timing into one portable execution record.
+13. `production-coverage`: prove the requested scope has no missing machine-readable line, shot, voice, or blocking links.
+14. If measured speech or generated-media timing later changes, refresh only affected units and rerun coverage.
 
 Done when the requested scope is executable from saved artifacts and the production coverage report is ready or names an explicit blocker.

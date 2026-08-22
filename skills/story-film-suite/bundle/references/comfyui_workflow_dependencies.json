@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "packages": {
+    "comfyui-h3-exact-audio-lock": {
+      "name": "ComfyUI-H3-ExactAudioLock",
+      "repository": "https://github.com/badgids/ComfyUI-H3-ExactAudioLock",
+      "required_for": [
+        "MiniMaxH3TimedAudio",
+        "MiniMaxH3ExactAudioLock"
+      ],
+      "install": "optional"
+    },
+    "comfyui-orbitsheets": {
+      "name": "ComfyUI-OrbitSheets",
+      "repository": "https://github.com/lumos675/ComfyUI-OrbitSheets",
+      "required_for": [
+        "OrbitSheetsCharacterPrompt",
+        "OrbitSheetsLocationPrompt",
+        "OrbitSheetsFrameSelect",
+        "OrbitSheetsContactSheet",
+        "OrbitSheetsAttentionBackend"
+      ],
+      "install": "optional"
+    },
+    "videohelpersuite": {
+      "name": "ComfyUI-VideoHelperSuite",
+      "repository": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite",
+      "required_for": [
+        "VHS_LoadVideo",
+        "VHS_VideoCombine"
+      ],
+      "install": "optional"
+    },
+    "comfyui-gguf": {
+      "name": "ComfyUI-GGUF",
+      "repository": "https://github.com/city96/ComfyUI-GGUF",
+      "required_for": [
+        "UnetLoaderGGUF"
+      ],
+      "install": "optional"
+    },
+    "qwen3-tts-flybird": {
+      "name": "ComfyUI-Qwen-TTS",
+      "repository": "https://github.com/flybirdxx/ComfyUI-Qwen-TTS",
+      "required_for": [
+        "FB_Qwen3TTSVoiceDesign",
+        "FB_Qwen3TTSVoiceClone"
+      ],
+      "install": "optional"
+    },
+    "nvidia-rtx-nodes": {
+      "name": "Nvidia_RTX_Nodes_ComfyUI",
+      "repository": "https://github.com/Comfy-Org/Nvidia_RTX_Nodes_ComfyUI",
+      "required_for": [
+        "RTXVideoSuperResolution"
+      ],
+      "install": "optional",
+      "platform_note": "NVIDIA RTX hardware/runtime required"
+    },
+    "comfyui-vlm-nodes": {
+      "name": "ComfyUI_VLM_nodes",
+      "repository": "https://github.com/gokayfem/ComfyUI_VLM_nodes",
+      "required_for": [
+        "MiniMaxMusicNode"
+      ],
+      "install": "optional",
+      "remote_service_note": "MiniMaxMusicNode uses the MiniMax hosted API and server-side MINIMAX_API_KEY"
+    }
+  }
+}

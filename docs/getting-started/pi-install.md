@@ -35,13 +35,13 @@ Use this only when you want Story-Film Skills in your normal Pi environment.
 Private GitHub repository with SSH:
 
 ```bash
-pi install git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 HTTPS:
 
 ```bash
-pi install https://github.com/YOUR_GITHUB_USER/Story-Film-Skills
+pi install https://github.com/badgids/Story-Film-Skills
 ```
 
 Pi stores a user-wide Git package under its user package area and records the package in user settings.
@@ -54,7 +54,7 @@ Assume your test project is `MyFilmProject`.
 
 ```bash
 cd /path/to/MyFilmProject
-pi install -l git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install -l git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 The important option is:
@@ -105,7 +105,7 @@ This is useful when you are changing Story-Film Skills and testing the changes i
 Use the `-e` option for a throwaway test:
 
 ```bash
-pi -e git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi -e git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 Or use a local checkout:
@@ -123,7 +123,7 @@ For repeatable testing, install a specific Git tag or commit.
 Example shape:
 
 ```bash
-pi install -l git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git@TAG_OR_COMMIT
+pi install -l git:git@github.com:badgids/Story-Film-Skills.git@TAG_OR_COMMIT
 ```
 
 A pinned revision does not move to a different revision during normal package updates.
@@ -136,7 +136,7 @@ Example:
 
 ```bash
 cd /path/to/MyFilmProject
-pi remove -l git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi remove -l git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 Then inspect the project package state:

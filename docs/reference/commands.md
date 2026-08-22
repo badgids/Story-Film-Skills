@@ -51,6 +51,15 @@ Use `--help` on each script for all arguments.
 ```bash
 python scripts/comfyui_control.py --project PROJECT probe
 python scripts/comfyui_workflow.py inspect WORKFLOW.json
+python scripts/comfy_workflow_contracts.py WORKFLOW.json --contract minimax-h3-r2v
+python scripts/comfy_binding_audit.py PROJECT
+python scripts/reference_authority.py PROJECT
+python scripts/temporal_continuity.py validate PROJECT
+python scripts/dialogue_audio_authority.py PROJECT
+python scripts/dialogue_timing_preflight.py PROJECT
+python scripts/reference_sheets.py PROJECT
+python scripts/staged_grounding.py PROJECT
+python scripts/media_lifecycle.py PROJECT --help
 python scripts/resource_handoff.py --help
 python scripts/comfyui_batch.py --help
 ```
@@ -75,19 +84,19 @@ python scripts/local_smoke.py --help
 Install for the user:
 
 ```bash
-pi install git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 Install only for the current project:
 
 ```bash
-pi install -l git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi install -l git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 Load only for the current Pi process:
 
 ```bash
-pi -e git:git@github.com:YOUR_GITHUB_USER/Story-Film-Skills.git
+pi -e git:git@github.com:badgids/Story-Film-Skills.git
 ```
 
 Install a local checkout only for the current project:

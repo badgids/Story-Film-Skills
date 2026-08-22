@@ -42,8 +42,10 @@ Use stable labels such as `<Picture 1>`, `<Video 1>`, and `<Audio 1>` everywhere
 ## Rules
 
 - Preserve dialogue and visible scene text exactly in the requested language.
+- When the source brief requires visible-dialogue sync, preserve the exact speaker, mouth-visibility intent, cut policy, and measured speech duration in the chronological audiovisual description.
 - Keep reference labels consistent.
-- Tie first or last frames to the timeline explicitly in keyframe modes.
+- Tie first or last frames to the timeline explicitly in keyframe modes. When `end_frame.required` is present, end the described timeline in that state and use FL2VA/L2VA only when the selected local workflow actually uses last-frame conditioning.
+- Preserve source `capture_behavior` as visible capture properties rather than inventing camera hardware.
 - Use concrete image and sound descriptions instead of generic quality adjectives.
 - Save under `04_generation/prompts/minimax-h3/<shot-id>.md`.
 

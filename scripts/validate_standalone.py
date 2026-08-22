@@ -33,6 +33,9 @@ def main() -> int:
         if p.name in ALLOW_SOURCE_FILES or 'evals/cases' in str(p.relative_to(ROOT)):
             continue
         text = p.read_text(encoding='utf-8', errors='ignore')
+        github_owner_placeholder = 'YOUR_' + 'GITHUB_USER'
+        if github_owner_placeholder in text:
+            errors.append(f'{p.relative_to(ROOT)}: unresolved GitHub repository owner placeholder')
         for rx in FORBIDDEN:
             if rx.search(text):
                 errors.append(f'{p.relative_to(ROOT)}: external-skill dependency wording matches {rx.pattern!r}')
@@ -85,6 +88,38 @@ def main() -> int:
         'scripts/character_profiles.py',
         'scripts/dialogue_sync.py',
         'scripts/production_coverage.py',
+        'references/REFERENCE_AUTHORITY.md',
+        'references/TEMPORAL_CONTINUITY.md',
+        'references/DIALOGUE_AUDIO_AUTHORITY.md',
+        'references/COMFYUI_WORKFLOW_CONTRACTS.md',
+        'references/REFERENCE_SHEETS.md',
+        'references/STAGED_REFERENCE_GROUNDING.md',
+        'references/MEDIA_LIFECYCLE.md',
+        'references/DIALOGUE_TIMING_PREFLIGHT.md',
+        'references/comfyui_workflow_contracts.json',
+        'references/comfyui_workflow_dependencies.json',
+        'references/comfyui_workflows/video_minimax_h3_r2v_exact_audio_hybrid.json',
+        'references/comfyui_workflows/CharacterTurnaroundSheetH3.json',
+        'references/comfyui_workflows/LocationOrbitSheetH3.json',
+        'references/comfyui_workflows/PropReferenceSheetH3.json',
+        'scripts/reference_authority.py',
+        'scripts/temporal_continuity.py',
+        'scripts/dialogue_audio_authority.py',
+        'scripts/comfy_binding_audit.py',
+        'scripts/comfy_workflow_contracts.py',
+        'scripts/workflow_sanitize.py',
+        'scripts/reference_sheets.py',
+        'scripts/staged_grounding.py',
+        'scripts/media_lifecycle.py',
+        'scripts/dialogue_timing_preflight.py',
+        'scripts/production_integrity.py',
+        'skills/reference-authority/SKILL.md',
+        'skills/temporal-continuity/SKILL.md',
+        'skills/dialogue-audio-authority/SKILL.md',
+        'skills/comfyui-binding-audit/SKILL.md',
+        'skills/reference-sheets/SKILL.md',
+        'skills/media-lifecycle/SKILL.md',
+        'skills/dialogue-timing-preflight/SKILL.md',
         'references/MEDIA_REGISTRY.md',
         'references/AUDIO_MASTERING.md',
         'references/VIDEO_FINISHING.md',
