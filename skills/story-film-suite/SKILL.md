@@ -9,6 +9,8 @@ license: Apache-2.0
 
 This is the self-contained installation entry point.
 
+If the harness also exposes the normal `story-film` skill, use `story-film` and stop here. That means Story-Film is being consumed as a normal Git/package installation rather than through this self-contained npx bundle. Do not inspect or scan `bundle/` in that case.
+
 1. Read `bundle/skills/story-film/SKILL.md` as the main router.
 2. When that router names another Story-Film skill, read it from `bundle/skills/<skill-name>/SKILL.md`.
 3. Run shared tools from `bundle/scripts/`.

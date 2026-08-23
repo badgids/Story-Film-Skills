@@ -15,6 +15,10 @@ type ResourceStatus = {
   job_index?: number; job_total?: number; llm_state?: string; comfyui_state?: string;
   error?: string; updated_at?: string;
 };
+type WorkflowPreflight = {
+  playbook?: string; profile?: string; status?: string;
+  required_categories?: string[]; selected_categories?: string[]; missing_categories?: string[];
+};
 type Ui = {
   setWidget?: (key: string, content: string[] | ((tui: any, theme: any) => any) | undefined, options?: { placement?: "aboveEditor" | "belowEditor" }) => void;
   setStatus?: (key: string, text: string | undefined) => void;
@@ -35,6 +39,13 @@ const SHORTCUTS = {
   follow: "ctrl+alt+home",
 } as const;
 const ANSI = /\x1b\[[0-?]*[ -/]*[@-~]/g;
+const WORKFLOW_PREFLIGHT_PIPELINES = new Set([
+  "full-pipeline",
+  "short-film",
+  "feature-film",
+  "screenplay-to-film-package",
+  "resource-safe-comfyui",
+]);
 type ViewportAction = "up" | "down" | "page-up" | "page-down" | "current" | "follow" | "toggle" | "expand" | "collapse" | "compact";
 
 function terminalShortcutAction(data: string): ViewportAction | undefined {
@@ -79,6 +90,22 @@ function loadResource(cwd: string): ResourceStatus | undefined {
   if (!root) return undefined;
   const path = join(root, "00_project", "resource_handoff.json");
   try { return JSON.parse(readFileSync(path, "utf8")) as ResourceStatus; } catch { return undefined; }
+}
+
+function loadWorkflowPreflight(cwd: string): WorkflowPreflight | undefined {
+  const root = projectRoot(cwd);
+  if (!root) return undefined;
+  const path = join(root, "00_project", "workflow_preflight.json");
+  try { return JSON.parse(readFileSync(path, "utf8")) as WorkflowPreflight; } catch { return undefined; }
+}
+
+function workflowPreflightRequired(value: Progress | undefined): boolean {
+  return !!value && WORKFLOW_PREFLIGHT_PIPELINES.has(value.pipeline_id || "");
+}
+
+function protectedCreativePath(text: string): boolean {
+  const value = text.replace(/\\/g, "/");
+  return /(?:^|\/)(?:00_project\/(?:brief\.md|canon\.json|creative_production_spec\.md)|01_story\/|02_screenplay\/|03_preproduction\/|04_generation\/prompts\/)/i.test(value);
 }
 
 function resourceOwnsInput(value: ResourceStatus | undefined): boolean {
@@ -161,11 +188,34 @@ function requestedSkillName(event: any): string | undefined {
   return match?.[1]?.toLowerCase();
 }
 
-function pipelineGuardPrompt(value: Progress | undefined): string | undefined {
+function pipelineGuardPrompt(value: Progress | undefined, preflight: WorkflowPreflight | undefined): string | undefined {
   if (!value?.stages?.length || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
   const flat = flatten(value);
   const currentLine = flat.lines[flat.current] || value.next_action || "current Story-Film target";
-  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n- For ComfyUI model discovery, use Story-Film's scripts/model_inventory.py scan and menu commands against the live server. ComfyUI's /models registry includes server-registered external model directories such as extra_model_paths.yaml. Do not call /models directly with curl, wget, urllib, requests, or one-off parser scripts. Do not use filesystem-wide find/grep scans to decide that models are missing. Do not infer model absence from an ad hoc /object_info parser.\n- Before creating or replacing an executable ComfyUI graph, use scripts/comfyui_control.py workflow-catalog. Prefer, in order: a validated project workflow, a project template, a saved ComfyUI user workflow, an official core template, then an installed custom-node example workflow. Only construct a new candidate when no suitable source exists, and promote it only after live validation. Prompt adapters describe prompt grammar; an adapter name never proves that a same-named ComfyUI node, API node, checkpoint, or runtime exists.\n- Use Story-Film's bundled ComfyUI controllers for discovery, validation, submission, history, and batch execution. Do not replace them with one-off curl/urllib/requests scripts or direct /prompt loops.\n`;
+  const preflightLine = workflowPreflightRequired(value) && preflight?.status !== "complete"
+    ? `- HARD GATE: ComfyUI workflow preflight is incomplete${preflight?.missing_categories?.length ? `; missing ${preflight.missing_categories.join(", ")}` : ""}. Do not write story, canon, screenplay, preproduction, or generation-prompt artifacts and do not advance the pipeline. Complete generation-workflow-setup first. If ComfyUI cannot be reached, block the current target instead of continuing creatively.\n`
+    : "";
+  return `\nSTORY-FILM PIPELINE RUNTIME GUARD:\n- 00_project/pipeline_progress.json is authoritative.\n- Current target: ${currentLine}\n${preflightLine}- Do not work ahead on a later Story-Film target. Finish the current target, validate its artifact, then checkpoint it with scripts/pipeline_progress.py before starting the next specialist.\n- If Pi's generic Todo is used, mirror at most three items: current Story-Film target, immediate next target, and requested endpoint. Update that mirror after each Story-Film checkpoint. The generic Todo never overrides pipeline_progress.json.\n- In Pi, use story_comfy for live ComfyUI server, model, workflow, and node discovery. Do not substitute Bash, find, ls, guessed paths, direct comfy-cli discovery, or one-off HTTP clients.\n- For the complete numbered workflow-selection catalog, use generation-workflow-setup and scripts/workflow_catalog.py. Story-Film may use bundled workflows, package custom defaults, project defaults/workflows, saved ComfyUI user workflows, registered external workflows, and generate-new. Do not search ComfyUI core/custom template catalogs and do not treat the project templates directory as a catalog source.\n- Before creating or replacing an executable ComfyUI graph, preserve an allowed workflow source or construct a live-schema candidate only when no suitable source exists, then promote it only after live validation. Prompt adapters describe prompt grammar; an adapter name never proves that a same-named ComfyUI node, API node, checkpoint, or runtime exists.\n- Use Story-Film's bundled ComfyUI controllers for validation, submission, history, and batch execution. Do not replace them with one-off curl/urllib/requests scripts or direct /prompt loops.\n`;
+}
+
+function packageRediscoveryBlockReason(event: any): string | undefined {
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  if (!new Set(["bash", "shell", "terminal"]).has(tool)) return undefined;
+  const input = event?.input ?? {};
+  const command = String(input.command ?? input.cmd ?? input.script ?? "");
+  if (!/\b(?:find|ls)\b/i.test(command)) return undefined;
+  const packageTree = /Story-Film-Skills[\\/](?:skills|scripts|references|docs|comfyui_workflows)(?:[\\/]|\b)|story-film-suite[\\/]bundle(?:[\\/]|\b)/i;
+  if (!packageTree.test(command)) return undefined;
+  return "Do not use Bash/find/ls to rediscover Story-Film package structure. The active Story-Film SKILL.md gives authoritative relative paths for CATALOG.md, playbooks, sibling skills, scripts, references, docs, and bundled workflows. Read those known paths directly.";
+}
+
+function invalidProjectInitBlockReason(event: any): string | undefined {
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  if (!new Set(["bash", "shell", "terminal"]).has(tool)) return undefined;
+  const input = event?.input ?? {};
+  const command = String(input.command ?? input.cmd ?? input.script ?? "");
+  if (!/init_story_project\.py\b/i.test(command) || !/(?:^|\s)--playbook(?:=|\s)/i.test(command)) return undefined;
+  return "init_story_project.py does not accept --playbook. Initialize the project with init_story_project.py <project> [--title TITLE] [--format FORMAT], then initialize progress separately with pipeline_progress.py init <project> --playbook <playbook>.";
 }
 
 function futureSkillBlockReason(value: Progress | undefined, requested: string | undefined): string | undefined {
@@ -177,6 +227,32 @@ function futureSkillBlockReason(value: Progress | undefined, requested: string |
   const flat = flatten(value);
   const currentLine = flat.lines[flat.current] || value.next_action || "the current Story-Film target";
   return `Story-Film progress is still at ${currentLine}. Validate and checkpoint the current target before opening the future specialist '${requested}'. Do not work ahead.`;
+}
+
+function workflowPreflightBlockReason(value: Progress | undefined, event: any, cwd: string): string | undefined {
+  if (!value || !["active", "blocked", "paused"].includes(value.status || "") || !workflowPreflightRequired(value)) return undefined;
+  const preflight = loadWorkflowPreflight(cwd);
+  if (preflight?.status === "complete") return undefined;
+  const missing = preflight?.missing_categories?.length ? ` Missing categories: ${preflight.missing_categories.join(", ")}.` : "";
+  const reason = `Story-Film workflow preflight is incomplete.${missing} Complete generation-workflow-setup and verify scripts/workflow_preflight.py status is complete before writing creative production artifacts or advancing the pipeline. If ComfyUI is unavailable, mark the current preflight target blocked; do not continue with story work.`;
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  const input = event?.input ?? {};
+
+  if (new Set(["write", "write_file", "writefile", "edit", "edit_file", "editfile"]).has(tool)) {
+    const path = String(input.path ?? input.file_path ?? input.filepath ?? "");
+    return protectedCreativePath(path) ? reason : undefined;
+  }
+
+  if (new Set(["bash", "shell", "terminal"]).has(tool)) {
+    const command = String(input.command ?? input.cmd ?? input.script ?? "");
+    const advancesPipeline = /pipeline_progress\.py\s+checkpoint\b/i.test(command)
+      && /--status(?:=|\s+)(?:completed|skipped)\b/i.test(command);
+    const writesCreative = protectedCreativePath(command)
+      && /(>>?|(?:^|\s)tee(?:\s|$)|\bsed\s+-i\b|\bperl\s+-pi\b)/i.test(command);
+    if (advancesPipeline || writesCreative) return reason;
+  }
+
+  return undefined;
 }
 
 
@@ -247,7 +323,7 @@ function comfyWorkflowBypassBlockReason(value: Progress | undefined, event: any)
   if (!value || !["active", "blocked", "paused"].includes(value.status || "")) return undefined;
   const tool = String(event?.toolName ?? "").toLowerCase();
   const input = event?.input ?? {};
-  const reason = "Use Story-Film's bundled ComfyUI workflow path: run scripts/comfyui_control.py workflow-catalog first, fetch/preserve an existing workflow or template when available, validate executable API graphs against the live server, and submit through comfyui_control.py/comfyui_batch.py/resource_handoff.py. Do not write guessed class_type graphs directly into 04_generation/comfyui/workflows or bypass Story-Film with raw ComfyUI HTTP loops.";
+  const reason = "Use Story-Film's bundled ComfyUI workflow path: use story_comfy workflow-catalog for live project/user workflows, or select or preserve an allowed Story-Film, project, user-saved, or registered external workflow when available. Validate executable API graphs against the live server and submit through comfyui_control.py/comfyui_batch.py/resource_handoff.py. Do not search template catalogs, write guessed class_type graphs directly into 04_generation/comfyui/workflows, or bypass Story-Film with raw ComfyUI HTTP loops.";
   const approved = (text: string): boolean => [
     "comfyui_control.py",
     "comfyui_cli_bridge.py",
@@ -415,12 +491,15 @@ export default function storyFilmProgress(pi: any): void {
   });
   pi.on?.("before_agent_start", async (event: any, ctx: any) => {
     await refresh(event, ctx);
-    const systemPromptAppend = pipelineGuardPrompt(load(ctx.cwd));
+    const systemPromptAppend = pipelineGuardPrompt(load(ctx.cwd), loadWorkflowPreflight(ctx.cwd));
     return systemPromptAppend ? { systemPromptAppend } : undefined;
   });
   pi.on?.("tool_call", async (event: any, ctx: any) => {
     const value = load(ctx.cwd);
-    const reason = futureSkillBlockReason(value, requestedSkillName(event))
+    const reason = packageRediscoveryBlockReason(event)
+      ?? invalidProjectInitBlockReason(event)
+      ?? workflowPreflightBlockReason(value, event, ctx.cwd)
+      ?? futureSkillBlockReason(value, requestedSkillName(event))
       ?? genericTodoBlockReason(value, event)
       ?? comfyModelFilesystemScanBlockReason(value, event)
       ?? comfyWorkflowBypassBlockReason(value, event);

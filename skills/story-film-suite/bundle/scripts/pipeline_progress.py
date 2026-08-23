@@ -19,6 +19,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+import workflow_preflight
+
 SCHEMA_VERSION = 1
 OWNER = "story-film-skills"
 LEGACY_OWNERS = {"badgids-story-film-skills"}
@@ -28,6 +30,16 @@ ROOT = Path(__file__).resolve().parents[1]
 PLAYBOOK_DIR = ROOT / "skills" / "story-film" / "playbooks"
 NUMBERED = re.compile(r"^\s*(\d+)\.\s+(.+?)\s*$")
 BACKTICK = re.compile(r"`([^`]+)`")
+
+
+def workflow_preflight_item(playbook: Path) -> str | None:
+    profile = workflow_preflight.PLAYBOOK_PROFILES.get(playbook.stem, "")
+    if not profile:
+        return None
+    return (
+        f"`generation-workflow-setup`: complete the `{profile}` workflow preflight before creative production. "
+        "Do not advance until `scripts/workflow_preflight.py status` reports `complete`."
+    )
 
 
 def now() -> str:
@@ -148,6 +160,9 @@ def compile_children(path: Path, parent_id: str, depth: int, max_depth: int) -> 
 
 def compile_pipeline(playbook: Path, max_depth: int = 3) -> dict[str, Any]:
     items = numbered_items(playbook)
+    preflight = workflow_preflight_item(playbook)
+    if preflight:
+        items = [preflight, *items]
     stages: list[dict[str, Any]] = []
     for index, text in enumerate(items, 1):
         stage_id = f"PST-{index:03d}"
@@ -396,6 +411,14 @@ def initialize(root: Path, playbook: Path, force: bool, max_depth: int) -> dict[
         existing = load_progress(root)
         if existing.get("status") not in {"inactive", "complete"}:
             raise SystemExit("an active pipeline already exists; use --force only when intentionally replacing its progress ledger")
+    profile = workflow_preflight.PLAYBOOK_PROFILES.get(playbook.stem, "")
+    if profile:
+        workflow_preflight.set_preflight(
+            root,
+            playbook=playbook.stem,
+            profile=profile,
+            categories=[],
+        )
     value = compile_pipeline(playbook, max_depth=max_depth)
     save_checkpoint(root, value, "pipeline.initialized", note=f"source={playbook.name}", last_action="Initialized pipeline progress")
     return value
@@ -412,6 +435,17 @@ def checkpoint(root: Path, status: str, target: str | None, next_action: str | N
         raise SystemExit("checkpoint target must be a leaf step/substep, not a container")
     if status not in {"current", "completed", "blocked", "skipped"}:
         raise SystemExit("checkpoint status must be current, completed, blocked, or skipped")
+    profile = workflow_preflight.PLAYBOOK_PROFILES.get(str(value.get("pipeline_id") or ""), "")
+    if profile and status in {"completed", "skipped"}:
+        preflight = workflow_preflight.status(root)
+        if preflight.get("status") != "complete":
+            missing = [str(x) for x in preflight.get("missing_categories", [])]
+            suffix = f" Missing categories: {', '.join(missing)}." if missing else ""
+            raise SystemExit(
+                "workflow preflight is incomplete; do not complete or skip Story-Film pipeline work until "
+                "`scripts/workflow_preflight.py status` reports `complete`."
+                + suffix
+            )
     if status == "skipped" and not note.strip():
         raise SystemExit("skipped checkpoints require --note explaining why the conditional step does not apply")
     previous_id = node["id"]

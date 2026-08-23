@@ -195,11 +195,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.34')
-        self.assertEqual(version_display.display_version(version), 'v0.0.34')
+        self.assertEqual(version, '00.00.35')
+        self.assertEqual(version_display.display_version(version), 'v0.0.35')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.35'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.36'], check=True)
 
     def test_workflow_selection_has_no_four_choice_limit(self):
         reference = (ROOT / 'references/WORKFLOW_SELECTION.md').read_text(encoding='utf-8')
@@ -294,12 +294,12 @@ class Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             project = Path(td) / 'film'
             subprocess.run([sys.executable, str(ROOT / 'scripts/init_story_project.py'), str(project), '--title', 'Progress Test'], check=True)
-            subprocess.run([sys.executable, str(ROOT / 'scripts/pipeline_progress.py'), 'init', str(project), '--playbook', 'short-film'], check=True)
+            subprocess.run([sys.executable, str(ROOT / 'scripts/pipeline_progress.py'), 'init', str(project), '--playbook', 'idea-to-story'], check=True)
             value = json.loads((project / '00_project/pipeline_progress.json').read_text())
-            self.assertEqual(value['pipeline_id'], 'short-film')
-            self.assertEqual(len(value['stages']), 18)
+            self.assertEqual(value['pipeline_id'], 'idea-to-story')
+            self.assertEqual(len(value['stages']), 10)
             leaves = pipeline_progress.flatten_leaves(value)
-            self.assertGreaterEqual(len(leaves), 18)
+            self.assertGreaterEqual(len(leaves), 10)
             first_id = value['cursor']['target_id']
             subprocess.run([sys.executable, str(ROOT / 'scripts/pipeline_progress.py'), 'checkpoint', str(project), '--status', 'completed', '--last-action', 'Finished first item', '--file', '00_project/brief.md'], check=True)
             value = json.loads((project / '00_project/pipeline_progress.json').read_text())

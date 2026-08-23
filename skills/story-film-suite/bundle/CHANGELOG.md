@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.0.35 (00.00.35) - 2026-08-23
+
+- Made ComfyUI workflow preflight the first authoritative pipeline target for mapped ComfyUI-backed playbooks instead of leaving it as prose outside the progress ledger.
+- Made pipeline initialization create the matching workflow-preflight state and block completed or skipped progress checkpoints until the required workflow selections report complete.
+- Added Pi runtime enforcement that blocks story, canon, screenplay, preproduction, and generation-prompt writes while required workflow preflight is incomplete, and requires the current preflight target to become blocked when ComfyUI cannot be reached.
+- Blocked Story-Film package rediscovery through Bash `find`/`ls`, clarified package-relative router paths and valid project initialization commands, and kept explicitly invoked Story-Film routing authoritative over unrelated installed skill packs.
+- Kept `story_comfy workflow-catalog` for live project/user workflows while preserving the v0.0.34 prohibition on ComfyUI core/custom template catalog discovery and directing complete workflow selection through Story-Film's deterministic catalog.
+- Added deterministic v0.0.35 regression coverage for preflight-first pipeline compilation, initialization, checkpoint enforcement, Pi runtime guards, and package-path routing.
+- Removed tracked `.orig` patch-backup artifacts from the repository and added `*.orig` to `.gitignore` so they are not redistributed in Pi or bundle installs.
+- Rebuilt the self-contained Story-Film suite bundle with the same runtime-preflight behavior.
+
 ## v0.0.34 (00.00.34) - 2026-08-23
 
 - Removed Story-Film discovery of ComfyUI core template catalogs and installed custom-node workflow template catalogs.
