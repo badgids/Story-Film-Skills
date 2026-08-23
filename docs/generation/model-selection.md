@@ -7,6 +7,7 @@
 - [What you can choose](#what-you-can-choose)
 - [How Story-Film finds your installed models](#how-story-film-finds-your-installed-models)
 - [Configure models with Pi](#configure-models-with-pi)
+- [More than four decisions](#more-than-four-decisions)
 - [Video default](#video-default)
 - [Choose exact VAEs and text encoders](#choose-exact-vaes-and-text-encoders)
 - [Choose LoRAs](#choose-loras)
@@ -93,10 +94,12 @@ Pi must:
 
 1. find the active ComfyUI server;
 2. scan the current model inventory;
-3. show the choices for one production process at a time;
-4. wait for your choice;
-5. save the exact choice;
-6. validate that the selected files still exist in ComfyUI.
+3. determine all required production processes and unresolved resource choices;
+4. show only as many independent questions as the current Pi question UI supports;
+5. wait for your answers;
+6. save and validate those answers;
+7. show the next page when unresolved required decisions remain;
+8. continue until every required choice is selected, explicitly delegated, or proven not required by the selected workflow.
 
 You can also print one process menu yourself:
 
@@ -148,6 +151,16 @@ Use MiniMax H3. Use diffusion model D2, VAE V1, text encoders T1 and T2, and LoR
 ```
 
 Pi must save the exact server-returned file names. It must not replace your choice with another file.
+
+## More than four decisions
+
+Some Pi question interfaces allow only a small number of questions in one interaction. Story-Film treats that limit as a page size, not as permission to make the remaining production decisions for you.
+
+For example, a production can need separate choices for video, image generation, image editing, TTS, music, SFX/Foley, upscaling, and frame interpolation. Story-Film can ask the first page, wait for your answers, save and validate them, and then ask the next page.
+
+Story-Film must not combine music and SFX/Foley merely to save a question slot. It must not silently choose SFX/Foley after asking about four other processes. It must not assume a VAE or text encoder is implied by the adapter name just to reduce the number of questions.
+
+A later page is unnecessary only when the choice is already validly saved for this project, you explicitly delegated it, or the selected workflow proves that resource is not required.
 
 ## Video default
 

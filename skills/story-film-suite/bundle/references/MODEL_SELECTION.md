@@ -40,6 +40,27 @@ Before model-specific ComfyUI work:
 
 Do not infer user preference from file names, folder order, workflow examples, installed nodes, available VRAM, or the fact that a model is installed.
 
+## Question pagination and decision completeness
+
+A host question tool can limit how many questions are shown in one invocation. That is a page-size limit only. It is never a limit on how many Story-Film decisions the user may control.
+
+For every required production process:
+
+1. Build an ordered queue of unresolved adapter/model-family and concrete-resource decisions.
+2. Ask only as many independent questions as the current host UI supports in one interaction.
+3. Wait for the user's answers.
+4. Save and validate those answers in `00_project/model_preferences.json`.
+5. If required decisions remain unresolved, ask the next page after the user has answered the previous page.
+6. Repeat until every required decision is selected, explicitly delegated, or proven not required by the selected workflow.
+
+Do not fire multiple question-tool invocations back-to-back without a user response merely to bypass a host UI limit.
+
+Do not merge independent production decisions just to fit one question page. For example, music and SFX/Foley are separate processes, image generation and image editing are separate processes, and upscaling and frame interpolation are separate processes.
+
+Do not silently default, omit, infer, or substitute a required decision because the current question page is full. The only forced adapter default is the documented MiniMax H3 video default, and that default never chooses its checkpoint, diffusion model, VAE, text encoder, LoRA, or another concrete resource.
+
+Reducing question count is valid only when a still-valid saved project selection already exists, the user explicitly delegated that decision, or the selected workflow proves the resource is not required.
+
 ### External ComfyUI model directories
 
 ComfyUI can load model roots that are outside its application directory. A common configuration uses `extra_model_paths.yaml`.

@@ -19,11 +19,25 @@ Use this skill before model-specific ComfyUI generation or when the user wants t
 5. Use `/object_info` only for installed node schemas and model-like dropdown choices. Current ComfyUI node definitions use `input.required` and `input.optional`, not a top-level `inputs` object. Do not use an ad hoc `/object_info` parser as a replacement for the model registry.
 6. Determine which production processes are required.
 7. For each required process, run `../../scripts/model_inventory.py menu <project-root> --process <process-id>`.
-8. Show the resulting choices to the user.
-9. Wait for the user's selection unless the user explicitly delegated that process.
-10. Record the adapter/model family with `model_preferences.py set-adapter`.
-11. Record exact resources with `model_preferences.py set-resource` and `add-lora`.
-12. Run `model_preferences.py validate` before creating model-specific workflows.
+8. Build an ordered queue of every unresolved user-owned adapter/model-family and concrete-resource decision.
+9. Show only as many independent questions as the host question UI supports in one interaction.
+10. Wait for the user's answers, then immediately record and validate those answers before asking another page.
+11. Record the adapter/model family with `model_preferences.py set-adapter`.
+12. Record exact resources with `model_preferences.py set-resource` and `add-lora`.
+13. If unresolved required decisions remain, ask the next page after the user answers the previous page. Repeat as many rounds as necessary.
+14. Run `model_preferences.py validate` before creating model-specific workflows.
+
+## Question pagination
+
+A host limit such as 1-4 questions per invocation is a UI page-size limit only. It is not a Story-Film decision limit.
+
+Never merge unrelated choices because one page is full. Keep image generation, image editing, video generation, TTS, music, SFX/Foley, image upscaling, video upscaling, and frame interpolation independent when the production needs them.
+
+Never choose the fifth or later decision yourself merely because the current UI invocation is full. Never bundle music and SFX/Foley into one synthetic choice to save a question slot.
+
+Do not issue multiple question-tool calls back-to-back without a user response merely to bypass the UI limit. Ask one page, wait for the answer, save and validate it, then ask the next page if unresolved required decisions remain.
+
+Do not reduce the number of questions by assuming a VAE, text encoder, checkpoint, diffusion model, LoRA, audio encoder, upscaler, or other concrete resource is implied by an adapter name. Ask for the exact resource unless it is already validly saved, explicitly delegated, or proven not required by the selected workflow.
 
 ## User-choice rule
 

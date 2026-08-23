@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.30 (00.00.30) - 2026-08-23
+
+- Fixed generation-model setup so a host question UI limit is treated only as a page size, not as a cap on user-controlled production decisions.
+- Added multi-round model/resource selection: ask one supported page, wait for the user, save and validate the answers, then ask the next page until all required decisions are resolved.
+- Forbidden merging independent processes such as music and SFX/Foley merely to fit a question page.
+- Forbidden silently defaulting, omitting, inferring, or substituting fifth-and-later choices because the current question interaction is full.
+- Reinforced that adapter selection never implies exact checkpoints, diffusion models, VAEs, text encoders, LoRAs, audio encoders, upscalers, or other concrete resources.
+- Added deterministic contract checks, a weak-model smoke case with eight unresolved choices, and an eval case for question pagination.
+
 ## v0.0.29 (00.00.29) - 2026-08-22
 
 - Fixed Pi installation documentation so the public Story-Film Skills repository uses HTTPS as the canonical install source.

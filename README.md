@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.29`
-**Canonical version:** `00.00.29`
+**Display version:** `v0.0.30`
+**Canonical version:** `00.00.30`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -83,6 +83,8 @@ Read the [Feature-scale production guide](docs/production/feature-scale.md).
 Story-Film Skills polls the active ComfyUI server before model-specific generation. Pi can then show the installed choices for image generation, image editing, video, TTS, music, SFX/Foley, upscaling, frame interpolation, VAEs, text encoders, LoRAs, and other server-reported model folders.
 
 The user owns these choices. MiniMax H3 is the default video adapter only when the user did not choose a video adapter. That default does not choose a concrete checkpoint, VAE, text encoder, or LoRA.
+
+If the host question UI can show only a few questions at once, Story-Film paginates the unresolved decisions across multiple user-answer rounds. The UI limit never authorizes Story-Film to merge independent choices or silently choose the remainder.
 
 Read [Choose generation models and ComfyUI resources](docs/generation/model-selection.md).
 

@@ -195,11 +195,24 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.29')
-        self.assertEqual(version_display.display_version(version), 'v0.0.29')
+        self.assertEqual(version, '00.00.30')
+        self.assertEqual(version_display.display_version(version), 'v0.0.30')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.30'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.31'], check=True)
+
+    def test_model_selection_question_limit_is_only_page_size(self):
+        reference = (ROOT / 'references/MODEL_SELECTION.md').read_text(encoding='utf-8')
+        skill = (ROOT / 'skills/generation-model-setup/SKILL.md').read_text(encoding='utf-8')
+        docs = (ROOT / 'docs/generation/model-selection.md').read_text(encoding='utf-8')
+
+        self.assertIn('page-size limit only', reference)
+        self.assertIn('Repeat until every required decision', reference)
+        self.assertIn('Never merge unrelated choices because one page is full', skill)
+        self.assertIn('Never choose the fifth or later decision yourself', skill)
+        self.assertIn('ask the next page if unresolved required decisions remain', skill)
+        self.assertIn('Story-Film treats that limit as a page size', docs)
+        self.assertIn('must not combine music and SFX/Foley', docs)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
