@@ -94,7 +94,28 @@ class ManagedOfficialComfyRuntimeTests(unittest.TestCase):
         self.assertIn('Type.Literal("model-inventory")', text)
         self.assertIn('Type.Literal("model-search")', text)
         self.assertIn("Never treat the checkpoints folder as the complete image/video model inventory", text)
+        self.assertIn('pi.on?.("tool_call"', text)
+        self.assertIn("Story-Film blocks shell/filesystem ComfyUI discovery", text)
+        self.assertIn("action=model-inventory", text)
+        self.assertNotIn("if (!storyProjectRoot(ctx.cwd)) return undefined;", text)
         self.assertNotIn("QwenImageTextToImageApi", text)
+
+    def test_comfyui_discovery_contract_forbids_shell_fallback(self):
+        suite = (ROOT / "skills/story-film-suite/SKILL.md").read_text(encoding="utf-8")
+        router = (ROOT / "skills/story-film/SKILL.md").read_text(encoding="utf-8")
+        comfy = (ROOT / "skills/comfyui/SKILL.md").read_text(encoding="utf-8")
+        discover = (ROOT / "skills/comfyui-discover/SKILL.md").read_text(encoding="utf-8")
+        mcp = (ROOT / "skills/comfyui-mcp/SKILL.md").read_text(encoding="utf-8")
+        core = (ROOT / "references/CORE_CONTRACT.md").read_text(encoding="utf-8")
+        mcp_ref = (ROOT / "references/COMFYUI_MCP.md").read_text(encoding="utf-8")
+
+        self.assertIn("Do not use Bash, `find`, `ls`, or directory scans to rediscover this bundle", suite)
+        self.assertIn("## ComfyUI discovery precedence", router)
+        self.assertIn("`story_comfy` has precedence over shell/filesystem discovery", comfy)
+        self.assertIn("use Bash, `find`, `ls`, `which`, `locate`", discover)
+        self.assertIn("not permission to use Bash", mcp)
+        self.assertIn("## 15. Tool-owned ComfyUI discovery", core)
+        self.assertIn("not a managed-runtime failure", mcp_ref)
 
 
 if __name__ == "__main__":

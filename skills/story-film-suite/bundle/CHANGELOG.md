@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.33 (00.00.33) - 2026-08-23
+
+- Added deterministic Pi enforcement that blocks Bash, `find`, `ls`, `grep`, direct comfy-cli probing, and guessed filesystem paths when an agent tries to discover a live ComfyUI installation or installed models.
+- Routed live ComfyUI discovery through Story-Film's native `story_comfy` control surface, including server information, model inventory/search, workflow catalog, and node discovery.
+- Strengthened the Story-Film, ComfyUI, ComfyUI discovery, and managed MCP contracts so filesystem scans are not treated as an acceptable fallback after tool-discovery confusion.
+- Fixed Story-Film's Pi runtime guidance so ComfyUI tool-first rules remain available when Pi is operating above a newly created Story-Film project instead of only when its current directory is already inside that project.
+- Made the npx bundle generator preserve the tool-first Story-Film suite instructions instead of overwriting them during `build_npx_bundle.py`.
+- Added regression coverage requiring Story-Film's ComfyUI discovery contract and Pi extension to reject shell-based discovery fallbacks.
+
 ## v0.0.32 (00.00.32) - 2026-08-23
 
 - Moved ComfyUI workflow choice to a playbook-entry preflight for ComfyUI-backed production, before story or canon creation, so later generation stages reuse durable selections without interrupting the user again.

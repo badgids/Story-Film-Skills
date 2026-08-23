@@ -132,3 +132,7 @@ Read `DOCUMENT_COMPANIONS.md`. Every PDF, DOCX, XLSX, PPTX, OpenDocument, or equ
 ## 14. Local resource handoffs are model-free
 
 When a locally hosted Pi LLM and ComfyUI cannot safely coexist in memory, read `RESOURCE_SAFE_GENERATION.md`. Finish every creative decision, prompt, workflow, input mapping, dependency, and output instruction before unloading the LLM. While the LLM is unavailable, only deterministic runtime code may advance the prepared ComfyUI batch.
+
+## 15. Tool-owned ComfyUI discovery
+
+When Story-Film needs live ComfyUI installation/server state, installed models, model filenames, nodes, templates, or workflows, read the `comfyui` and `comfyui-discover` skills before probing. In Pi, use `story_comfy` first. Do not substitute Bash, filesystem scans, guessed personal paths, direct comfy-cli discovery commands, or one-off HTTP calls for facts that Story-Film's managed/native ComfyUI control layer can provide. A failed guessed path or empty guessed directory is not evidence that ComfyUI or a model is absent.

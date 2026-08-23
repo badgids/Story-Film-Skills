@@ -15,14 +15,15 @@ license: Apache-2.0
 
 ## Procedure
 
-1. Use the user-supplied server URL when present. Otherwise use the configured environment URL or loopback default.
-2. Probe the server before doing generation work.
-3. Read system stats and features.
-4. Query exact node classes or filtered node catalog only when the task needs them.
-5. Before building a workflow, run the bundled workflow catalog. It combines project workflows/templates, ComfyUI user workflows, official core templates, and installed custom-node example workflows without scanning personal filesystem paths.
-6. Query model categories and filenames only when model availability matters. Use `/models` and `/models/{folder}` through the bundled client or `model_inventory.py`; these server registries include model roots registered through `extra_model_paths.yaml`.
-7. Use `/object_info` for node schemas. Its node input schema is under `input.required` and `input.optional`. Do not treat an empty result from an incorrectly parsed `inputs` field as evidence that models are missing.
-8. Save a project snapshot to `04_generation/comfyui/server_snapshot.json` when reproducibility or later diagnosis benefits.
+1. In Pi, begin with `story_comfy action=server-info`. Do this before any shell, filesystem, or guessed-path attempt to locate ComfyUI.
+2. Use the user-supplied server URL when present. Otherwise use the configured environment URL or loopback default.
+3. Probe the server before doing generation work.
+4. Read system stats and features.
+5. Query exact node classes or filtered node catalog only when the task needs them. In Pi use `story_comfy action=node-search` or `action=node-info`.
+6. Before building a workflow, run the bundled workflow catalog. In Pi use `story_comfy action=workflow-catalog`. It combines project workflows/templates, ComfyUI user workflows, official core templates, and installed custom-node example workflows without scanning personal filesystem paths.
+7. Query model categories and filenames only when model availability matters. In Pi use `story_comfy action=model-inventory` and `action=model-search`. The server registries include model roots registered through `extra_model_paths.yaml`.
+8. Use `/object_info` through Story-Film's managed/native control layer for node schemas. Its node input schema is under `input.required` and `input.optional`. Do not treat an empty result from an incorrectly parsed `inputs` field as evidence that models are missing.
+9. Save a project snapshot to `04_generation/comfyui/server_snapshot.json` when reproducibility or later diagnosis benefits.
 
 Bundled commands:
 
@@ -36,7 +37,10 @@ python scripts/comfyui_control.py models --folder <category>
 
 ## Do not
 
-- scan the filesystem for guessed personal ComfyUI paths or model files; use the server model registry instead
+- use Bash, `find`, `ls`, `which`, `locate`, directory globbing, home-directory scans, or guessed personal paths to locate ComfyUI or model files; use `story_comfy` and the live server registry instead
+- infer that ComfyUI is absent from a failed `cd`, a missing guessed directory, or a failed filesystem search
+- infer that models are absent from an empty guessed `checkpoints`, `vae`, `loras`, `unet`, or `diffusion_models` directory
+- invoke managed comfy-cli discovery commands directly through Bash when `story_comfy` can perform the operation
 - write one-off model inventory scripts or raw `/models` curl loops when `model_inventory.py` is available; use the bundled inventory tool for Story-Film model selection
 - write one-off `/workflow_templates`, `/userdata`, `/object_info`, or `/prompt` parsers/loops when the bundled controller already owns workflow discovery and execution
 - infer that models are absent because they are outside the ComfyUI application directory

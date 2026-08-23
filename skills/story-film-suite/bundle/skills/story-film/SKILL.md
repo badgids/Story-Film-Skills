@@ -50,6 +50,12 @@ If the requested endpoint is a story bible, deep character/world lock, or durabl
 If the user wants to pressure-test an idea, resolve creative ambiguity, turn existing discussion into a durable production specification, split a large production into executable work units, or chart a project whose route is not yet clear, route through `playbooks/creative-planning-and-execution.md`. Facts that can be discovered from files or tools are agent work; creative decisions remain the user's unless explicitly delegated.
 
 
+## ComfyUI discovery precedence
+
+Before any attempt to locate ComfyUI, determine whether its server is running, inventory installed models, search model filenames, inspect nodes, discover templates, or discover workflows, read `../comfyui/SKILL.md` and `../comfyui-discover/SKILL.md`.
+
+In Pi, `story_comfy` owns ordinary interactive live ComfyUI discovery. Do not use Bash, `find`, `ls`, `which`, `locate`, guessed personal paths, home-directory scans, model-folder scans, direct comfy-cli discovery commands, or raw ComfyUI HTTP calls for those facts. A failed guessed path or empty guessed folder proves nothing. If the managed Story-Film control surface fails, report that failure and use only the documented deterministic fallback from the ComfyUI skills.
+
 ## Generation workflow selection
 
 Workflow choice is front-loaded. When the chosen playbook will require ComfyUI, complete `workflow_preflight.py` and `generation-workflow-setup` before creative production starts. Record every required task workflow in `00_project/workflow_preferences.json`. Later stages consume those selections without reopening the interview.

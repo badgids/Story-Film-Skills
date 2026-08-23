@@ -51,3 +51,5 @@ Partner/API-node workflows can spend Comfy credits even when the graph is submit
 ## Fallback
 
 If the managed official runtime cannot be installed or started, Story-Film may use its bundled deterministic native controller. That is a fallback, not permission for the agent to invent one-off curl/urllib scripts or guessed workflows.
+
+A missing MCP tool name, empty tool search, failed guessed path, or uncertainty about where ComfyUI/models are installed is not a managed-runtime failure. In Pi, use the native `story_comfy` server/model/workflow/node actions instead of Bash, direct comfy-cli discovery commands, filesystem scans, or guessed personal paths. Only an actual Story-Film managed-runtime failure permits the documented deterministic fallback.

@@ -33,7 +33,12 @@ This is the ComfyUI router for Story-Film Skills.
 
 ## Rules
 
-- In Pi, use the native `story_comfy` tool as the primary live ComfyUI control surface. Start with server information and search the official MCP tool catalog when the exact operation is unknown.
+- In Pi, use the native `story_comfy` tool as the primary live ComfyUI control surface. Start with `action=server-info`.
+- `story_comfy` has precedence over shell/filesystem discovery for ComfyUI installation/location, live server state, installed models, model search, templates, nodes, and workflows.
+- Do not use Bash, `find`, `ls`, `which`, `locate`, direct comfy-cli discovery commands, guessed personal paths, home-directory scans, model-folder scans, raw config-file inspection, or one-off HTTP clients to discover those facts.
+- Before deciding a model is missing, use `action=model-inventory`, then `action=model-search` when a filtered search is needed. Before discovering workflows/templates use `action=workflow-catalog`; use `action=node-search`/`action=node-info` for nodes.
+- Use `action=search-tools` only when the exact official comfy-mcp verb is unknown. An empty or failed MCP tool-name search is not permission to fall back to Bash; the native `story_comfy` inventory/catalog/node actions remain the first fallback.
+- A failed guessed path, missing guessed directory, empty checkpoints directory, or empty filesystem search is never evidence that ComfyUI or a model is absent.
 - Story-Film automatically bootstraps its separate official control environment. Do not ask the user to install or configure comfy-cli, comfy-mcp, comfy-api-proxy, or a generic MCP extension.
 - Managed bootstrap never installs ComfyUI, models, or custom nodes. The user supplies ComfyUI and their model collection.
 - Discover live capabilities before naming executable nodes, model files, or templates.
