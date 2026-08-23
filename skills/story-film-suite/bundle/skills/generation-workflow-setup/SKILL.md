@@ -1,6 +1,6 @@
 ---
 name: generation-workflow-setup
-description: Discover complete ComfyUI workflows from Story-Film's bundled library, project defaults, saved ComfyUI workflows, templates, external workflow sources, or live-schema generation, then let the user select each required task from an ordinary numbered list.
+description: Discover complete ComfyUI workflows from Story-Film's bundled library, project defaults, saved ComfyUI user workflows, external workflow sources, or live-schema generation, then let the user select each required task from an ordinary numbered list.
 disable-model-invocation: true
 author: Alan Guice (Badgids)
 license: Apache-2.0
@@ -26,7 +26,7 @@ Only missing categories or an explicit user-requested workflow change open an in
 
 1. Check `00_project/workflow_preferences.json` first. If the task already has a durable selection and no change was requested, reuse it without another user question.
 2. Determine the generation task category that the current preflight or production step needs.
-3. Discover the active ComfyUI server when server-side saved workflows or templates are relevant.
+3. Discover the active ComfyUI server when the user's saved ComfyUI workflows are relevant. Do not search ComfyUI core/custom template catalogs.
 4. For a missing category, run `../../scripts/workflow_catalog.py catalog <project-root> --category <task> --url <server-url>`.
 5. Add `--query <text>` when the task needs a narrower subset.
 6. Show the command's complete ordinary numbered list to the user.
@@ -48,10 +48,8 @@ The catalog can include:
 - bundled workflows under `../../comfyui_workflows/<task>/<model>/`;
 - package custom defaults under `../../comfyui_workflows/custom/<task>/<model>/`;
 - project defaults under `04_generation/comfyui/default_workflows/<task>/<model>/`;
-- existing project workflows and templates;
+- existing project workflows;
 - workflows saved by the user inside ComfyUI;
-- ComfyUI core templates;
-- installed custom-node workflow templates;
 - explicit external files or directories registered by the user;
 - a final `generate-new` choice.
 
@@ -91,7 +89,7 @@ Register another file or directory:
 python scripts/workflow_catalog.py source-add <project-root> <workflow-or-directory>
 ```
 
-Saved ComfyUI workflows and ComfyUI templates do not need to be copied into these directories to appear in the live catalog.
+Saved ComfyUI user workflows appear in the live catalog. ComfyUI core/custom templates do not. If the user wants a template, they must save or copy it into their own ComfyUI workflow area first.
 
 ## Done
 

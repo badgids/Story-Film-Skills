@@ -107,9 +107,15 @@ def workflow_catalog(project: str | Path, comfyui_url: str, *, query: str = "", 
     client = _client(comfyui_url)
     # Pull the complete catalog first. Story-Film does its own tokenized ranking so
     # a weak model cannot accidentally turn a model name into an MCP tool-name query.
+    if source and source not in {"project-workflow", "user"}:
+        raise WorkflowRuntimeError("workflow source must be project-workflow or user")
     result = client.workflow_catalog(root, source=source or None)
     rows = result.get("workflows", []) if isinstance(result, dict) else []
-    rows = [dict(row) for row in rows if isinstance(row, dict)]
+    rows = [
+        dict(row)
+        for row in rows
+        if isinstance(row, dict) and row.get("source") in {"project-workflow", "user"}
+    ]
     for row in rows:
         if row.get("source") == "project-workflow":
             row["runnable_state"] = "requires-live-validation"
@@ -125,7 +131,7 @@ def workflow_catalog(project: str | Path, comfyui_url: str, *, query: str = "", 
         "count": len(rows),
         "workflows": rows,
         "warnings": result.get("warnings", []) if isinstance(result, dict) else [],
-        "priority": ["project-workflow", "project-template", "user", "core", "custom"],
+        "priority": ["project-workflow", "user"],
     }
 
 
@@ -146,16 +152,15 @@ def workflow_fetch(
     root = _project_root(project)
     source = source.strip()
     client = _client(comfyui_url)
-    if source in {"project-workflow", "project-template"}:
-        base = "04_generation/comfyui/workflows" if source == "project-workflow" else "04_generation/comfyui/templates"
-        candidate = _project_path(root, f"{base}/{name}")
+    if source == "project-workflow":
+        candidate = _project_path(root, f"04_generation/comfyui/workflows/{name}")
         workflow = _load_json(candidate)
         original = candidate.relative_to(root).as_posix()
-    elif source in {"user", "core", "custom"}:
-        workflow = client.fetch_workflow_source(source, name, module=module or None)
-        original = f"{source}:{module + '/' if module else ''}{name}"
+    elif source == "user":
+        workflow = client.fetch_workflow_source("user", name, module=module or None)
+        original = f"user:{name}"
     else:
-        raise WorkflowRuntimeError("workflow source must be project-workflow, project-template, user, core, or custom")
+        raise WorkflowRuntimeError("workflow source must be project-workflow or user; ComfyUI templates are not Story-Film workflow sources")
 
     if out_path:
         dest = _project_path(root, out_path)

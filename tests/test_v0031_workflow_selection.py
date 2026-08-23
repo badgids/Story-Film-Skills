@@ -159,6 +159,9 @@ class V0031WorkflowSelectionTests(unittest.TestCase):
         self.assertIn("Direct interactive model/resource selection was retired", legacy)
         self.assertIn("comfyui_workflows/custom/<task>/<model>/", docs)
         self.assertIn("04_generation/comfyui/default_workflows/<task>/<model>/", docs)
+        self.assertIn("does not search ComfyUI core or custom-node template catalogs", docs)
+        self.assertIn("ComfyUI templates are user-managed", reference)
+        self.assertNotIn("[comfyui-core-template]", docs)
 
         pipeline = (ROOT / "scripts/comfy_workflow_pipeline.py").read_text(encoding="utf-8")
         self.assertIn("workflow_preferences.json", pipeline)

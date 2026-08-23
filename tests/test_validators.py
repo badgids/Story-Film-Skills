@@ -195,11 +195,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.33')
-        self.assertEqual(version_display.display_version(version), 'v0.0.33')
+        self.assertEqual(version, '00.00.34')
+        self.assertEqual(version_display.display_version(version), 'v0.0.34')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.34'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.35'], check=True)
 
     def test_workflow_selection_has_no_four_choice_limit(self):
         reference = (ROOT / 'references/WORKFLOW_SELECTION.md').read_text(encoding='utf-8')
@@ -1657,30 +1657,22 @@ class Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             project = Path(td) / 'film'
             workflows = project / '04_generation/comfyui/workflows'
-            templates = project / '04_generation/comfyui/templates'
             workflows.mkdir(parents=True)
-            templates.mkdir(parents=True)
             (workflows / 'local.json').write_text(json.dumps(workflow), encoding='utf-8')
             client = comfyui_control.Client('http://127.0.0.1:1')
             with patch.object(client, 'user_workflows', return_value=[
                 {'source': 'user', 'name': 'saved.json', 'path': 'workflows/saved.json'}
-            ]), patch.object(client, 'template_catalog', return_value=([
-                {'source': 'core', 'name': 'core-image'},
-                {'source': 'custom', 'module': 'CustomPack', 'name': 'custom-example'},
-            ], [])):
+            ]), patch.object(client, 'get', side_effect=AssertionError('template catalog must not be queried')):
                 catalog = client.workflow_catalog(project)
             self.assertEqual(
-                [x['source'] for x in catalog['workflows'][:4]],
-                ['project-workflow', 'user', 'core', 'custom'],
+                [x['source'] for x in catalog['workflows']],
+                ['project-workflow', 'user'],
             )
             with patch.object(client, '_get_first', return_value=workflow):
                 self.assertEqual(client.fetch_workflow_source('user', 'saved.json'), workflow)
-                self.assertEqual(client.fetch_workflow_source('custom', 'custom-example', module='CustomPack'), workflow)
-            with patch.object(client, 'get', return_value={'nodes': [{'id': 1, 'type': 'TestNode'}], 'links': []}):
-                core = client.fetch_workflow_source('core', 'core-image')
-            self.assertEqual(comfyui_workflow.detect_format(core), 'ui')
-            with self.assertRaises(ValueError):
-                client.fetch_workflow_source('core', '../escape')
+            for source in ('core', 'custom'):
+                with self.assertRaises(ValueError):
+                    client.fetch_workflow_source(source, 'not-used')
         with FakeComfyServer() as srv:
             guessed = {'1': {'class_type': 'QwenImageTextToImageApi', 'inputs': {}}}
             verdict = comfyui_control.Client(srv.url).validate_workflow(guessed)

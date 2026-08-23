@@ -94,7 +94,7 @@ For film production, preserve traceability from screenplay scene and `LINE-###` 
 
 Create a model-neutral brief first, then adapt it for Qwen, Krea, H3, LTX, TTS, music, or sound models. Visible-dialogue synchronization, end-frame handoff, and capture behavior are model-neutral production intent when present. Read `VISIBLE_DIALOGUE_SYNC.md` before compiling required visible speech.
 
-Read `WORKFLOW_SELECTION.md` before ComfyUI generation. The user chooses complete workflows by number from built-ins, custom/project defaults, saved ComfyUI workflows, ComfyUI templates, registered external sources, or the live-schema generation fallback. The selected workflow owns the concrete model/resource stack stored in that graph. Do not run a separate adapter/checkpoint/VAE/text-encoder/LoRA interview after workflow selection.
+Read `WORKFLOW_SELECTION.md` before ComfyUI generation. The user chooses complete workflows by number from built-ins, custom/project defaults, saved ComfyUI workflows, registered external sources, or the live-schema generation fallback. The selected workflow owns the concrete model/resource stack stored in that graph. Do not run a separate adapter/checkpoint/VAE/text-encoder/LoRA interview after workflow selection.
 
 ## 9. Preserve uncertainty
 
@@ -135,4 +135,4 @@ When a locally hosted Pi LLM and ComfyUI cannot safely coexist in memory, read `
 
 ## 15. Tool-owned ComfyUI discovery
 
-When Story-Film needs live ComfyUI installation/server state, installed models, model filenames, nodes, templates, or workflows, read the `comfyui` and `comfyui-discover` skills before probing. In Pi, use `story_comfy` first. Do not substitute Bash, filesystem scans, guessed personal paths, direct comfy-cli discovery commands, or one-off HTTP calls for facts that Story-Film's managed/native ComfyUI control layer can provide. A failed guessed path or empty guessed directory is not evidence that ComfyUI or a model is absent.
+When Story-Film needs live ComfyUI installation/server state, installed models, model filenames, nodes, or user-saved workflows, read the `comfyui` and `comfyui-discover` skills before probing. In Pi, use `story_comfy` first. Do not substitute Bash, filesystem scans, guessed personal paths, direct comfy-cli discovery commands, or one-off HTTP calls for facts that Story-Film's managed/native ComfyUI control layer can provide. A failed guessed path or empty guessed directory is not evidence that ComfyUI or a model is absent.

@@ -6,13 +6,13 @@ The user is expected to install ComfyUI itself and the models they want to use. 
 
 ## Core rule
 
-Discover the live installation before choosing nodes, models, templates, or workflow inputs. Never assume a class name, model filename, custom-node pack, widget index, filesystem path, or template is present because it existed in documentation or on another machine.
+Discover the live installation before choosing nodes, models, or workflow inputs. Never assume a class name, model filename, custom-node pack, widget index, or filesystem path is present because it existed in documentation or on another machine.
 
 ## Preferred control surfaces
 
 1. In Pi, use the native `story_comfy` tool. It speaks MCP stdio directly to Story-Film's managed official comfy-mcp process and exposes the live official tool catalog.
 2. Keep Story-Film's workflow catalog, project-copy preservation, live validation/promotion, deterministic batch, and resource-handoff rules around executable production work.
-3. Use managed comfy-cli underneath comfy-mcp for workspace, lifecycle, workflow, job, model, node, template, and asset operations.
+3. Use managed comfy-cli underneath comfy-mcp for workspace, lifecycle, workflow, job, model, node, and asset operations.
 4. Start the managed comfy-api-proxy on loopback when a workflow/application intentionally needs the Comfy API v2 contract.
 5. Use Story-Film's bundled native HTTP controller as a deterministic fallback or offline implementation detail when the managed official surface cannot perform an operation.
 
@@ -43,7 +43,7 @@ For a local or explicitly supplied ComfyUI URL:
 
 ## Live discovery over stale instructions
 
-Model, node, and template catalogs change. Skills should teach the method, then query the current server or official CLI at runtime. Literal model or node names belong in a project only when they came from the user, the live server, an approved workflow, or a model-specific adapter that is explicitly targeting that family.
+Model and node catalogs change. Skills should teach the method, then query the current server or official CLI at runtime. Literal model or node names belong in a project only when they came from the user, the live server, an approved workflow, or a model-specific adapter that is explicitly targeting that family.
 
 ## Custom nodes
 

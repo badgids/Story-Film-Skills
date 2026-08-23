@@ -273,48 +273,6 @@ class Client:
             })
         return rows
 
-    def template_catalog(self) -> tuple[list[dict[str, Any]], list[str]]:
-        entries: list[dict[str, Any]] = []
-        warnings: list[str] = []
-        try:
-            core = self.get("templates/index.json")
-            if isinstance(core, list):
-                for group in core:
-                    if not isinstance(group, dict):
-                        continue
-                    for item in group.get("templates", []) if isinstance(group.get("templates"), list) else []:
-                        if not isinstance(item, dict) or not item.get("name"):
-                            continue
-                        entries.append({
-                            "source": "core",
-                            "name": str(item["name"]),
-                            "title": item.get("title"),
-                            "category": group.get("category") or group.get("title"),
-                            "media_type": group.get("type") or item.get("mediaType"),
-                            "description": item.get("description"),
-                            "models": item.get("models", []),
-                            "tags": item.get("tags", []),
-                        })
-        except ComfyError as exc:
-            if exc.status not in {404, 405}:
-                raise
-            warnings.append(f"core template index unavailable: {exc}")
-
-        try:
-            custom = self._get_first(["workflow_templates", "api/workflow_templates"])
-            if isinstance(custom, dict):
-                for module, names in custom.items():
-                    if not isinstance(names, list):
-                        continue
-                    for name in names:
-                        if isinstance(name, str) and name:
-                            entries.append({"source": "custom", "module": str(module), "name": name})
-        except ComfyError as exc:
-            if exc.status not in {404, 405}:
-                raise
-            warnings.append(f"custom-node workflow template index unavailable: {exc}")
-        return entries, warnings
-
     def workflow_catalog(
         self,
         project: str | Path | None = None,
@@ -326,13 +284,8 @@ class Client:
         warnings: list[str] = []
         if project is not None:
             root = Path(project).expanduser().resolve()
-            for source_name, rel in (
-                ("project-workflow", "04_generation/comfyui/workflows"),
-                ("project-template", "04_generation/comfyui/templates"),
-            ):
-                folder = root / rel
-                if not folder.is_dir():
-                    continue
+            folder = root / "04_generation/comfyui/workflows"
+            if folder.is_dir():
                 for path in sorted(folder.rglob("*.json")):
                     try:
                         data = load_json(path)
@@ -340,7 +293,7 @@ class Client:
                     except (OSError, json.JSONDecodeError):
                         fmt = "invalid"
                     entries.append({
-                        "source": source_name,
+                        "source": "project-workflow",
                         "name": path.name,
                         "path": path.relative_to(root).as_posix(),
                         "format": fmt,
@@ -351,9 +304,6 @@ class Client:
             if exc.status not in {404, 405}:
                 raise
             warnings.append(f"ComfyUI user workflow listing unavailable: {exc}")
-        remote_templates, template_warnings = self.template_catalog()
-        entries.extend(remote_templates)
-        warnings.extend(template_warnings)
         if source:
             entries = [x for x in entries if x.get("source") == source]
         if query:
@@ -362,43 +312,25 @@ class Client:
                 x for x in entries
                 if needle in json.dumps(x, ensure_ascii=False, sort_keys=True).lower()
             ]
-        priority = {"project-workflow": 0, "project-template": 1, "user": 2, "core": 3, "custom": 4}
+        priority = {"project-workflow": 0, "user": 1}
         entries.sort(key=lambda x: (priority.get(str(x.get("source")), 99), str(x.get("name", "")).lower()))
         return {"count": len(entries), "workflows": entries, "warnings": warnings}
 
-    @staticmethod
-    def _safe_template_segment(value: str, label: str) -> str:
-        clean = value.strip()
-        if clean.lower().endswith(".json"):
-            clean = clean[:-5]
-        if not clean or clean in {".", ".."} or "/" in clean or "\\" in clean:
-            raise ValueError(f"{label} must be a single workflow/template name, not a path")
-        return clean
-
     def fetch_workflow_source(self, source: str, name: str, *, module: str | None = None) -> dict[str, Any]:
-        if source == "user":
-            rel = name.strip().replace("\\", "/")
-            if not rel:
-                raise ValueError("user workflow name is required")
-            if not rel.startswith("workflows/"):
-                rel = "workflows/" + rel
-            if not rel.lower().endswith(".json"):
-                rel += ".json"
-            encoded = urllib.parse.quote(rel, safe="/")
-            legacy_encoded = urllib.parse.quote(rel, safe="")
-            out = self._get_first([f"userdata/{encoded}", f"api/userdata/{encoded}", f"userdata/{legacy_encoded}", f"api/userdata/{legacy_encoded}"])
-        elif source == "core":
-            clean = self._safe_template_segment(name, "core template name")
-            out = self.get(f"templates/{urllib.parse.quote(clean, safe='')}.json")
-        elif source == "custom":
-            clean = self._safe_template_segment(name, "custom template name")
-            mod = self._safe_template_segment(module or "", "custom template module")
-            route = f"workflow_templates/{urllib.parse.quote(mod, safe='')}/{urllib.parse.quote(clean, safe='')}.json"
-            out = self._get_first([f"api/{route}", route])
-        else:
-            raise ValueError("workflow source must be one of: user, core, custom")
+        if source != "user":
+            raise ValueError("workflow source must be user; ComfyUI template sources are not part of Story-Film workflow selection")
+        rel = name.strip().replace("\\", "/")
+        if not rel:
+            raise ValueError("user workflow name is required")
+        if not rel.startswith("workflows/"):
+            rel = "workflows/" + rel
+        if not rel.lower().endswith(".json"):
+            rel += ".json"
+        encoded = urllib.parse.quote(rel, safe="/")
+        legacy_encoded = urllib.parse.quote(rel, safe="")
+        out = self._get_first([f"userdata/{encoded}", f"api/userdata/{encoded}", f"userdata/{legacy_encoded}", f"api/userdata/{legacy_encoded}"])
         if not isinstance(out, dict):
-            raise ValueError(f"{source} workflow/template did not return a JSON object")
+            raise ValueError("user workflow did not return a JSON object")
         return out
 
     def validate_workflow(self, workflow: dict[str, Any]) -> dict[str, Any]:

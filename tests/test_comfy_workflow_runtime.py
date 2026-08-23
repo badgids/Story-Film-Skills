@@ -75,6 +75,9 @@ class Tests(unittest.TestCase):
     def test_catalog_searches_workflow_content_not_mcp_tool_names(self):
         with tempfile.TemporaryDirectory() as td, patch.object(workflow, '_client', return_value=FakeClient()):
             root = self.project(td)
+            complete = workflow.workflow_catalog(root, 'http://127.0.0.1:8188')
+            self.assertEqual([row['source'] for row in complete['workflows']], ['project-workflow', 'user'])
+            self.assertNotIn('core', {row['source'] for row in complete['workflows']})
             out = workflow.workflow_catalog(root, 'http://127.0.0.1:8188', query='qwen image 2512 local')
             self.assertEqual(out['count'], 1)
             self.assertEqual(out['workflows'][0]['source'], 'user')
@@ -114,6 +117,9 @@ class Tests(unittest.TestCase):
                 workflow.workflow_fetch(root, 'http://127.0.0.1:8188', source='user', name='Qwen Image GGUF.json', out_path='04_generation/comfyui/workflows/direct.json')
             out = workflow.workflow_fetch(root, 'http://127.0.0.1:8188', source='user', name='Qwen Image GGUF.json')
             self.assertTrue((root / out['path']).is_file())
+            for source in ('core', 'custom', 'project-template'):
+                with self.assertRaises(workflow.WorkflowRuntimeError):
+                    workflow.workflow_fetch(root, 'http://127.0.0.1:8188', source=source, name='not-used')
 
 
 if __name__ == '__main__':

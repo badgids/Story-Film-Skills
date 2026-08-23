@@ -56,7 +56,7 @@ For every missing category, run the normal numbered workflow catalog and record 
 
 A later missing model, node, input, or other live validation dependency is a blocker. It is not permission to silently select a different workflow or restart the workflow interview.
 
-Workflow discovery is unbounded by Story-Film. Enumerate every relevant built-in, package-custom, project, saved-ComfyUI, template, external, and user-added workflow returned by discovery. Do not cap, truncate, or silently omit choices because the catalog is large.
+Workflow discovery is unbounded by Story-Film. Enumerate every relevant built-in, package-custom, project-default, project-workflow, saved-ComfyUI, external, and user-added workflow returned by discovery. Do not cap, truncate, or silently omit choices because the catalog is large.
 
 Durable preflight state is stored in:
 
@@ -98,27 +98,23 @@ Project-specific defaults belong under:
 
 This is the preferred place for project-owned defaults because package updates do not replace them.
 
-### 4. Existing project workflows and templates
+### 4. Existing project workflows
 
 Story-Film catalogs JSON workflows already present under:
 
 ```text
 04_generation/comfyui/workflows/
-04_generation/comfyui/templates/
 ```
+
+`04_generation/comfyui/templates/` remains an internal project-owned staging/materialization area. Files placed there are not added to workflow selection merely because they are templates.
 
 ### 5. The user's saved ComfyUI workflows
 
 When the running ComfyUI server exposes its userdata workflow listing, Story-Film catalogs the user's saved workflows from ComfyUI.
 
-### 6. ComfyUI templates
+### 6. ComfyUI templates are user-managed
 
-Story-Film can catalog:
-
-- ComfyUI core templates
-- templates provided by installed custom-node packages
-
-These come from the running ComfyUI server. Story-Film does not invent a template that the server did not report.
+Story-Film does not search ComfyUI core or custom-node template catalogs. If the user wants to use one of those templates, they can open it in ComfyUI and save it into their own workflow area, or register an exported workflow file/directory as an external source. It then participates in selection as a normal user-saved or external workflow.
 
 ### 7. Explicit external files or directories
 
@@ -164,9 +160,8 @@ Video workflow choices:
 4. [built-in] MiniMax-H3 - video_minimax_h3_r2v_exact_audio_hybrid.json
 5. [built-in] MiniMax-H3 - video_minimax_h3_t2v.json
 6. [ComfyUI saved] workflows/my_video_workflow.json
-7. [ComfyUI core template] video_example
-8. [external] studio_video.json
-9. [generate] Generate a new workflow from live ComfyUI schemas
+7. [external] studio_video.json
+8. [generate] Generate a new workflow from live ComfyUI schemas
 
 Reply with the number you want to use.
 ```
@@ -185,7 +180,7 @@ A selection record includes enough source identity to reopen or materialize the 
 
 ## Materialization
 
-Never edit a bundled workflow, a ComfyUI template, a saved ComfyUI workflow, or an external source in place during production.
+Never edit a bundled workflow, a saved ComfyUI workflow, or an external source in place during production.
 
 Copy or fetch the selected source into the project first:
 

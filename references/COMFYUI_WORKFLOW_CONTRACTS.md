@@ -16,7 +16,7 @@ comfyui_workflows/<task>/<model>/
 
 They are real editable workflow sources, not sanitized topology blueprints.
 
-Additional sources can come from project defaults, saved ComfyUI user workflows, ComfyUI core/custom templates, external workflow files/directories, or a new candidate generated from live schemas. See `WORKFLOW_SELECTION.md`.
+Additional sources can come from project defaults, saved ComfyUI user workflows, external workflow files/directories, or a new candidate generated from live schemas. Story-Film does not search ComfyUI core/custom template catalogs; users can save a desired template as their own workflow first. See `WORKFLOW_SELECTION.md`.
 
 ## Contract validation
 

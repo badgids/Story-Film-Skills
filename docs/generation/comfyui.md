@@ -52,12 +52,12 @@ Story-Film can offer:
 - built-ins from `comfyui_workflows/<task>/<model>/`;
 - package custom defaults from `comfyui_workflows/custom/<task>/<model>/`;
 - project defaults from `04_generation/comfyui/default_workflows/<task>/<model>/`;
-- existing project workflows and templates;
+- existing project workflows;
 - workflows saved by the user inside ComfyUI;
-- ComfyUI core templates;
-- templates from installed custom-node packages;
 - another workflow file or directory registered by the user;
 - a newly generated workflow candidate built from live ComfyUI schemas.
+
+Story-Film does not search ComfyUI core or custom-node template catalogs. If you want one of those templates, save it into your own ComfyUI workflow area first or register an exported workflow file/directory.
 
 The ordinary numbered list can contain more than four entries.
 
@@ -68,7 +68,7 @@ Before spending GPU time:
 1. freeze the creative decisions that affect the job;
 2. give the item a stable ID such as `SHOT-###`, `VOICE-###`, `MUS-###`, or `SFX-###`;
 3. select the complete workflow for the task;
-4. materialize a project-owned copy of a bundled, saved, template, or external workflow;
+4. materialize a project-owned copy of a bundled, saved, or external workflow;
 5. confirm that required model files and custom nodes used by that workflow exist;
 6. confirm that reference images and other inputs exist and their authority scopes fit the job;
 7. validate the workflow-family contract when one exists and validate the executable graph against live `/object_info`;

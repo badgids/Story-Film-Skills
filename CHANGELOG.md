@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.0.34 (00.00.34) - 2026-08-23
+
+- Removed Story-Film discovery of ComfyUI core template catalogs and installed custom-node workflow template catalogs.
+- Limited live workflow discovery to project workflows and workflows saved by the user in ComfyUI while retaining bundled Story-Film workflows, user-controlled defaults, registered external workflows, and the live-schema generation fallback.
+- Removed project template directories from workflow-selection sources while retaining `04_generation/comfyui/templates/` as the internal staging and materialization area for project-owned copies.
+- Added Pi runtime enforcement that rejects ComfyUI template-search requests instead of allowing an agent to enumerate template catalogs through the managed MCP surface.
+- Updated ComfyUI skills, contracts, and user documentation so users who want a ComfyUI template first save or copy it into their own workflow area, after which Story-Film treats it as a normal user workflow.
+- Added regression coverage proving template catalog discovery is not invoked and core/custom template rows cannot leak into Story-Film's runtime workflow catalog.
+- Rebuilt the self-contained Story-Film suite bundle with the same workflow-discovery policy.
+
 ## v0.0.33 (00.00.33) - 2026-08-23
 
 - Added deterministic Pi enforcement that blocks Bash, `find`, `ls`, `grep`, direct comfy-cli probing, and guessed filesystem paths when an agent tries to discover a live ComfyUI installation or installed models.

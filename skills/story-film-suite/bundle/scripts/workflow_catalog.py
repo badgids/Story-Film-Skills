@@ -318,26 +318,19 @@ def live_entries(root: Path, url: str) -> tuple[list[dict[str, Any]], list[str]]
         if not isinstance(item, dict):
             continue
         raw_source = str(item.get("source") or "")
-        if raw_source in {"project-workflow", "project-template"}:
-            continue
-        source_map = {
-            "user": "comfyui-user",
-            "core": "comfyui-core-template",
-            "custom": "comfyui-custom-template",
-        }
-        if raw_source not in source_map:
+        if raw_source != "user":
             continue
         text = json.dumps(item, ensure_ascii=False, sort_keys=True)
         model_text = " ".join(str(x) for x in item.get("models", [])) if isinstance(item.get("models"), list) else text
         rows.append(
             {
-                "source": source_map[raw_source],
+                "source": "comfyui-user",
                 "category": infer_category(text),
                 "model": infer_model(model_text + " " + text),
                 "name": str(item.get("name") or item.get("title") or "workflow"),
                 "module": str(item.get("module") or ""),
                 "format": "remote",
-                "remote_source": raw_source,
+                "remote_source": "user",
                 "metadata": item,
             }
         )
@@ -402,7 +395,6 @@ def build_catalog(
         )
     )
     rows.extend(scan_project_loose(root, PROJECT_WORKFLOWS, "project-workflow"))
-    rows.extend(scan_project_loose(root, PROJECT_TEMPLATES, "project-template"))
 
     external_rows, external_warnings = scan_external(root)
     rows.extend(external_rows)
@@ -430,12 +422,9 @@ def build_catalog(
         "package-custom": 1,
         "built-in": 2,
         "project-workflow": 3,
-        "project-template": 4,
-        "comfyui-user": 5,
-        "comfyui-core-template": 6,
-        "comfyui-custom-template": 7,
-        "external": 8,
-        "generate-new": 9,
+        "comfyui-user": 4,
+        "external": 5,
+        "generate-new": 6,
     }
     rows.sort(
         key=lambda row: (

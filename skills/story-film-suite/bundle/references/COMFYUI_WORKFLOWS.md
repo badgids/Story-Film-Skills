@@ -4,7 +4,7 @@
 
 Read `WORKFLOW_SELECTION.md` before generation. Story-Film selects a complete workflow by number and materializes a project-owned copy before adapting or executing it. The selected workflow is authoritative for its concrete model/resource stack. Do not reopen the retired per-model/per-resource TUI interview, and do not let later workflow discovery silently replace the user's durable selection.
 
-Bundled complete workflows live under `comfyui_workflows/<task>/<model>/`. Project defaults, package custom workflows, saved ComfyUI workflows, ComfyUI templates, registered external sources, and live-schema-generated workflows participate in the same catalog.
+Bundled complete workflows live under `comfyui_workflows/<task>/<model>/`. Project defaults, package custom workflows, saved ComfyUI workflows, registered external sources, and live-schema-generated workflows participate in the same catalog. Story-Film does not search ComfyUI core/custom template catalogs.
 
 ## Two JSON forms
 
@@ -64,7 +64,7 @@ Choose the editing mechanism from the workflow's expected lifetime.
 
 When current `comfy-cli` is available and a workflow will be extended, reused, varied, chained, or grown beyond a small graph, prefer its source-oriented workflow tools:
 
-1. start from a live/current template or known working workflow
+1. start from a bundled, user-saved, external, or other known working workflow
 2. inspect its slots and notes
 3. decompose a working workflow into a fragment when deeper reusable editing is needed
 4. expose meaningful values as fragment parameters
@@ -89,12 +89,12 @@ Universal rules:
 
 ## Building from scratch
 
-Building an executable graph from scratch is allowed only from live-discovered node schemas or known official workflow/template material available to the current installation.
+Building an executable graph from scratch is allowed only from live-discovered node schemas or workflow material already bundled, user-saved, or explicitly supplied to Story-Film.
 
 The sequence is:
 
 1. identify the media task and required model family
-2. discover candidate live nodes or templates
+2. discover candidate live nodes or user-saved workflows
 3. inspect exact class schemas
 4. build the smallest valid graph
 5. validate required inputs and links

@@ -6,7 +6,7 @@ The LLM may inspect preserved workflow sources and live installed-node schemas, 
 
 Use the Pi-native `story_comfy_workflow` tool:
 
-1. `prepare` searches project workflows/templates, saved ComfyUI user workflows, official/core templates, and installed custom-node example workflows. It refreshes the live model inventory, captures the live node schemas, preserves matching sources, and writes a build contract.
+1. `prepare` searches project workflows and saved ComfyUI user workflows. It does not search ComfyUI template catalogs; users can save a desired template into their own workflow area first. It refreshes the live model inventory, captures the live node schemas, preserves matching sources, and writes a build contract.
 2. The LLM may use only live installed class types and live model choices while constructing one canonical graph. It may use `story_comfy` `node-search`, `node-info`, and `node-path` while doing that design work.
 3. The canonical graph uses `__STORY_FILM_PROMPT__` in its positive-prompt string input. It may use `__STORY_FILM_NEGATIVE_PROMPT__` and `__STORY_FILM_FILENAME_PREFIX__` when the installed graph exposes those inputs.
 4. `finalize` live-validates the canonical graph before touching runnable workflows. Unknown classes, missing required inputs, invalid live model choices, invalid output indexes, and incompatible links fail the operation.

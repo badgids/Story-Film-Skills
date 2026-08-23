@@ -17,6 +17,6 @@ This is the self-contained installation entry point.
 6. Bundled ComfyUI workflows are under `bundle/comfyui_workflows/<task>/<model>/`.
 7. Do not assume that any files exist outside this skill directory.
 8. The paths above are authoritative. Do not use Bash, `find`, `ls`, or directory scans to rediscover this bundle's router, playbooks, scripts, references, or workflows.
-9. Before any live ComfyUI installation, server, model, node, template, or workflow discovery, read `bundle/skills/comfyui/SKILL.md` and `bundle/skills/comfyui-discover/SKILL.md`. In Pi, use `story_comfy`; never scan guessed ComfyUI or model paths.
+9. Before any live ComfyUI installation, server, model, node, or workflow discovery, read `bundle/skills/comfyui/SKILL.md` and `bundle/skills/comfyui-discover/SKILL.md`. In Pi, use `story_comfy`; never scan guessed ComfyUI or model paths. Story-Film does not search ComfyUI core/custom template catalogs.
 
 For Pi's optional interactive Todo extension, install `bundle/extensions/story-film-progress/index.ts` into the Pi extensions directory, or use the Git clone installer instead.

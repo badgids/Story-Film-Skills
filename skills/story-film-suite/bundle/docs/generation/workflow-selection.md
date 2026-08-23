@@ -118,9 +118,8 @@ Workflow choices for video:
 4. [built-in] MiniMax-H3 - video_minimax_h3_r2v_exact_audio_hybrid.json
 5. [built-in] MiniMax-H3 - video_minimax_h3_t2v.json
 6. [comfyui-user] Unspecified - workflows/my_saved_video.json
-7. [comfyui-core-template] Unspecified - video_example
-8. [external] Unspecified - studio_video.json
-9. [generate-new] Live ComfyUI schemas - Generate a new video workflow
+7. [external] Unspecified - studio_video.json
+8. [generate-new] Live ComfyUI schemas - Generate a new video workflow
 
 Reply with the number you want to use.
 ```
@@ -193,7 +192,7 @@ A common workflow is:
 
 ### ComfyUI templates
 
-Story-Film can include ComfyUI core templates and workflow templates provided by installed custom-node packages when the running server reports them.
+Story-Film does not search ComfyUI core or custom-node template catalogs. If you want to use one, open it in ComfyUI and save it into your own workflow area, or export/register it as an external workflow. Story-Film will then see it as an ordinary user-saved or external workflow.
 
 ### Another workflow file or directory
 
@@ -231,7 +230,7 @@ Story-Film source code never hardcodes your personal workflow path.
 
 ## Materialize the selected workflow
 
-Bundled workflows, external workflows, saved ComfyUI workflows, and templates are preserved as sources.
+Bundled workflows, external workflows, and saved ComfyUI workflows are preserved as sources.
 
 Before Story-Film edits one for the current production, it creates a project-owned copy:
 
