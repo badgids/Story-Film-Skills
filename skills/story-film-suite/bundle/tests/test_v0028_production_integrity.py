@@ -183,7 +183,7 @@ class Tests(unittest.TestCase):
 
         root = ROOT / "comfyui_workflows"
         workflows = sorted(root.rglob("*.json"))
-        self.assertEqual(len(workflows), 15)
+        self.assertGreaterEqual(len(workflows), 15)
         self.assertFalse(any(path.suffix.lower() == ".zip" for path in root.rglob("*") if path.is_file()))
 
         for path in workflows:

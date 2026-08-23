@@ -1,7 +1,7 @@
 # Feature Film
 
 
-> Before ComfyUI generation or model-specific prompt adaptation, run `generation-workflow-setup`. Select a complete workflow from the ordinary numbered catalog. The selected workflow owns its checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, and other graph settings. Do not run the retired per-resource TUI interview.
+> Workflow preflight gate: when the requested endpoint includes ComfyUI, complete the `film-production` workflow preflight before step 1 and before story/canon creation. Select every required workflow now. Sequence production later reuses those durable selections and does not ask again unless the user explicitly changes one.
 
 Use for a full-length film package. Never attempt all screenplay pages, shots, references, and prompts in one working buffer.
 
@@ -13,7 +13,7 @@ Use for a full-length film package. Never attempt all screenplay pages, shots, r
 6. `visual-bible`: lock visual rules that must survive across sequences.
 7. Build global `reference-assets` for recurring characters, locations, props, voices, and visual rules before sequence production. Add sequence-specific references only when needed.
 8. Run `production-capabilities` for the selected production route. Divide production into sequences of related `SCN-###` IDs. Process one sequence at a time through `production-breakdown`, `director-book`, optional `production-diagrams`, optional `previz-plan`, `performance-blocking`, `shot-design`, `shot-list`, progressive `storyboard-prompts`, `dialogue-voice` where needed, `shooting-script`, `production-coverage`, and `generation-pack`. Required visible-dialogue sync is part of coverage. Do not advance an uncovered sequence into generation.
-9. Before generation for a sequence, run `generation-workflow-setup` for each required task category. The selected workflow determines the concrete model stack and any model-specific prompt adapter. Run `prompt-qc` per sequence. When candidates are generated, run `media-qc` before `take-selection`. Do not wait until the end to discover continuity drift.
+9. Before generation for a sequence, verify the playbook-entry workflow preflight remains complete and use its recorded task workflows. Do not reopen workflow selection. Each selected workflow determines the concrete model stack and any model-specific prompt adapter. Run `prompt-qc` per sequence. When candidates are generated, run `media-qc` before `take-selection`. Do not wait until the end to discover continuity drift.
 10. Run `dialogue-voice`, `score-plan`, and `sound-design` across the full film after sequence needs are known. Lock recurring voice and motif identities globally.
 11. `edit-plan` and `editorial-package`: reconcile sequence durations, audio bridges, subtitles, stems, placeholders, and pickups.
 12. Final `continuity-check` across the whole package.

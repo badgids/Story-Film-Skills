@@ -18,9 +18,11 @@ A Story-Film Skills project uses this layout.
   decision_map.json                   large-project decision compass
   decision_map.md                     human-readable compass companion
   resource_policy.json                local LLM and ComfyUI lifecycle policy
+  llm_model_snapshot.json              temporary exact local-model restore snapshot during handoff
   workflow_preferences.json           selected complete ComfyUI workflows by task
   workflow_sources.json               user-registered external workflow files/directories
   comfyui_workflow_catalog.json       latest numbered workflow-choice snapshot
+  workflow_preflight.json             playbook-entry required/selected/missing workflow categories
   model_preferences.json              legacy model-selection compatibility/debug state
   comfyui_model_inventory.json         latest model folders and choices reported by the active ComfyUI server
   comfyui_model_inventory.md           human-readable ComfyUI model inventory

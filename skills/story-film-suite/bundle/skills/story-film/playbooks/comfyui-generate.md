@@ -1,15 +1,15 @@
 # Playbook: Generate Through ComfyUI
 
-> Before ComfyUI generation, run `generation-workflow-setup`. Select complete workflows from the ordinary numbered catalog. Do not run the retired per-resource model-selection interview.
+> Workflow preflight gate: before building or changing generation briefs, record every ComfyUI task category required by this requested scope and complete workflow selection for every missing category. Reuse those selections throughout this playbook.
 
 Use when a Story-Film project is ready to turn one or more approved image, video, voice, music, sound, reference-sheet, storyboard, orbit, or upscaling briefs into generated media through ComfyUI.
 
 ## Steps
 
-1. Read `generation-pack` and `comfyui-handoff`. Build or refresh the smallest requested handoff scope.
-2. Read `WORKFLOW_SELECTION.md`. Determine every workflow task category required by this generation scope.
-3. For each required task, run `generation-workflow-setup`. The catalog must include the relevant bundled workflows, project defaults, saved ComfyUI workflows, templates, external sources, and the generated-workflow fallback. Print the complete numbered list and wait for the user's numeric choice.
-4. Record each selected workflow in `00_project/workflow_preferences.json`. The workflow owns the concrete checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, sampler/scheduler settings, and other graph configuration.
+1. Read `WORKFLOW_SELECTION.md` and verify `workflow_preflight.py status` is complete for this generation scope. If this playbook was invoked directly without router preflight, complete that preflight now before building or changing generation briefs.
+2. Read `generation-pack` and `comfyui-handoff`. Build or refresh the smallest requested handoff scope using the already selected workflows.
+3. Read each durable selection from `00_project/workflow_preferences.json`. Do not print a new workflow catalog or ask for another workflow choice unless the user explicitly requested a change.
+4. Treat each selected workflow as authority for its concrete checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, sampler/scheduler settings, and other graph configuration.
 5. Materialize each non-project source into `04_generation/comfyui/templates/selected/<task>/`. Preserve the original source. Do not edit a bundled workflow, saved ComfyUI workflow, template, or external source in place.
 6. Read `comfyui` and `comfyui-discover`. Probe the live target. Inspect the selected workflow and validate the node classes, required inputs, and workflow resource names against the running server. The ComfyUI server registry and node schemas are runtime truth for whether the selected graph can execute.
 7. If the selected workflow has a model/resource or custom-node blocker, report it exactly. Do not silently choose another workflow or replace the workflow's model stack. The user can edit/save the source, restore the missing dependency, choose another numbered workflow, or explicitly select the generated-workflow fallback.

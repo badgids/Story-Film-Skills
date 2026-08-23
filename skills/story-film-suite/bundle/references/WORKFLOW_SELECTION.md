@@ -46,6 +46,24 @@ The workflow catalog supports these task categories:
 
 The list is extensible. A new task should use the same workflow-first selection rules.
 
+## Playbook preflight
+
+If the selected playbook or requested endpoint will use ComfyUI at any point, workflow selection is a playbook-entry gate. Initialize the empty Story-Film project container if necessary, then determine every required workflow task before writing story, canon, screenplay, or other creative production artifacts.
+
+Use `scripts/workflow_preflight.py` to record the required categories. Film-producing playbooks use the deterministic `film-production` profile unless the playbook declares a narrower scope. Direct generation playbooks can record explicit task categories.
+
+For every missing category, run the normal numbered workflow catalog and record the user's choice. Once the preflight reports `complete`, later playbook stages must reuse those durable selections and must not ask the user to choose workflows again. Reopen selection only when the user explicitly requests a workflow change.
+
+A later missing model, node, input, or other live validation dependency is a blocker. It is not permission to silently select a different workflow or restart the workflow interview.
+
+Workflow discovery is unbounded by Story-Film. Enumerate every relevant built-in, package-custom, project, saved-ComfyUI, template, external, and user-added workflow returned by discovery. Do not cap, truncate, or silently omit choices because the catalog is large.
+
+Durable preflight state is stored in:
+
+```text
+00_project/workflow_preflight.json
+```
+
 ## Workflow sources
 
 Story-Film can catalog workflows from all of these sources.
@@ -207,6 +225,7 @@ The selected workflow determines which adapter is appropriate. The user is not a
 
 Workflow selection for a task is complete when:
 
+- any required playbook workflow preflight is complete before creative production begins;
 - a durable workflow selection exists;
 - the source still resolves or has been materialized into the project;
 - the workflow has been inspected;

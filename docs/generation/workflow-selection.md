@@ -5,6 +5,7 @@
 ## Table of contents
 
 - [Purpose](#purpose)
+- [Playbook preflight](#playbook-preflight)
 - [Built-in workflow directory](#built-in-workflow-directory)
 - [How to choose](#how-to-choose)
 - [What Story-Film searches](#what-story-film-searches)
@@ -23,6 +24,27 @@ You do not need to answer a long series of questions about adapters, checkpoints
 
 Story-Film shows the workflows that are available for the current task as a normal numbered list. The list is not limited to four choices.
 
+## Playbook preflight
+
+When the selected playbook will use ComfyUI, Story-Film chooses all required workflow categories before story or canon work begins.
+The empty project container may be initialized first so the selections have durable files.
+Creative production does not begin until the workflow preflight is complete.
+
+Later generation stages reuse the saved selections.
+They do not stop to ask for the same workflow choices again unless you explicitly request a change.
+
+Preflight state is stored in:
+
+```text
+00_project/workflow_preflight.json
+```
+
+Story-Film can inspect it with:
+
+```bash
+python scripts/workflow_preflight.py status .
+```
+
 ## Built-in workflow directory
 
 The built-in library is in the Story-Film Skills installation:
@@ -33,10 +55,16 @@ comfyui_workflows/
 
 It is organized by task first and model/workflow family second.
 
-Examples from the v0.0.31 built-in library:
+Examples from the v0.0.32 built-in library:
 
 ```text
 comfyui_workflows/
+  image/
+    Krea2/
+    Qwen-Image-2512/
+  image-edit/
+    Krea2/
+    Qwen-Image-Edit/
   video/
     MiniMax-H3/
   tts/
@@ -46,26 +74,30 @@ comfyui_workflows/
   sfx/
     Stable-Audio-3/
   character-sheet/
+    Krea2/
     MiniMax-H3/
+  orbit-sheet/
+    Qwen-Image-Edit/
   location-orbit/
     MiniMax-H3/
   prop-sheet/
     MiniMax-H3/
+  storyboard/
+    Krea2/
   upscale/
     NVIDIA-RTX/
   frame-interpolation/
     FILM/
-  research/
-    FILM/
-    MiniMax-H3/
-    NVIDIA-RTX/
+  llm/
+    Qwen3/
+    Qwen3.5/
+    Qwen3-VL/
 ```
 
-The v0.0.31 library contains the actual workflow JSON files supplied for this release. Story-Film does not install the source ZIP.
-
-The replacement archive used for this release does not contain built-in `image`, `image-edit`, generic `orbit-sheet`, or `storyboard` workflow JSON files.
-Those categories remain supported through package custom defaults, project defaults, saved ComfyUI workflows, ComfyUI templates, registered external sources, or the live-schema `generate-new` path.
-Story-Film does not invent missing bundled workflows or reuse files from an earlier archive.
+The v0.0.32 release ships at least 29 workflow JSON files.
+Twenty-six are ordinary production/reference workflows and three are retained research sources. User-added workflows are not capped and are not included in that release-minimum count.
+The 14 new Krea2 and Qwen files come from the user-supplied workflow archive.
+Story-Film installs the workflow JSON files, not the source ZIP.
 
 ## How to choose
 

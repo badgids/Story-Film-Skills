@@ -47,6 +47,15 @@ These official Comfy repositories were reviewed for release 00.00.03. ComfyUI is
 
 No source code from these repositories is bundled in Story-Film Skills. The native controllers in `scripts/` are independent standard-library implementations of documented public interfaces.
 
+## Local LLM lifecycle APIs
+
+- llama.cpp server documentation: https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md
+  - Used for router-mode model listing and native `POST /models/load` and `POST /models/unload` lifecycle behavior.
+- Ollama API documentation: https://docs.ollama.com/api
+  - Used for `GET /api/ps` resident-model discovery and `/api/generate` `keep_alive` lifecycle behavior.
+
+Story-Film implements these calls with a standard-library HTTP helper. It does not bundle llama.cpp or Ollama source code and does not require an agent-authored lifecycle script.
+
 ## Image and video models
 
 - Qwen Image: https://github.com/QwenLM/Qwen-Image

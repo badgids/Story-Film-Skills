@@ -15,17 +15,19 @@ This is the general entry point for Story-Film Skills. The package is standalone
 1. Read `../../references/STANDALONE_CONTRACT.md`.
 2. Read `../../references/CORE_CONTRACT.md`.
 3. Read `../../references/DOCUMENT_COMPANIONS.md`.
-4. Read `../../references/MODEL_SELECTION.md`.
+4. Read `../../references/WORKFLOW_SELECTION.md`.
 5. Read `CATALOG.md`.
 6. Match the request to exactly one playbook in `playbooks/`.
 7. Read that playbook in full.
-8. If no project exists, initialize one with `../../scripts/init_story_project.py` or create the same structure manually.
-9. For any playbook with more than one ordered step, read `../pipeline-progress/SKILL.md`. If no active matching progress ledger exists, initialize it with `../../scripts/pipeline_progress.py init`. If one already exists, resume its current target instead of reconstructing progress from chat history.
-10. Execute the playbook in order. Before each specialist step, read the named sibling `SKILL.md`.
-11. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance. Do not start a later specialist or write a later artifact until the current leaf is validated and checkpointed.
-12. Update `00_project/state.json` after each completed artifact.
-13. If an approved upstream artifact changes, run `project-impact` before rebuilding downstream work.
-14. Run continuity, narrative-state, production-coverage when applicable, dramaturgy, prompt, standalone, and style checks at the gates required by the playbook.
+8. If no project exists, initialize the empty project container with `../../scripts/init_story_project.py` or create the same structure manually.
+9. If the selected playbook or requested endpoint will use ComfyUI at any point, complete workflow preflight before any story or canon artifact is created. Run `../../scripts/workflow_preflight.py set` with the mapped playbook/profile or explicit required categories, then use `generation-workflow-setup` for every missing category until `workflow_preflight.py status` reports `complete`.
+10. Do not begin story, canon, screenplay, preproduction, or generation-brief work while a required ComfyUI workflow preflight is incomplete. Later playbook stages reuse the durable selections and do not ask again unless the user explicitly requests a workflow change.
+11. For any playbook with more than one ordered step, read `../pipeline-progress/SKILL.md`. If no active matching progress ledger exists, initialize it with `../../scripts/pipeline_progress.py init`. If one already exists, resume its current target instead of reconstructing progress from chat history.
+12. Execute the playbook in order. Before each specialist step, read the named sibling `SKILL.md`.
+13. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance. Do not start a later specialist or write a later artifact until the current leaf is validated and checkpointed.
+14. Update `00_project/state.json` after each completed artifact.
+15. If an approved upstream artifact changes, run `project-impact` before rebuilding downstream work.
+16. Run continuity, narrative-state, production-coverage when applicable, dramaturgy, prompt, standalone, and style checks at the gates required by the playbook.
 
 ## Routing rule
 
@@ -50,7 +52,9 @@ If the user wants to pressure-test an idea, resolve creative ambiguity, turn exi
 
 ## Generation workflow selection
 
-Before ComfyUI generation, read `../generation-workflow-setup/SKILL.md`. Build the relevant complete workflow catalog and show it as an ordinary numbered list. Record the selected workflow in `00_project/workflow_preferences.json`, materialize a project-owned copy, and validate that graph. The selected workflow owns its concrete models, VAEs, encoders, LoRAs, audio models, upscalers, sampler settings, and other graph configuration. Do not launch the retired per-resource TUI interview.
+Workflow choice is front-loaded. When the chosen playbook will require ComfyUI, complete `workflow_preflight.py` and `generation-workflow-setup` before creative production starts. Record every required task workflow in `00_project/workflow_preferences.json`. Later stages consume those selections without reopening the interview.
+
+The selected workflow owns its concrete models, VAEs, encoders, LoRAs, audio models, upscalers, sampler settings, and other graph configuration. Reopen the numbered list only when the user explicitly requests a workflow change. A later dependency failure is a blocker, not authority to reselect silently.
 
 ## Production-integrity routing
 
@@ -58,7 +62,7 @@ For reference-driven generation, preserve `REF-###` authority scopes and run `re
 
 ## Resource-safe local generation routing
 
-If the local LLM and ComfyUI cannot safely coexist in RAM or VRAM, route generation through `playbooks/resource-safe-comfyui.md`. All prompts, workflows, uploads, parameters, dependencies, output destinations, and validation decisions must be finalized before the local LLM is unloaded. While the LLM is unavailable, only the deterministic batch runner and Pi progress extension may advance or report generation state.
+If the local LLM and ComfyUI cannot safely coexist in RAM or VRAM, route generation through `playbooks/resource-safe-comfyui.md`. Use `llm-model-lifecycle` for native llama-server or Ollama unload/restore. All prompts, workflows, uploads, parameters, dependencies, output destinations, and validation decisions must be finalized before the local LLM is unloaded. While the LLM is unavailable, only deterministic runners and the Pi progress extension may advance or report generation state.
 
 ## Rich-document companion rule
 

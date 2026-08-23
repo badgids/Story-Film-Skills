@@ -1,7 +1,7 @@
 # Playbook: Resource-Safe Local ComfyUI Generation
 
 
-> Before ComfyUI generation or model-specific prompt adaptation, run `generation-workflow-setup`. Select a complete workflow from the ordinary numbered catalog. The selected workflow owns its checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, and other graph settings. Do not run the retired per-resource TUI interview.
+> Workflow preflight gate: complete all required ComfyUI workflow selections before step 1. This playbook must never unload the LLM while a workflow choice or other semantic generation decision is unresolved.
 
 Use when Pi's local LLM and ComfyUI generation models share a machine and may not fit in RAM/VRAM at the same time.
 
@@ -11,7 +11,7 @@ Use when Pi's local LLM and ComfyUI generation models share a machine and may no
 2. Materialize each selected workflow into the project. Read `comfyui-discover` and `comfyui-workflow`. Probe the live server and validate every final API-format workflow against installed nodes, models, and required inputs. Do not alter a workflow's model stack just to make validation pass.
 3. Create `04_generation/comfyui/offline_batch.json`. Read `generation-budget`, declare the real machine limits in `04_generation/generation_resources.json`, and build a memory-aware schedule before arming a large batch. Include every required upload and exact workflow patch so no model reasoning is needed after handoff.
 4. Run `scripts/comfyui_batch.py validate <project> --live`. Resolve every blocker now. An unresolved workflow choice, TODO, missing workflow, missing node/model, circular dependency, or missing input makes the batch unsafe to arm.
-5. Configure `00_project/resource_policy.json`. If Pi's model is local, supply a verified command adapter for unload/reload plus a health check. If Pi's model is truly external, declare `external`. Never pretend an unconfigured local model can be safely unloaded.
+5. Configure `00_project/resource_policy.json`. For a local Pi model, prefer the native `auto`, `llama-server`, or `ollama` adapter and record Pi's active local endpoint. Read `llm-model-lifecycle`. Do not generate lifecycle scripts. Use legacy `command` only for an unsupported local runtime. If Pi's model is truly external, declare `external`.
 6. Run `scripts/resource_handoff.py arm <project>`. The detached runner enters the waiting-for-agent-end phase and does not unload the model during the active response.
 7. Finish the current Pi response. The Story-Film Pi extension writes the release signal from its deterministic `agent_end` hook. If the extension is unavailable, use `scripts/resource_handoff.py release <project>` only after the current model turn is finished.
 8. While the LLM is absent, let the model-free runner upload inputs, patch prepared values, execute one ComfyUI job at a time, poll history, download outputs, write status/events, and update the Pi runtime display. User input is intercepted by the extension and answered with deterministic progress instead of invoking the unavailable model.

@@ -12,12 +12,14 @@ from comfyui_control import Client, resolve_url
 from comfyui_batch import load_manifest, validate as validate_batch, preflight as preflight_batch, execute as execute_batch, manifest_path as batch_manifest_path, write as write_batch
 from media_runtime import project_root, project_path
 from llm_runtime import classify_endpoint
+import llm_model_lifecycle
 
+NATIVE_LLM_ADAPTERS={'auto','llama-server','ollama'}
 PHASES={'idle','armed','waiting-for-agent-end','unloading-llm','running-comfyui','unloading-comfyui','reloading-llm','complete','failed','cancelled'}
 def now():return datetime.now(timezone.utc).isoformat()
 def paths(root:Path):
  p=root/'00_project'
- return {'policy':p/'resource_policy.json','status':p/'resource_handoff.json','events':p/'resource_events.jsonl','release':p/'resource_handoff.release','resume':p/'RESOURCE_RESUME.md','log':p/'resource_handoff.log'}
+ return {'policy':p/'resource_policy.json','status':p/'resource_handoff.json','events':p/'resource_events.jsonl','release':p/'resource_handoff.release','resume':p/'RESOURCE_RESUME.md','log':p/'resource_handoff.log','llm_snapshot':p/'llm_model_snapshot.json'}
 def atomic(path:Path,text:str):
  path.parent.mkdir(parents=True,exist_ok=True);fd,tmp=tempfile.mkstemp(prefix='.'+path.name+'.',dir=path.parent)
  try:
@@ -64,24 +66,33 @@ def wait_health(llm:dict[str,Any],timeout:float):
   time.sleep(1)
  raise TimeoutError('local LLM health check did not become ready')
 def validate_llm_policy(policy):
- llm=policy.get('local_llm',{});adapter=llm.get('adapter','unconfigured');location=llm.get('runtime_location','unknown');endpoint=str(llm.get('endpoint') or llm.get('health_url') or '');evidence=llm.get('location_evidence') or []
+ llm=policy.get('local_llm',{});adapter=llm.get('adapter','auto');location=llm.get('runtime_location','unknown');endpoint=str(llm.get('endpoint') or llm.get('health_url') or '');evidence=llm.get('location_evidence') or []
  if location not in {'unknown','local','external'}:raise ValueError('local_llm.runtime_location must be unknown, local, or external')
- if endpoint and classify_endpoint(endpoint).get('location')=='local':
+ classified=classify_endpoint(endpoint).get('location') if endpoint else 'unknown'
+ if classified=='local':
   if location=='external' or adapter=='external':raise ValueError('local_llm is configured as external, but its endpoint is local to this machine')
   location='local'
  if adapter=='external':
   if location!='external' or not isinstance(evidence,list) or not any(isinstance(x,str) and x.strip() for x in evidence):raise ValueError('external LLM mode requires explicit external runtime_location and location_evidence; never infer external from API style or missing environment variables')
+ if adapter in NATIVE_LLM_ADAPTERS:
+  if not endpoint:raise ValueError('native local LLM lifecycle requires local_llm.endpoint')
+  if classified!='local':raise ValueError('native local LLM lifecycle endpoint must be proven local')
+  if location=='external':raise ValueError('native local LLM lifecycle adapter conflicts with external runtime_location')
  if adapter=='command' and location=='external':raise ValueError('command lifecycle adapter conflicts with external runtime_location')
+ if adapter not in NATIVE_LLM_ADAPTERS|{'command','external'}:raise ValueError('local_llm.adapter must be auto, llama-server, ollama, command, or external')
  return location
-def unload_llm(policy):
- validate_llm_policy(policy);llm=policy.get('local_llm',{});adapter=llm.get('adapter','unconfigured')
+def unload_llm(root,policy):
+ validate_llm_policy(policy);llm=policy.get('local_llm',{});adapter=llm.get('adapter','auto')
  if adapter=='external':return 'verified external model: no local unload needed'
- if adapter!='command':raise ValueError('exclusive generation requires local_llm.adapter command or external')
+ if adapter in NATIVE_LLM_ADAPTERS:
+  state=llm_model_lifecycle.snapshot_and_unload(adapter,str(llm.get('endpoint') or ''),state_path=paths(root)['llm_snapshot'],timeout=float(llm.get('unload_timeout_s',120)))
+  return json.dumps({'runtime':state.get('runtime'),'models':state.get('models',[])})
  return run_argv(llm.get('unload_command',[]),float(llm.get('unload_timeout_s',120)),'LLM unload')
-def reload_llm(policy):
- validate_llm_policy(policy);llm=policy.get('local_llm',{});adapter=llm.get('adapter','unconfigured')
+def reload_llm(root,policy):
+ validate_llm_policy(policy);llm=policy.get('local_llm',{});adapter=llm.get('adapter','auto')
  if adapter=='external':return 'verified external model: no local reload needed'
- if adapter!='command':raise ValueError('cannot restore unconfigured local LLM adapter')
+ if adapter in NATIVE_LLM_ADAPTERS:
+  result=llm_model_lifecycle.restore(paths(root)['llm_snapshot'],keep_alive=str(llm.get('restore_keep_alive') or '5m'),unload_untracked=True,timeout=float(llm.get('reload_timeout_s',300)));wait_health(llm,float(llm.get('health_timeout_s',300)));return json.dumps(result)
  text=run_argv(llm.get('reload_command',[]),float(llm.get('reload_timeout_s',300)),'LLM reload');wait_health(llm,float(llm.get('health_timeout_s',300)));return text
 def wait_queue_empty(client:Client,timeout=120):
  end=time.time()+timeout
@@ -107,7 +118,7 @@ def daemon(root:Path)->int:
  llm_unloaded=False;client=None;outputs=[];failure=None
  try:
   update(root,phase='unloading-llm',message='Current agent turn is complete. Unloading the configured local LLM before ComfyUI generation.',llm_state='unloading')
-  unload_llm(policy);llm_unloaded=True;update(root,llm_state='unloaded',message='Local LLM unloaded. Starting deterministic ComfyUI batch.')
+  unload_llm(root,policy);llm_unloaded=True;update(root,llm_state='unloaded',message='Local LLM unloaded. Starting deterministic ComfyUI batch.')
   comfy=policy.get('comfyui',{});client=Client(resolve_url(comfy.get('url') or None),timeout=float(comfy.get('request_timeout_s',30)))
   batch=load_manifest(root,str(st.get('batch_manifest') or '04_generation/comfyui/offline_batch.json'))
   total=len(batch.get('jobs',[]));update(root,phase='running-comfyui',message=f'ComfyUI batch running: 0 of {total} jobs complete.',comfyui_state='running',job_total=total,job_index=0)
@@ -144,7 +155,7 @@ def daemon(root:Path)->int:
    failure=failure or f'ComfyUI cleanup failed: {exc}';update(root,error=failure,comfyui_state='cleanup-failed')
   try:
    if llm_unloaded:
-    update(root,phase='reloading-llm',message='ComfyUI is released. Reloading the configured local LLM.',llm_state='reloading');reload_llm(policy);update(root,llm_state='ready')
+    update(root,phase='reloading-llm',message='ComfyUI is released. Reloading the configured local LLM.',llm_state='reloading');reload_llm(root,policy);update(root,llm_state='ready')
   except Exception as exc:
    failure=failure or f'LLM reload failed: {exc}';update(root,error=failure,llm_state='reload-failed')
  final=update(root,phase='failed' if failure else 'complete',message=('Resource handoff failed, but cleanup/restore was attempted.' if failure else 'ComfyUI batch complete. ComfyUI models unloaded and local LLM restored.'),error=failure or '',outputs=outputs,next_action=('Review RESOURCE_RESUME.md and repair the failed prepared job.' if failure else 'Review RESOURCE_RESUME.md and continue the active Story-Film Todo target.'))
@@ -156,9 +167,9 @@ def arm(root:Path,manifest_rel:str,url:str|None,detach:bool)->dict[str,Any]:
  # LLM is still loaded. The daemon must not need a semantic repair later.
  batch=preflight_batch(root,batch,client,stage_uploads=True)
  write_batch(batch_manifest_path(root,manifest_rel),batch)
- adapter=policy.get('local_llm',{}).get('adapter','unconfigured')
+ adapter=policy.get('local_llm',{}).get('adapter','auto')
  validate_llm_policy(policy)
- if adapter not in {'command','external'}:raise ValueError('resource_policy local_llm.adapter must be command or verified external before arming')
+ if adapter not in NATIVE_LLM_ADAPTERS|{'command','external'}:raise ValueError('resource_policy local_llm.adapter is unsupported')
  ps=paths(root)
  try:ps['release'].unlink()
  except FileNotFoundError:pass

@@ -195,11 +195,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.31')
-        self.assertEqual(version_display.display_version(version), 'v0.0.31')
+        self.assertEqual(version, '00.00.32')
+        self.assertEqual(version_display.display_version(version), 'v0.0.32')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.32'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.33'], check=True)
 
     def test_workflow_selection_has_no_four_choice_limit(self):
         reference = (ROOT / 'references/WORKFLOW_SELECTION.md').read_text(encoding='utf-8')

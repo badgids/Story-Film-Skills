@@ -1,0 +1,534 @@
+{
+  "config": {},
+  "extra": {
+    "VHS_KeepIntermediate": true,
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "ds": {
+      "offset": [
+        3220,
+        -7678.279079861111
+      ],
+      "scale": 0.72
+    },
+    "frontendVersion": "1.44.19"
+  },
+  "groups": [],
+  "id": "bff15a28-8a52-44f8-a7a1-0901cf66a11a",
+  "last_link_id": 9,
+  "last_node_id": 13,
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      7,
+      0,
+      1,
+      7,
+      "KREA_STYLE_REF"
+    ],
+    [
+      5,
+      8,
+      0,
+      7,
+      1,
+      "KREA_STYLE_REF"
+    ],
+    [
+      8,
+      11,
+      0,
+      7,
+      0,
+      "IMAGE"
+    ],
+    [
+      9,
+      12,
+      0,
+      8,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "bgcolor": "#653",
+      "color": "#432",
+      "flags": {},
+      "id": 1,
+      "inputs": [
+        {
+          "link": null,
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          }
+        },
+        {
+          "link": null,
+          "localized_name": "model",
+          "name": "model",
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "widget": {
+            "name": "model"
+          }
+        },
+        {
+          "link": null,
+          "localized_name": "model.aspect_ratio",
+          "name": "model.aspect_ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "model.aspect_ratio"
+          }
+        },
+        {
+          "link": null,
+          "localized_name": "model.resolution",
+          "name": "model.resolution",
+          "type": "COMBO",
+          "widget": {
+            "name": "model.resolution"
+          }
+        },
+        {
+          "link": null,
+          "localized_name": "model.creativity",
+          "name": "model.creativity",
+          "type": "COMBO",
+          "widget": {
+            "name": "model.creativity"
+          }
+        },
+        {
+          "link": null,
+          "localized_name": "model.moodboard_id",
+          "name": "model.moodboard_id",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "model.moodboard_id"
+          }
+        },
+        {
+          "link": null,
+          "localized_name": "model.moodboard_strength",
+          "name": "model.moodboard_strength",
+          "shape": 7,
+          "type": "FLOAT",
+          "widget": {
+            "name": "model.moodboard_strength"
+          }
+        },
+        {
+          "label": "style_reference",
+          "link": 4,
+          "localized_name": "model.style_reference",
+          "name": "model.style_reference",
+          "shape": 7,
+          "type": "KREA_STYLE_REF"
+        },
+        {
+          "link": null,
+          "localized_name": "seed",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          }
+        }
+      ],
+      "mode": 0,
+      "order": 5,
+      "outputs": [
+        {
+          "links": [
+            1
+          ],
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE"
+        }
+      ],
+      "pos": [
+        -2030,
+        7980
+      ],
+      "properties": {
+        "Node name for S&R": "Krea2ImageNode",
+        "cnr_id": "comfy-core",
+        "enableTabs": false,
+        "hasSecondTab": false,
+        "secondTabOffset": 80,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "ver": "0.22.0"
+      },
+      "size": [
+        400,
+        354.65625
+      ],
+      "type": "Krea2ImageNode",
+      "widgets_values": [
+        "90s spaghetti western movie still, lone cowboy silhouette from behind, standing in a vast desert canyon, wearing a wide-brimmed hat, long duster coat and bandana, holding a revolver at his side, saguaro cacti in the foreground, hazy orange dust storm atmosphere, warm sepia and burnt sienna color palette, golden hour sunset light, soft atmospheric haze, vintage film grain, cinematic wide shot, dramatic composition, gritty old west aesthetic, hyperrealistic textures",
+        "Krea 2 Medium",
+        "1:1",
+        "1K",
+        "medium",
+        "",
+        0.35,
+        593877138,
+        "randomize"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 2,
+      "inputs": [
+        {
+          "link": 1,
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          }
+        }
+      ],
+      "mode": 0,
+      "order": 6,
+      "outputs": [],
+      "pos": [
+        -1580,
+        7980
+      ],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "cnr_id": "comfy-core",
+        "enableTabs": false,
+        "hasSecondTab": false,
+        "secondTabOffset": 80,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "ver": "0.22.0"
+      },
+      "size": [
+        450,
+        450
+      ],
+      "type": "SaveImage",
+      "widgets_values": [
+        "Krea2"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 7,
+      "inputs": [
+        {
+          "link": 8,
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 5,
+          "localized_name": "style_reference",
+          "name": "style_reference",
+          "shape": 7,
+          "type": "KREA_STYLE_REF"
+        },
+        {
+          "link": null,
+          "localized_name": "strength",
+          "name": "strength",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength"
+          }
+        }
+      ],
+      "mode": 0,
+      "order": 4,
+      "outputs": [
+        {
+          "links": [
+            4
+          ],
+          "localized_name": "style_reference",
+          "name": "style_reference",
+          "type": "KREA_STYLE_REF"
+        }
+      ],
+      "pos": [
+        -2420,
+        7980
+      ],
+      "properties": {
+        "Node name for S&R": "Krea2StyleReferenceNode",
+        "cnr_id": "comfy-core",
+        "enableTabs": false,
+        "hasSecondTab": false,
+        "secondTabOffset": 80,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "ver": "0.22.0"
+      },
+      "size": [
+        290,
+        200
+      ],
+      "type": "Krea2StyleReferenceNode",
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "flags": {},
+      "id": 8,
+      "inputs": [
+        {
+          "link": 9,
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "localized_name": "style_reference",
+          "name": "style_reference",
+          "shape": 7,
+          "type": "KREA_STYLE_REF"
+        },
+        {
+          "link": null,
+          "localized_name": "strength",
+          "name": "strength",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength"
+          }
+        }
+      ],
+      "mode": 0,
+      "order": 3,
+      "outputs": [
+        {
+          "links": [
+            5
+          ],
+          "localized_name": "style_reference",
+          "name": "style_reference",
+          "type": "KREA_STYLE_REF"
+        }
+      ],
+      "pos": [
+        -2420,
+        8260
+      ],
+      "properties": {
+        "Node name for S&R": "Krea2StyleReferenceNode",
+        "cnr_id": "comfy-core",
+        "enableTabs": false,
+        "hasSecondTab": false,
+        "secondTabOffset": 80,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "ver": "0.22.0"
+      },
+      "size": [
+        290,
+        200
+      ],
+      "type": "Krea2StyleReferenceNode",
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "flags": {},
+      "id": 11,
+      "inputs": [
+        {
+          "link": null,
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          }
+        },
+        {
+          "link": null,
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          }
+        }
+      ],
+      "mode": 0,
+      "order": 0,
+      "outputs": [
+        {
+          "links": [
+            8
+          ],
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE"
+        },
+        {
+          "links": null,
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK"
+        }
+      ],
+      "pos": [
+        -2910,
+        7990
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "cnr_id": "comfy-core",
+        "enableTabs": false,
+        "hasSecondTab": false,
+        "secondTabOffset": 80,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "ver": "0.22.0"
+      },
+      "size": [
+        290,
+        370
+      ],
+      "type": "LoadImage",
+      "widgets_values": [
+        "krea_style_reference_image1.png",
+        "image"
+      ]
+    },
+    {
+      "flags": {},
+      "id": 12,
+      "inputs": [
+        {
+          "link": null,
+          "localized_name": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          }
+        },
+        {
+          "link": null,
+          "localized_name": "choose file to upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          }
+        }
+      ],
+      "mode": 0,
+      "order": 1,
+      "outputs": [
+        {
+          "links": [
+            9
+          ],
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE"
+        },
+        {
+          "links": null,
+          "localized_name": "MASK",
+          "name": "MASK",
+          "type": "MASK"
+        }
+      ],
+      "pos": [
+        -2910,
+        8420
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "cnr_id": "comfy-core",
+        "enableTabs": false,
+        "hasSecondTab": false,
+        "secondTabOffset": 80,
+        "secondTabText": "Send Back",
+        "secondTabWidth": 65,
+        "tabWidth": 65,
+        "tabXOffset": 10,
+        "ver": "0.22.0"
+      },
+      "size": [
+        290,
+        370
+      ],
+      "type": "LoadImage",
+      "widgets_values": [
+        "krea_style_reference_image2.png",
+        "image"
+      ]
+    },
+    {
+      "bgcolor": "#000",
+      "color": "#222",
+      "flags": {},
+      "id": 13,
+      "inputs": [],
+      "mode": 0,
+      "order": 2,
+      "outputs": [],
+      "pos": [
+        -2430,
+        8530
+      ],
+      "properties": {},
+      "size": [
+        310,
+        170
+      ],
+      "type": "MarkdownNote",
+      "widgets_values": [
+        "Chain multiple input images for style reference"
+      ]
+    }
+  ],
+  "revision": 0,
+  "version": 0.4
+}

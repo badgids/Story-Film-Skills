@@ -16,7 +16,7 @@ WORKFLOW_ROOT = ROOT / "comfyui_workflows"
 class V0031WorkflowSelectionTests(unittest.TestCase):
     def test_supplied_workflow_library_is_extracted_and_task_first(self):
         workflows = sorted(WORKFLOW_ROOT.rglob("*.json"))
-        self.assertEqual(len(workflows), 15)
+        self.assertGreaterEqual(len(workflows), 15)
         self.assertFalse(any(path.suffix.lower() == ".zip" for path in WORKFLOW_ROOT.rglob("*") if path.is_file()))
         self.assertFalse((ROOT / "references/comfyui_workflows").exists())
         self.assertFalse((ROOT / "docs/generation/sanitized-workflows.md").exists())

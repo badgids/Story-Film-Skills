@@ -14,23 +14,32 @@ Use this skill before ComfyUI generation or whenever the user wants to change th
 
 Read `../../references/WORKFLOW_SELECTION.md`.
 
+## Playbook preflight and reuse
+
+When the selected playbook will use ComfyUI, workflow selection happens before story/canon creation. Run `../../scripts/workflow_preflight.py set` for the playbook/profile or explicit task categories, then resolve every missing category before creative production begins.
+
+If a required category already has a durable selection and the user did not ask to change it, reuse that exact selection. Materialize or validate it as needed, but do not show the numbered list again. Do not ask again later.
+
+Only missing categories or an explicit user-requested workflow change open an interactive numbered catalog. A later missing model/node/input is a blocker, not permission to reopen workflow selection.
+
 ## Required behavior
 
-1. Determine the generation task category that the current production step needs.
-2. Discover the active ComfyUI server when server-side saved workflows or templates are relevant.
-3. Run `../../scripts/workflow_catalog.py catalog <project-root> --category <task> --url <server-url>`.
-4. Add `--query <text>` when the task needs a narrower subset.
-5. Show the command's complete ordinary numbered list to the user.
-6. Do **not** use `ask_user_question` or another TUI picker for workflow selection.
-7. Do **not** truncate the list to four entries. A workflow catalog can contain any practical number of choices.
-   There is no four-choice limit for workflow selection.
-8. Ask the user to reply with the number of the workflow to use.
-9. After the user replies, record that exact choice with `workflow_catalog.py choose`.
-10. Materialize the selected source with `workflow_catalog.py materialize` unless the selected source is the `generate-new` choice.
-11. If `generate-new` was selected, use `comfyui-workflow` to build one candidate from live schemas, validate it, save it as a project workflow, refresh the catalog, and record the resulting real workflow.
-12. Inspect and live-validate the selected workflow before execution.
-13. If the workflow names unavailable models or missing nodes, report the exact blocker. Do not silently replace the workflow, model, VAE, encoder, LoRA, or other resource.
-14. Continue to the next required task category only after the current workflow choice is recorded.
+1. Check `00_project/workflow_preferences.json` first. If the task already has a durable selection and no change was requested, reuse it without another user question.
+2. Determine the generation task category that the current preflight or production step needs.
+3. Discover the active ComfyUI server when server-side saved workflows or templates are relevant.
+4. For a missing category, run `../../scripts/workflow_catalog.py catalog <project-root> --category <task> --url <server-url>`.
+5. Add `--query <text>` when the task needs a narrower subset.
+6. Show the command's complete ordinary numbered list to the user.
+7. Do **not** use `ask_user_question` or another TUI picker for workflow selection.
+8. Do **not** truncate the list. Story-Film imposes no maximum workflow count. Show every discovered workflow, including user-added workflows, regardless of how many choices exist.
+   There is no four-choice limit for workflow selection. There is no higher Story-Film workflow-count limit.
+9. Ask the user to reply with the number of the workflow to use.
+10. After the user replies, record that exact choice with `workflow_catalog.py choose`.
+11. Materialize the selected source with `workflow_catalog.py materialize` unless the selected source is the `generate-new` choice.
+12. If `generate-new` was selected, use `comfyui-workflow` to build one candidate from live schemas, validate it, save it as a project workflow, refresh the catalog, and record the resulting real workflow.
+13. Inspect and live-validate the selected workflow before execution.
+14. If the workflow names unavailable models or missing nodes, report the exact blocker. Do not silently replace the workflow, model, VAE, encoder, LoRA, or other resource.
+15. Continue to the next required task category only after the current workflow choice is recorded.
 
 ## Source types
 
@@ -86,4 +95,4 @@ Saved ComfyUI workflows and ComfyUI templates do not need to be copied into thes
 
 ## Done
 
-Done when each generation task required by the current production scope has a durable selection in `00_project/workflow_preferences.json`, and the selected workflow has either passed its required validation or has a concrete unresolved blocker.
+Done when each generation task required by the current production scope has a durable selection in `00_project/workflow_preferences.json`, any active workflow preflight is complete, and the selected workflow has either passed its required validation or has a concrete unresolved blocker.

@@ -977,8 +977,8 @@ def main() -> int:
             llm = rp.get('local_llm')
             if not isinstance(llm, dict):
                 errors.append('00_project/resource_policy.json: local_llm must be an object')
-            elif llm.get('adapter') not in {'unconfigured', 'command', 'external'}:
-                errors.append('00_project/resource_policy.json: local_llm.adapter must be unconfigured, command, or external')
+            elif llm.get('adapter') not in {'unconfigured', 'auto', 'llama-server', 'ollama', 'command', 'external'}:
+                errors.append('00_project/resource_policy.json: local_llm.adapter must be unconfigured, auto, llama-server, ollama, command, or external')
             else:
                 location = llm.get('runtime_location', 'unknown')
                 if location not in {'unknown', 'local', 'external'}:

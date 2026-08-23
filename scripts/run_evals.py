@@ -191,8 +191,8 @@ def static_package_checks(definitions_only: bool = False) -> list[str]:
             ):
                 continue
             if token not in skill_names and token not in {'check-style'}:
-                # Ignore file-format and artifact labels that are not skills.
-                if token in {'scene-manifest', 'chapter-state', 'voice-bible'}:
+                # Ignore file-format, artifact, workflow-profile, and runtime-adapter labels that are not skills.
+                if token in {'scene-manifest', 'chapter-state', 'voice-bible', 'film-production', 'llama-server'}:
                     continue
                 failures.append(f'{p}: unresolved skill-like token `{token}`')
 

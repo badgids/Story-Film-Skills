@@ -7,6 +7,7 @@
 - [Problem](#problem)
 - [Safe handoff](#safe-handoff)
 - [Check where the LLM runs](#check-where-the-llm-runs)
+- [Native llama-server and Ollama lifecycle](#native-llama-server-and-ollama-lifecycle)
 - [What must be finished first](#what-must-be-finished-first)
 - [What works without the LLM](#what-works-without-the-llm)
 - [Failure behavior](#failure-behavior)
@@ -29,10 +30,10 @@ Story-Film Skills can use this order:
 5. Validate every final workflow against the live server.
 6. Arm the batch.
 7. End the current agent turn.
-8. Unload the local LLM with the configured adapter.
+8. Snapshot and unload the local LLM with the deterministic lifecycle adapter.
 9. Run the prepared ComfyUI jobs with deterministic code only.
 10. Ask ComfyUI to unload models and free memory.
-11. Reload the local LLM.
+11. Remove temporary LLM models and restore the original model snapshot.
 12. Read `00_project/RESOURCE_RESUME.md` and continue.
 
 ## Check where the LLM runs
@@ -51,11 +52,25 @@ python scripts/llm_runtime.py --endpoint http://127.0.0.1:8080
 
 For another address, Story-Film keeps the location `unknown` until it has direct evidence. It must not call the model external merely because no local environment variable was found.
 
+## Native llama-server and Ollama lifecycle
+
+Story-Film does not ask the LLM to invent model unload scripts.
+It uses `scripts/llm_model_lifecycle.py` for supported local servers.
+
+For llama.cpp router mode, the helper uses `/models`, `/models/unload`, and `/models/load`.
+For Ollama, it uses `/api/ps` and `/api/generate` with `keep_alive`.
+Every unload and reload is verified.
+
+Before handoff, the helper snapshots the models already resident in memory.
+After ComfyUI, it removes temporary helper models and restores the original set.
+
 ## What must be finished first
 
 An armed batch cannot contain unresolved creative placeholders such as `TODO`, `TBD`, or `NEEDS-LLM`.
 
-The local LLM lifecycle must also be configured. Story-Film Skills does not guess how your LLM server unloads a model.
+The local LLM endpoint must be known and proven local.
+Use adapter `auto`, `llama-server`, or `ollama` for supported native APIs.
+The legacy `command` adapter remains available for nonstandard servers.
 
 ## What works without the LLM
 

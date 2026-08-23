@@ -99,6 +99,7 @@ def main():
     workflow_preferences = root / '00_project/workflow_preferences.json'
     workflow_sources = root / '00_project/workflow_sources.json'
     workflow_catalog = root / '00_project/comfyui_workflow_catalog.json'
+    workflow_preflight = root / '00_project/workflow_preflight.json'
     resource_handoff = root / '00_project/resource_handoff.json'
     resource_events = root / '00_project/resource_events.jsonl'
     sequence_manifest = root / '00_project/sequence_manifest.json'
@@ -224,14 +225,21 @@ def main():
             'schema_version': 1, 'generated_at': '', 'category': '', 'query': '',
             'comfyui_url': '', 'count': 0, 'workflows': [], 'warnings': []
         }, indent=2) + '\n', encoding='utf-8')
+    if not workflow_preflight.exists():
+        workflow_preflight.write_text(json.dumps({
+            'schema_version': 1, 'playbook': '', 'profile': '',
+            'required_categories': [], 'selected_categories': [], 'missing_categories': [],
+            'status': 'not-required', 'updated_at': ''
+        }, indent=2) + '\n', encoding='utf-8')
     if not resource_policy.exists():
         resource_policy.write_text(json.dumps({
             'schema_version': 1,
             'local_llm': {
-                'adapter': 'unconfigured',
+                'adapter': 'auto',
                 'runtime_location': 'unknown',
                 'endpoint': '',
                 'location_evidence': [],
+                'restore_keep_alive': '5m',
                 'unload_command': [],
                 'reload_command': [],
                 'health_command': [],

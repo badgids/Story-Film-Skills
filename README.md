@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.31`
-**Canonical version:** `00.00.31`
+**Display version:** `v0.0.32`
+**Canonical version:** `00.00.32`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -79,6 +79,10 @@ v0.0.11 adds nine controls for long films:
 Read the [Feature-scale production guide](docs/production/feature-scale.md).
 
 ## Choose ComfyUI workflows
+
+If the selected playbook will use ComfyUI anywhere in the requested endpoint, Story-Film performs workflow preflight before story or canon creation. It collects every required task workflow up front, stores the choices durably, and reuses them later without reopening the workflow interview unless the user explicitly asks to change a workflow.
+
+Story-Film imposes no maximum workflow count. The numbered catalog includes every relevant discovered built-in, user-added, project, saved-ComfyUI, template, and external workflow.
 
 Story-Film Skills selects complete ComfyUI workflows instead of rebuilding a model stack through a long series of TUI questions. A selected workflow owns the concrete model/checkpoint, VAE, encoders, LoRAs, sampler/scheduler settings, audio models, upscalers, and other graph configuration stored in it.
 
@@ -264,6 +268,8 @@ unload local LLM
 ```
 
 The no-LLM runner cannot rewrite prompts or make creative decisions. If semantic repair is needed, it stops and returns the job to the LLM after resource cleanup.
+
+For local llama.cpp router mode and Ollama, Story-Film uses a bundled deterministic lifecycle helper rather than asking the LLM to invent curl, jq, shell, or Python unload scripts. It snapshots the resident model set, verifies unload, removes temporary helper models after ComfyUI, restores the original model set, and verifies the restore.
 
 Read [Resource-safe local generation](docs/generation/resource-safe.md).
 

@@ -64,6 +64,7 @@ def main() -> int:
         ('visible dialogue sync contracts', [sys.executable, '-m', 'unittest', 'tests.test_dialogue_sync']),
         ('v0.0.28 production integrity', [sys.executable, '-m', 'unittest', 'tests.test_v0028_production_integrity']),
         ('v0.0.31 workflow selection', [sys.executable, '-m', 'unittest', 'tests.test_v0031_workflow_selection']),
+        ('v0.0.32 preflight and LLM lifecycle', [sys.executable, '-m', 'unittest', 'tests.test_v0032_preflight_lifecycle_workflows']),
         ('static eval definitions', [sys.executable, str(ROOT / 'scripts/run_evals.py'), '--definitions-only']),
     ]
     for label, cmd in gates:

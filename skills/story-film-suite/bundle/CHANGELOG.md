@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.32 (00.00.32) - 2026-08-23
+
+- Moved ComfyUI workflow choice to a playbook-entry preflight for ComfyUI-backed production, before story or canon creation, so later generation stages reuse durable selections without interrupting the user again.
+- Added `scripts/workflow_preflight.py` and durable `00_project/workflow_preflight.json` state with deterministic film, visual, audio, and explicit-category scopes.
+- Added native local-model lifecycle support for llama.cpp `llama-server` router mode and Ollama, including exact resident-model snapshot, verified unload, temporary-model cleanup, and exact restore.
+- Added the `llm-model-lifecycle` skill and integrated native `auto`, `llama-server`, and `ollama` adapters into resource-safe ComfyUI handoff while retaining the legacy command adapter as a compatibility fallback.
+- Added 14 supplied Krea2 and Qwen ComfyUI workflows for image, image editing, character sheets, storyboards, orbit sheets, and ComfyUI LLM tasks. The release now ships at least 29 workflow JSON files: 26 production/reference workflows and 3 research sources, while user-added workflow catalogs remain unbounded.
+- Added deterministic v0.0.32 tests for pre-story workflow preflight, new workflow inventory, llama-server lifecycle, Ollama lifecycle, temporary helper-model cleanup, and no-agent-script lifecycle policy.
+
 ## v0.0.31 (00.00.31) - 2026-08-23
 
 - Replaced per-model/per-resource Pi TUI selection with workflow-first ComfyUI selection using ordinary numbered lists with no four-option limit.

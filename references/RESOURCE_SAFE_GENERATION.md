@@ -7,6 +7,7 @@ Allow Pi to use a locally hosted LLM and ComfyUI on the same resource-constraine
 ## State files
 
 - `00_project/resource_policy.json`: user/runtime lifecycle configuration
+- `00_project/llm_model_snapshot.json`: exact local model set captured before native unload
 - `00_project/resource_handoff.json`: authoritative current handoff state
 - `00_project/resource_events.jsonl`: append-only runtime events
 - `00_project/resource_handoff.release`: one-shot signal that the current agent turn has ended
@@ -44,24 +45,45 @@ That endpoint is local to the same machine. If it is the endpoint used by Pi, St
 
 ## Local LLM lifecycle adapter
 
-Do not assume how the user's local model server is managed. The default policy is `unconfigured` and exclusive generation must refuse to start until the user chooses one of:
+Story-Film has native deterministic model-memory lifecycle support. The preferred adapters are:
 
-- `command`: explicit argv arrays for unload and reload, plus either a health URL or health command
-- `external`: the Pi model is proven to run outside this machine and `location_evidence` records that proof
+- `auto`: probe the configured local endpoint and use llama.cpp router mode or Ollama
+- `llama-server`: use the llama.cpp router model API directly
+- `ollama`: use the Ollama model-residency API directly
+- `command`: legacy compatibility for installations that require explicit service-manager argv arrays
+- `external`: only when Pi's model is proven to run outside this machine
 
-Commands are executed without a shell. Do not store secrets in argv or project files.
+The agent must not author curl, jq, shell, or one-off Python lifecycle scripts. Native adapters call `scripts/llm_model_lifecycle.py`, which uses Python's HTTP client directly and verifies state after every transition.
 
-Example shape only, with values supplied for the user's installation:
+Before unload, Story-Film snapshots the exact resident model set. During restore it first unloads untracked temporary models that appeared while ComfyUI was running, then restores the original snapshot. This matters when a ComfyUI graph itself uses an Ollama helper model.
+
+### llama.cpp llama-server router
+
+Story-Film uses these router endpoints:
+
+```text
+GET  /models
+POST /models/unload   {"model": "<id>"}
+POST /models/load     {"model": "<id>"}
+```
+
+The helper polls `/models` and verifies the model status instead of treating the POST response as proof that memory has already changed.
+
+### Ollama
+
+Story-Film lists resident models with `GET /api/ps`. It uses `POST /api/generate` with an empty prompt and `keep_alive: 0` to unload a model immediately. Restore uses an empty generation request with the configured `restore_keep_alive` value, then verifies `/api/ps`.
+
+The project policy records the active local endpoint and adapter. Example native shape:
 
 ```json
 {
-  "adapter": "command",
-  "unload_command": ["service-manager", "stop", "local-llm"],
-  "reload_command": ["service-manager", "start", "local-llm"],
-  "health_command": ["local-health-check"],
-  "health_url": ""
+  "adapter": "auto",
+  "endpoint": "http://127.0.0.1:8080",
+  "restore_keep_alive": "5m"
 }
 ```
+
+`command` remains supported for nonstandard local runtimes, but it is a configuration fallback, not a script-generation task for the LLM.
 
 ## Pi behavior while the LLM is absent
 

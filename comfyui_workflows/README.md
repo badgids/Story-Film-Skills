@@ -19,11 +19,14 @@ comfyui_workflows/
   storyboard/<model>/
   upscale/<model>/
   frame-interpolation/<model>/
+  llm/<model>/
   custom/<task>/<model>/
   research/<model>/
 ```
 
 The JSON files in this directory are the supplied workflows themselves. They are **not sanitized blueprints** and are not rewritten to remove their configured model/resource choices. Open any workflow in ComfyUI, make changes, and save a customized copy if you want a different model stack or graph.
+
+The v0.0.32 library contains at least 29 release workflow JSON files: 26 production/reference workflows and 3 research sources. The 14 workflows added in v0.0.32 provide Krea2 and Qwen built-ins for image, image editing, character sheets, storyboards, orbit sheets, and ComfyUI LLM text generation. Users may add any number of additional package-custom, project, saved-ComfyUI, template, or external workflows; Story-Film does not impose a catalog maximum.
 
 ## Custom Story-Film defaults
 
