@@ -5,68 +5,119 @@
 ## Table of contents
 
 - [Purpose](#purpose)
-- [Choose generation models and resources](#choose-generation-models-and-resources)
+- [Choose a workflow](#choose-a-workflow)
+- [Workflow sources](#workflow-sources)
 - [Before generation](#before-generation)
-- [Prepare a workflow](#prepare-a-workflow)
-- [Sanitized blueprints and optional nodes](#sanitized-blueprints-and-optional-nodes)
+- [Prepare and validate the selected workflow](#prepare-and-validate-the-selected-workflow)
+- [Optional nodes](#optional-nodes)
 - [Run work](#run-work)
 - [Check outputs](#check-outputs)
 - [When memory is limited](#when-memory-is-limited)
 
 ## Purpose
 
-ComfyUI performs configured image, audio, and video generation. Story-Film Skills prepares the creative instructions and the workflow data.
+ComfyUI performs configured image, audio, and video generation. Story-Film Skills prepares the creative instructions, selects a complete user-approved workflow, stages project inputs, and validates a project-owned copy.
 
-Story-Film Skills does not treat a queued job as a finished asset. An output must return to the media registry and pass the required checks.
+A queued job is not a finished asset. An output must return to the media registry and pass the required checks.
 
-## Choose generation models and resources
+## Choose a workflow
 
-The user owns the model choices for image generation, image editing, video, TTS, music, SFX/Foley, upscaling, and frame interpolation.
+Story-Film uses workflow-first generation.
 
-Before model-specific generation, Story-Film Skills polls the running ComfyUI server and shows the installed model folders and model-like choices. The user can select exact checkpoints, diffusion models, VAEs, text encoders, LoRAs, audio encoders, upscalers, and other server-reported resources.
+For each required task, Story-Film builds a numbered catalog and asks you to choose a workflow by number.
 
-If the user does not choose a video adapter, Story-Film Skills uses **MiniMax H3** (`minimax-h3`). This default does not choose its concrete ComfyUI model files.
+Typical tasks include:
 
-See [Choose generation models and ComfyUI resources](model-selection.md).
+- image generation
+- image editing
+- video
+- TTS
+- music
+- SFX/Foley
+- character sheets
+- orbit or multiple-angle sheets
+- location orbits
+- storyboards
+- upscaling
+- frame interpolation
+
+The workflow contains the concrete checkpoint/model, VAE, encoders, LoRAs, nodes, samplers, and other settings. Story-Film does not follow workflow selection with a second TUI interview for those model files.
+
+Read [Choose ComfyUI workflows](workflow-selection.md).
+
+## Workflow sources
+
+Story-Film can offer:
+
+- built-ins from `comfyui_workflows/<task>/<model>/`;
+- package custom defaults from `comfyui_workflows/custom/<task>/<model>/`;
+- project defaults from `04_generation/comfyui/default_workflows/<task>/<model>/`;
+- existing project workflows and templates;
+- workflows saved by the user inside ComfyUI;
+- ComfyUI core templates;
+- templates from installed custom-node packages;
+- another workflow file or directory registered by the user;
+- a newly generated workflow candidate built from live ComfyUI schemas.
+
+The ordinary numbered list can contain more than four entries.
 
 ## Before generation
 
-Do these actions before you spend GPU time:
+Before spending GPU time:
 
-1. Freeze the creative decisions that affect the job.
-2. Give the item a stable ID such as `SHOT-###`, `VOICE-###`, `MUS-###`, or `SFX-###`.
-3. Scan the active ComfyUI model inventory and record the user-selected model stack. Use the ComfyUI server registry, which includes external model directories configured through `extra_model_paths.yaml`. Do not search the filesystem for model files.
-4. Select a compatible ComfyUI workflow.
-5. Confirm that required model files and custom nodes exist. Report missing optional nodes; do not silently install them.
-6. Confirm that reference images and other inputs exist and that their authority scopes are compatible with the job.
-7. Validate the workflow-family contract and API-format workflow against live `/object_info`.
-8. Audit prompt/reference bindings so labels, `REF-###`/`MEDIA-###`, staged files, hashes, and graph inputs agree.
-9. Run dialogue timing preflight and approved-audio checks when visible dialogue is involved.
-10. Set an output destination.
+1. freeze the creative decisions that affect the job;
+2. give the item a stable ID such as `SHOT-###`, `VOICE-###`, `MUS-###`, or `SFX-###`;
+3. select the complete workflow for the task;
+4. materialize a project-owned copy of a bundled, saved, template, or external workflow;
+5. confirm that required model files and custom nodes used by that workflow exist;
+6. confirm that reference images and other inputs exist and their authority scopes fit the job;
+7. validate the workflow-family contract when one exists and validate the executable graph against live `/object_info`;
+8. audit prompt/reference bindings so labels, `REF-###`/`MEDIA-###`, staged files, hashes, and graph inputs agree;
+9. run dialogue timing preflight and approved-audio checks when visible dialogue is involved;
+10. set an output destination.
 
 Do not make ComfyUI guess missing story facts.
 
-## Prepare a workflow
+## Prepare and validate the selected workflow
 
-Use the workflow tools to inspect and validate a workflow:
+Build the catalog:
 
 ```bash
-python scripts/comfyui_workflow.py detect workflow.json
+python scripts/workflow_catalog.py catalog . --category video --url http://127.0.0.1:8188
+```
+
+Record the user's numbered choice:
+
+```bash
+python scripts/workflow_catalog.py choose . 2
+```
+
+Materialize the selected source:
+
+```bash
+python scripts/workflow_catalog.py materialize . video --url http://127.0.0.1:8188
+```
+
+Inspect or validate the resulting workflow through the normal tools:
+
+```bash
 python scripts/comfyui_workflow.py inspect workflow.json
 python scripts/comfyui_control.py validate --workflow workflow.json
 ```
 
-A live validation checks the workflow against the running ComfyUI server.
+For UI-format workflows, use the supported conversion/preservation route before native API submission.
 
-## Sanitized blueprints and optional nodes
+If a workflow references a missing model or node, report the blocker. Do not silently replace its model stack.
 
-Story-Film includes sanitized UI-format workflow blueprints under `references/comfyui_workflows/`. They are preserved topology sources, not executable defaults. They do not select model files for the user.
+## Optional nodes
 
-Read [Sanitized ComfyUI workflows](sanitized-workflows.md) and [Optional ComfyUI custom nodes](comfyui-optional-nodes.md) before adapting one. The dependency manifest is `references/comfyui_workflow_dependencies.json`.
+Bundled or user-selected workflows can depend on optional custom-node packages.
+
+Read [Optional ComfyUI custom nodes](comfyui-optional-nodes.md). Story-Film reports missing nodes but does not install custom-node code automatically.
 
 ## Run work
 
-For small work, Story-Film Skills can submit and wait for a job directly.
+For small work, Story-Film can submit and wait for a job directly.
 
 For a large prepared set, use the offline batch format. The batch uses `BATCH-###` and `JOB-###` IDs.
 
@@ -76,20 +127,19 @@ The batch can include dependency edges. A job starts only when its blockers are 
 
 After generation:
 
-1. Record the output file.
-2. Link it to the source item.
-3. Run media QC when required.
-4. Mark the file as a candidate, primary, alternate, rejected, or superseded.
-5. Do not use newest-file-wins behavior.
+1. record the output file;
+2. link it to the source item;
+3. run media QC when required;
+4. mark the file as a candidate, primary, alternate, rejected, or superseded;
+5. do not use newest-file-wins behavior.
 
 ## When memory is limited
 
-If the local LLM and the ComfyUI model cannot fit in memory at the same time, use [Resource-safe local generation](resource-safe.md).
+If the local LLM and the ComfyUI model cannot fit in memory at the same time, use [Resource-safe local generation](resource-safe.md). The selected workflows and all required input mappings must be finalized before the LLM is unloaded.
 
 ## Related pages
 
-- [Choose generation models and ComfyUI resources](model-selection.md)
-- [Sanitized ComfyUI workflows](sanitized-workflows.md)
+- [Choose ComfyUI workflows](workflow-selection.md)
 - [Optional ComfyUI custom nodes](comfyui-optional-nodes.md)
 - [Resource-safe local generation](resource-safe.md)
 - [RAM and VRAM budgets](memory-budget.md)

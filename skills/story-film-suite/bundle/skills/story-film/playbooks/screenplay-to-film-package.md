@@ -1,7 +1,7 @@
 # Screenplay to Film Package
 
 
-> Before model-specific prompts or ComfyUI workflows, run `generation-model-setup`. Poll the live ComfyUI model inventory and record the user-selected adapter plus exact model resources for each production process. MiniMax H3 is only the default video adapter. Do not guess concrete model files, VAEs, text encoders, LoRAs, audio models, or upscalers.
+> Before ComfyUI generation or model-specific prompt adaptation, run `generation-workflow-setup`. Select a complete workflow from the ordinary numbered catalog. The selected workflow owns its checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, and other graph settings. Do not run the retired per-resource TUI interview.
 
 1. `continuity-check`: establish a clean baseline.
 2. Ensure `scene_manifest.json` and `line_manifest.jsonl` are synchronized with the approved screenplay.
@@ -17,7 +17,7 @@
 12. `dialogue-voice`, `score-plan`, and `sound-design` as needed. Preserve line IDs and exact dialogue. Propagate measured speech timing where available.
 13. `shooting-script`: compile line, blocking, camera, visible-dialogue sync when required, and timing into a portable execution plan.
 14. `production-coverage`: prove that the requested screenplay scope, including required visible-dialogue synchronization, has not been silently dropped.
-15. `generation-pack`, then resolve the video model from `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`. Run the selected model adapters and `prompt-qc`.
+15. Run `generation-pack`, then `generation-workflow-setup` for every required generation task. Record the complete workflow choice and use the prompt adapter implied by that workflow. Run `prompt-qc`.
 16. If actual generation occurs, register concrete media with `asset-approval`; run `media-qc`, then `take-selection` for picture candidates.
 17. `edit-plan` and `editorial-package` as requested.
 18. If actual ComfyUI generation is requested, run `comfyui-handoff` and the ComfyUI Generate playbook by approved scope.

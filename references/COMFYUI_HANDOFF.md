@@ -1,6 +1,6 @@
 # ComfyUI Portable Package Contract
 
-Story-Film Skills does not require ComfyUI or a ComfyUI agent to be installed.
+Story-Film Skills does not require ComfyUI or a ComfyUI agent to be installed for planning.
 
 This contract defines a portable project-relative package that can later be consumed by ComfyUI, another agent, a workflow compiler, or a human operator.
 
@@ -17,8 +17,8 @@ Minimum shape:
   "project_title": "Example",
   "source_state": "00_project/state.json",
   "canon": "00_project/canon.json",
-  "model_preferences": "00_project/model_preferences.json",
-  "model_inventory": "00_project/comfyui_model_inventory.json",
+  "workflow_preferences": "00_project/workflow_preferences.json",
+  "workflow_catalog": "00_project/comfyui_workflow_catalog.json",
   "reference_manifest": "03_preproduction/references/reference_manifest.json",
   "shot_briefs": "04_generation/shot_briefs.jsonl",
   "image_briefs": "04_generation/image_briefs.jsonl",
@@ -26,8 +26,7 @@ Minimum shape:
   "music_cues": "04_generation/music_cues.jsonl",
   "sfx_cues": "04_generation/sfx_cues.jsonl",
   "prompt_roots": {},
-  "requested_models": [],
-  "requested_resources": {},
+  "requested_workflows": {},
   "required_inputs": [],
   "expected_outputs": [],
   "stale_ids": [],
@@ -43,32 +42,34 @@ All paths are project-relative.
 
 The package may specify:
 
-- stable shot or cue ID
-- user-selected adapter/model family, or the MiniMax H3 video adapter default when no video adapter was selected
-- exact user-selected ComfyUI resource names by process and adapter profile
-- model family requested
-- prompt file
-- reference IDs and roles
-- source images, audio, or video by project-relative path
-- target width, height, aspect ratio, duration, frame rate, or sample format when the project requires them
-- exact dialogue or visible text
-- expected output ID and destination category
-- continuity preserve rules
-- unresolved requirements
+- stable shot or cue ID;
+- the selected workflow task/category;
+- the durable selected workflow identity or materialized project-relative workflow path;
+- prompt file;
+- reference IDs and roles;
+- source images, audio, or video by project-relative path;
+- target width, height, aspect ratio, duration, frame rate, or sample format when required by the production plan;
+- exact dialogue or visible text;
+- expected output ID and destination category;
+- continuity preserve rules;
+- unresolved requirements.
+
+The selected workflow itself owns its concrete checkpoint/model, VAE, text encoders, LoRAs, audio models, upscalers, nodes, samplers, schedulers, and other graph settings.
 
 ## What the package does not invent
 
 Do not guess:
 
-- ComfyUI node class names
-- widget indices
-- local model file paths outside the names returned by ComfyUI
-- API endpoints
-- custom-node serialization
-- another project's private workflow schema
+- a replacement workflow when the user selected another one;
+- ComfyUI node class names that are not in a selected workflow or live schema;
+- widget indices;
+- personal machine paths;
+- API endpoints;
+- custom-node serialization;
+- another project's private workflow schema.
 
-A downstream tool can map the portable intent to its own live workflow.
+A downstream tool can materialize the selected workflow, stage the current project inputs, and validate it against its live ComfyUI server.
 
 ## Completion rule
 
-The handoff is complete when another tool can identify every requested generation task, its inputs, its prompt, its continuity requirements, and its expected output without reading the originating conversation.
+The handoff is complete when another tool can identify every requested generation task, its selected workflow or unresolved workflow requirement, its inputs, prompt, continuity requirements, and expected output without reading the originating conversation.

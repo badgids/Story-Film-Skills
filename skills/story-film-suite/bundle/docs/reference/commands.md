@@ -48,6 +48,19 @@ Use `--help` on each script for all arguments.
 
 ## Generation
 
+Workflow-first selection:
+
+```bash
+python scripts/workflow_catalog.py catalog PROJECT --category video --url http://127.0.0.1:8188
+python scripts/workflow_catalog.py choose PROJECT 3
+python scripts/workflow_catalog.py show PROJECT
+python scripts/workflow_catalog.py materialize PROJECT video --url http://127.0.0.1:8188
+python scripts/workflow_catalog.py source-add PROJECT /path/to/workflow-or-directory
+python scripts/workflow_catalog.py source-list PROJECT
+```
+
+ComfyUI inspection and execution helpers:
+
 ```bash
 python scripts/comfyui_control.py --project PROJECT probe
 python scripts/comfyui_workflow.py inspect WORKFLOW.json
@@ -63,6 +76,8 @@ python scripts/media_lifecycle.py PROJECT --help
 python scripts/resource_handoff.py --help
 python scripts/comfyui_batch.py --help
 ```
+
+Legacy model inventory/preferences utilities remain available for compatibility and diagnostics, but workflow selection is the generation authority.
 
 ## Postproduction and release
 
@@ -111,5 +126,6 @@ See [Pi install and project isolation](../getting-started/pi-install.md).
 
 ## Related pages
 
+- [Choose ComfyUI workflows](../generation/workflow-selection.md)
 - [Testing](../development/testing.md)
 - [Quick start](../getting-started/quick-start.md)

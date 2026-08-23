@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "story-film-suite"
 BUNDLE = SKILL_DIR / "bundle"
 
-COPY_DIRS = ("scripts", "references", "docs", "examples", "extensions", "evals", "tests")
+COPY_DIRS = ("scripts", "references", "docs", "examples", "extensions", "evals", "tests", "comfyui_workflows")
 COPY_FILES = (
     "VERSION", "LICENSE", "NOTICE", "AUTHORS.md", "ATTRIBUTION.md", "README.md",
     "CHANGELOG.md", "SOURCES.md", "REVIEW_NOTES.md", "install.sh",
@@ -34,7 +34,8 @@ This is the self-contained installation entry point.
 3. Run shared tools from `bundle/scripts/`.
 4. Read shared contracts from `bundle/references/`.
 5. Use `bundle/docs/README.md` for the user manual.
-6. Do not assume that any files exist outside this skill directory.
+6. Bundled ComfyUI workflows are under `bundle/comfyui_workflows/<task>/<model>/`.
+7. Do not assume that any files exist outside this skill directory.
 
 For Pi's optional interactive Todo extension, install `bundle/extensions/story-film-progress/index.ts` into the Pi extensions directory, or use the Git clone installer instead.
 """
@@ -91,6 +92,7 @@ def required_files(path: Path) -> list[Path]:
         path / "scripts/init_story_project.py",
         path / "references/CORE_CONTRACT.md",
         path / "docs/README.md",
+        path / "comfyui_workflows/README.md",
         path / "LICENSE",
         path / "NOTICE",
     ]

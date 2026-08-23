@@ -18,7 +18,10 @@ A Story-Film Skills project uses this layout.
   decision_map.json                   large-project decision compass
   decision_map.md                     human-readable compass companion
   resource_policy.json                local LLM and ComfyUI lifecycle policy
-  model_preferences.json              per-process adapter and exact ComfyUI resource choices; MiniMax H3 is the default video adapter
+  workflow_preferences.json           selected complete ComfyUI workflows by task
+  workflow_sources.json               user-registered external workflow files/directories
+  comfyui_workflow_catalog.json       latest numbered workflow-choice snapshot
+  model_preferences.json              legacy model-selection compatibility/debug state
   comfyui_model_inventory.json         latest model folders and choices reported by the active ComfyUI server
   comfyui_model_inventory.md           human-readable ComfyUI model inventory
   resource_handoff.json               model-free runtime handoff status
@@ -93,6 +96,7 @@ A Story-Film Skills project uses this layout.
   comfyui_handoff.json
   comfyui/
     server_snapshot.json
+    default_workflows/                 project-owned default workflows by task/model
     offline_batch.json                BATCH-### fully prepared model-free execution batch
     offline_batch_result.json         completed JOB-### results
     offline/                           optional prepared batch fragments/assets

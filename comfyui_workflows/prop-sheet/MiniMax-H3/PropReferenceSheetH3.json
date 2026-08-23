@@ -1,0 +1,2633 @@
+{
+  "id": "0a37d782-ed94-41c0-9d18-cdf87c69fa47",
+  "revision": 0,
+  "last_node_id": 81,
+  "last_link_id": 49,
+  "nodes": [
+    {
+      "id": 10,
+      "type": "PrimitiveStringMultiline",
+      "pos": [
+        0,
+        211
+      ],
+      "size": [
+        356.53125,
+        203.359375
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "value",
+          "name": "value",
+          "type": "STRING",
+          "widget": {
+            "name": "value"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "STRING",
+          "name": "STRING",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": [
+            36,
+            47,
+            22
+          ]
+        }
+      ],
+      "title": "Prop continuity prompt / selection hint",
+      "properties": {
+        "Node name for S&R": "PrimitiveStringMultiline"
+      },
+      "widgets_values": [
+        "Production MiniMax-H3 prop continuity sheet."
+      ],
+      "widgets_values_named": {
+        "value": "Production MiniMax-H3 prop continuity sheet."
+      }
+    },
+    {
+      "id": 21,
+      "type": "CLIPLoader",
+      "pos": [
+        920,
+        151
+      ],
+      "size": [
+        339.984375,
+        117.984375
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip_name",
+          "name": "clip_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "clip_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "type",
+          "name": "type",
+          "type": "COMBO",
+          "widget": {
+            "name": "type"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "device",
+          "name": "device",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 0,
+          "links": [
+            9
+          ]
+        }
+      ],
+      "title": "Krea2 CLIP",
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_4b_fp8_scaled.safetensors",
+        "krea2",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
+        "type": "krea2",
+        "device": "default"
+      }
+    },
+    {
+      "id": 22,
+      "type": "VAELoader",
+      "pos": [
+        2300,
+        91
+      ],
+      "size": [
+        339.984375,
+        69.984375
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 0,
+          "links": [
+            19
+          ]
+        }
+      ],
+      "title": "Krea2 VAE",
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "qwen_image_vae.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "qwen_image_vae.safetensors"
+      }
+    },
+    {
+      "id": 27,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1837.9302622564696,
+        404.3598859988451
+      ],
+      "size": [
+        339.984375,
+        117.984375
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "batch_size",
+          "name": "batch_size",
+          "type": "INT",
+          "widget": {
+            "name": "batch_size"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            16
+          ]
+        }
+      ],
+      "title": "Krea2 latent",
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1920,
+        1080,
+        1
+      ],
+      "widgets_values_named": {
+        "width": 1920,
+        "height": 1080,
+        "batch_size": 1
+      }
+    },
+    {
+      "id": 40,
+      "type": "UNETLoader",
+      "pos": [
+        4600,
+        96
+      ],
+      "size": [
+        339.984375,
+        93.984375
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "weight_dtype",
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "weight_dtype"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            5
+          ]
+        }
+      ],
+      "title": "H3 fl2va model",
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 41,
+      "type": "CLIPLoader",
+      "pos": [
+        3220,
+        0
+      ],
+      "size": [
+        339.984375,
+        117.984375
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip_name",
+          "name": "clip_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "clip_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "type",
+          "name": "type",
+          "type": "COMBO",
+          "widget": {
+            "name": "type"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "device",
+          "name": "device",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "slot_index": 0,
+          "links": [
+            20
+          ]
+        }
+      ],
+      "title": "H3 CLIP",
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "type": "minimax",
+        "device": "default"
+      }
+    },
+    {
+      "id": 42,
+      "type": "VAELoader",
+      "pos": [
+        3218.816523958249,
+        886.9460522857134
+      ],
+      "size": [
+        339.984375,
+        69.984375
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 0,
+          "links": [
+            21,
+            32
+          ]
+        }
+      ],
+      "title": "H3 video VAE",
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+      }
+    },
+    {
+      "id": 45,
+      "type": "RandomNoise",
+      "pos": [
+        4140,
+        175
+      ],
+      "size": [
+        339.984375,
+        93.984375
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "noise_seed",
+          "name": "noise_seed",
+          "type": "INT",
+          "widget": {
+            "name": "noise_seed"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "NOISE",
+          "name": "NOISE",
+          "type": "NOISE",
+          "slot_index": 0,
+          "links": [
+            26
+          ]
+        }
+      ],
+      "title": "Move noise",
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        0,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 0,
+        "control_after_generate": "fixed"
+      }
+    },
+    {
+      "id": 46,
+      "type": "KSamplerSelect",
+      "pos": [
+        4140,
+        309
+      ],
+      "size": [
+        339.984375,
+        69.984375
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "sampler_name",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "SAMPLER",
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "slot_index": 0,
+          "links": [
+            28
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "widgets_values": [
+        "euler"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "euler"
+      }
+    },
+    {
+      "id": 51,
+      "type": "VAELoader",
+      "pos": [
+        4600,
+        436
+      ],
+      "size": [
+        339.984375,
+        69.984375
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "vae_name",
+          "name": "vae_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "vae_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "slot_index": 0,
+          "links": [
+            34
+          ]
+        }
+      ],
+      "title": "H3 audio VAE",
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+      }
+    },
+    {
+      "id": 39,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        5060,
+        108
+      ],
+      "size": [
+        339.984375,
+        117.984375
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 5
+        },
+        {
+          "localized_name": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            7
+          ]
+        }
+      ],
+      "title": "H3 turbo LoRA (4-step)",
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "MiniMax-H3/minimax_h3_fl2v_lightx2v_turbo_4step_v0.1_comfy.safetensors",
+        1
+      ],
+      "widgets_values_named": {
+        "lora_name": "MiniMax-H3/minimax_h3_fl2v_lightx2v_turbo_4step_v0.1_comfy.safetensors",
+        "strength_model": 1
+      }
+    },
+    {
+      "id": 73,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        5972.7559178976435,
+        344.5815735388169
+      ],
+      "size": [
+        339.984375,
+        117.984375
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 7
+        },
+        {
+          "localized_name": "lora_name",
+          "name": "lora_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "strength_model",
+          "name": "strength_model",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_model"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            10
+          ]
+        }
+      ],
+      "title": "H3 reference LoRA",
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "MiniMax-H3/minimax_h3_ref_lora_rank_256_bf16.safetensors",
+        1
+      ],
+      "widgets_values_named": {
+        "lora_name": "MiniMax-H3/minimax_h3_ref_lora_rank_256_bf16.safetensors",
+        "strength_model": 1
+      }
+    },
+    {
+      "id": 25,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1380,
+        242
+      ],
+      "size": [
+        339.984375,
+        117.984375
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 9
+        },
+        {
+          "localized_name": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 48
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            11,
+            14
+          ]
+        }
+      ],
+      "title": "Krea2 positive",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "widgets_values_named": {
+        "text": ""
+      }
+    },
+    {
+      "id": 74,
+      "type": "OrbitSheetsAttentionBackend",
+      "pos": [
+        6441.034868871765,
+        386.61516538239437
+      ],
+      "size": [
+        339.984375,
+        93.984375
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 10
+        },
+        {
+          "localized_name": "attention",
+          "name": "attention",
+          "type": "COMBO",
+          "widget": {
+            "name": "attention"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            12
+          ]
+        }
+      ],
+      "title": "Attention backend",
+      "properties": {
+        "Node name for S&R": "OrbitSheetsAttentionBackend"
+      },
+      "widgets_values": [
+        "comfy kitchen (int8)"
+      ],
+      "widgets_values_named": {
+        "attention": "comfy kitchen (int8)"
+      }
+    },
+    {
+      "id": 26,
+      "type": "ConditioningZeroOut",
+      "pos": [
+        1840,
+        120
+      ],
+      "size": [
+        339.984375,
+        69.984375
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "conditioning",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            15
+          ]
+        }
+      ],
+      "title": "Krea2 negative",
+      "properties": {
+        "Node name for S&R": "ConditioningZeroOut"
+      }
+    },
+    {
+      "id": 43,
+      "type": "MiniMaxH3SigmaShift",
+      "pos": [
+        3681.0348688717654,
+        425.4993614859061
+      ],
+      "size": [
+        339.984375,
+        117.984375
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 12
+        },
+        {
+          "localized_name": "shift_video",
+          "name": "shift_video",
+          "type": "FLOAT",
+          "widget": {
+            "name": "shift_video"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "shift_audio",
+          "name": "shift_audio",
+          "type": "FLOAT",
+          "widget": {
+            "name": "shift_audio"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "slot_index": 0,
+          "links": [
+            17,
+            24
+          ]
+        }
+      ],
+      "title": "H3 sigma shift",
+      "properties": {
+        "Node name for S&R": "MiniMaxH3SigmaShift"
+      },
+      "widgets_values": [
+        12,
+        3
+      ],
+      "widgets_values_named": {
+        "shift_video": 12,
+        "shift_audio": 3
+      }
+    },
+    {
+      "id": 28,
+      "type": "KSampler",
+      "pos": [
+        2300,
+        201
+      ],
+      "size": [
+        339.984375,
+        309.984375
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 49
+        },
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 14
+        },
+        {
+          "localized_name": "negative",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 15
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 16
+        },
+        {
+          "localized_name": "seed",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "widget": {
+            "name": "cfg"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sampler_name",
+          "name": "sampler_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "sampler_name"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            18
+          ]
+        }
+      ],
+      "title": "Krea2 sampler",
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        0,
+        "fixed",
+        8,
+        1,
+        "euler",
+        "simple",
+        1
+      ],
+      "widgets_values_named": {
+        "seed": 0,
+        "control_after_generate": "fixed",
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1
+      }
+    },
+    {
+      "id": 47,
+      "type": "BasicScheduler",
+      "pos": [
+        4140,
+        419
+      ],
+      "size": [
+        339.984375,
+        141.984375
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 17
+        },
+        {
+          "localized_name": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "denoise",
+          "name": "denoise",
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "SIGMAS",
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "slot_index": 0,
+          "links": [
+            29
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler"
+      },
+      "widgets_values": [
+        "simple",
+        8,
+        1
+      ],
+      "widgets_values_named": {
+        "scheduler": "simple",
+        "steps": 8,
+        "denoise": 1
+      }
+    },
+    {
+      "id": 29,
+      "type": "VAEDecode",
+      "pos": [
+        2760,
+        254
+      ],
+      "size": [
+        339.984375,
+        93.984375
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 18
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            23
+          ]
+        }
+      ],
+      "title": "Krea2 anchor frame",
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 44,
+      "type": "MiniMaxH3ImageToVideo",
+      "pos": [
+        3680,
+        103
+      ],
+      "size": [
+        339.984375,
+        245.921875
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 20
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 21
+        },
+        {
+          "localized_name": "first_frame",
+          "name": "first_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 23
+        },
+        {
+          "localized_name": "last_frame",
+          "name": "last_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": 22
+        },
+        {
+          "localized_name": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "length",
+          "name": "length",
+          "type": "INT",
+          "widget": {
+            "name": "length"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "positive",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            25
+          ]
+        },
+        {
+          "localized_name": "LATENT",
+          "name": "LATENT",
+          "type": "LATENT",
+          "slot_index": 1,
+          "links": [
+            30
+          ]
+        }
+      ],
+      "title": "H3 I2VA move",
+      "properties": {
+        "Node name for S&R": "MiniMaxH3ImageToVideo"
+      },
+      "widgets_values": [
+        "",
+        1216,
+        672,
+        124
+      ],
+      "widgets_values_named": {
+        "prompt": "",
+        "width": 1216,
+        "height": 672,
+        "length": 124
+      }
+    },
+    {
+      "id": 48,
+      "type": "BasicGuider",
+      "pos": [
+        4140,
+        41
+      ],
+      "size": [
+        339.984375,
+        93.984375
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "MODEL",
+          "link": 24
+        },
+        {
+          "localized_name": "conditioning",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 25
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "GUIDER",
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "slot_index": 0,
+          "links": [
+            27
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider"
+      }
+    },
+    {
+      "id": 49,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        4600,
+        230
+      ],
+      "size": [
+        339.984375,
+        165.984375
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "noise",
+          "name": "noise",
+          "type": "NOISE",
+          "link": 26
+        },
+        {
+          "localized_name": "guider",
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 27
+        },
+        {
+          "localized_name": "sampler",
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 28
+        },
+        {
+          "localized_name": "sigmas",
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 29
+        },
+        {
+          "localized_name": "latent_image",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 30
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "output",
+          "name": "output",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            31,
+            33
+          ]
+        },
+        {
+          "localized_name": "denoised_output",
+          "name": "denoised_output",
+          "type": "LATENT",
+          "slot_index": 1,
+          "links": []
+        }
+      ],
+      "title": "H3 sampler",
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced"
+      }
+    },
+    {
+      "id": 50,
+      "type": "VAEDecode",
+      "pos": [
+        5060,
+        266
+      ],
+      "size": [
+        339.984375,
+        93.984375
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 31
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 32
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            35
+          ]
+        }
+      ],
+      "title": "Frames",
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 52,
+      "type": "VAEDecodeAudio",
+      "pos": [
+        5060,
+        400
+      ],
+      "size": [
+        339.984375,
+        93.984375
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 33
+        },
+        {
+          "localized_name": "vae",
+          "name": "vae",
+          "type": "VAE",
+          "link": 34
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "AUDIO",
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "slot_index": 0,
+          "links": [
+            37
+          ]
+        }
+      ],
+      "title": "Voice track",
+      "properties": {
+        "Node name for S&R": "VAEDecodeAudio"
+      }
+    },
+    {
+      "id": 60,
+      "type": "OrbitSheetsFrameSelect",
+      "pos": [
+        5520,
+        134
+      ],
+      "size": [
+        339.984375,
+        613.859375
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 35
+        },
+        {
+          "localized_name": "clip",
+          "name": "clip",
+          "shape": 7,
+          "type": "CLIP",
+          "link": 42
+        },
+        {
+          "localized_name": "count",
+          "name": "count",
+          "type": "INT",
+          "widget": {
+            "name": "count"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "mode",
+          "name": "mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "mode"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "candidates",
+          "name": "candidates",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "candidates"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "keep_first_frame",
+          "name": "keep_first_frame",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "keep_first_frame"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "subject_hint",
+          "name": "subject_hint",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "subject_hint"
+          },
+          "link": 36
+        },
+        {
+          "localized_name": "selection_brief",
+          "name": "selection_brief",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "selection_brief"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sharpness_weight",
+          "name": "sharpness_weight",
+          "shape": 7,
+          "type": "FLOAT",
+          "widget": {
+            "name": "sharpness_weight"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "free_vram_first",
+          "name": "free_vram_first",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "free_vram_first"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "llm_url",
+          "name": "llm_url",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "llm_url"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "timeout_seconds",
+          "name": "timeout_seconds",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "timeout_seconds"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sharpness_gate",
+          "name": "sharpness_gate",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "sharpness_gate"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "max_length",
+          "name": "max_length",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "max_length"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "temperature",
+          "name": "temperature",
+          "shape": 7,
+          "type": "FLOAT",
+          "widget": {
+            "name": "temperature"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "shots",
+          "name": "shots",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "shots"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "boards",
+          "name": "boards",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "boards"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "shot_split",
+          "name": "shot_split",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "shot_split"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "frames",
+          "name": "frames",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            38
+          ]
+        },
+        {
+          "localized_name": "info",
+          "name": "info",
+          "type": "STRING",
+          "slot_index": 1,
+          "links": [
+            39
+          ]
+        }
+      ],
+      "title": "Select frames",
+      "properties": {
+        "Node name for S&R": "OrbitSheetsFrameSelect"
+      },
+      "widgets_values": [
+        6,
+        "vision_llm",
+        32,
+        false,
+        "",
+        "Only used if count is raised above the shot count. Pick additional sharp, well-formed frames that add a genuinely different angle; the six main views (full-body front, face close-up, left profile, right profile, rear, frightened face) are already selected, one per shot.\n\nPrefer: sharp frames; anatomically correct figures with clear, natural eyes and well-formed features.\n\nReject: near-duplicates of a view already selected; motion-blurred frames; frames with bad, distorted, or asymmetrical eyes; frames with broken anatomy, warping, or bad hands/limbs; frames caught mid-cut between two shots; any frame where the mouth is caught open mid-speech.",
+        0.35,
+        true,
+        "",
+        300,
+        true,
+        400,
+        0.2,
+        6,
+        1,
+        "views (by content)"
+      ],
+      "widgets_values_named": {
+        "count": 6,
+        "mode": "vision_llm",
+        "candidates": 32,
+        "keep_first_frame": false,
+        "subject_hint": "",
+        "selection_brief": "Only used if count is raised above the shot count. Pick additional sharp, well-formed frames that add a genuinely different angle; the six main views (full-body front, face close-up, left profile, right profile, rear, frightened face) are already selected, one per shot.\n\nPrefer: sharp frames; anatomically correct figures with clear, natural eyes and well-formed features.\n\nReject: near-duplicates of a view already selected; motion-blurred frames; frames with bad, distorted, or asymmetrical eyes; frames with broken anatomy, warping, or bad hands/limbs; frames caught mid-cut between two shots; any frame where the mouth is caught open mid-speech.",
+        "sharpness_weight": 0.35,
+        "free_vram_first": true,
+        "llm_url": "",
+        "timeout_seconds": 300,
+        "sharpness_gate": true,
+        "max_length": 400,
+        "temperature": 0.2,
+        "shots": 6,
+        "boards": 1,
+        "shot_split": "views (by content)"
+      }
+    },
+    {
+      "id": 72,
+      "type": "SaveAudio",
+      "pos": [
+        6440,
+        535.103329587108
+      ],
+      "size": [
+        339.984375,
+        161.921875
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "audio",
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 37
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "audioUI",
+          "name": "audioUI",
+          "type": "AUDIO_UI",
+          "widget": {
+            "name": "audioUI"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "audio",
+          "name": "audio",
+          "type": "AUDIO",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "title": "SaveAudio",
+      "properties": {
+        "Node name for S&R": "SaveAudio"
+      },
+      "widgets_values": [
+        "ControlCenter/voice"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "ControlCenter/voice"
+      }
+    },
+    {
+      "id": 61,
+      "type": "OrbitSheetsContactSheet",
+      "pos": [
+        5974.825655641173,
+        78.36116302703286
+      ],
+      "size": [
+        339.984375,
+        205.921875
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 38
+        },
+        {
+          "localized_name": "columns",
+          "name": "columns",
+          "type": "INT",
+          "widget": {
+            "name": "columns"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "cell_width",
+          "name": "cell_width",
+          "type": "INT",
+          "widget": {
+            "name": "cell_width"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "padding",
+          "name": "padding",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "padding"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "label_frames",
+          "name": "label_frames",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "label_frames"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "label_prefix",
+          "name": "label_prefix",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "label_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "sheet",
+          "name": "sheet",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            40
+          ]
+        }
+      ],
+      "title": "Sheet",
+      "properties": {
+        "Node name for S&R": "OrbitSheetsContactSheet"
+      },
+      "widgets_values": [
+        2,
+        512,
+        8,
+        false,
+        ""
+      ],
+      "widgets_values_named": {
+        "columns": 2,
+        "cell_width": 512,
+        "padding": 8,
+        "label_frames": false,
+        "label_prefix": ""
+      }
+    },
+    {
+      "id": 71,
+      "type": "PreviewAny",
+      "pos": [
+        6440,
+        199
+      ],
+      "size": [
+        339.984375,
+        137.953125
+      ],
+      "flags": {},
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "source",
+          "name": "source",
+          "type": "*",
+          "link": 39
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "STRING",
+          "name": "STRING",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "title": "Selection report",
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 70,
+      "type": "SaveImage",
+      "pos": [
+        6436.236840466308,
+        5.730237344353554
+      ],
+      "size": [
+        339.984375,
+        305.875
+      ],
+      "flags": {},
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 40
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "title": "SaveImage",
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "ComfyUI"
+      }
+    },
+    {
+      "id": 75,
+      "type": "PreviewImage",
+      "pos": [
+        2760,
+        424
+      ],
+      "size": [
+        339.984375,
+        265.953125
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 41
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "title": "Anchor preview",
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 78,
+      "type": "CreateVideo",
+      "pos": [
+        5527.2440821023565,
+        831.8778109625713
+      ],
+      "size": [
+        339.984375,
+        109.953125
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 43
+        },
+        {
+          "localized_name": "audio",
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 44
+        },
+        {
+          "localized_name": "fps",
+          "name": "fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "fps"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "bit_depth",
+          "name": "bit_depth",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "bit_depth"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "VIDEO",
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "slot_index": 0,
+          "links": [
+            45
+          ]
+        }
+      ],
+      "title": "Create video",
+      "properties": {
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        24,
+        8
+      ],
+      "widgets_values_named": {
+        "fps": 24,
+        "bit_depth": 8
+      }
+    },
+    {
+      "id": 79,
+      "type": "SaveVideo",
+      "pos": [
+        5967.603968101202,
+        542.1145268683005
+      ],
+      "size": [
+        339.984375,
+        361.875
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "link": 45
+        },
+        {
+          "localized_name": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "format",
+          "name": "format",
+          "type": "COMBO",
+          "widget": {
+            "name": "format"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "codec",
+          "name": "codec",
+          "type": "COMFY_DYNAMICCOMBO_V3",
+          "widget": {
+            "name": "codec"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "links": null
+        }
+      ],
+      "title": "Save video",
+      "properties": {
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "video/OrbitSheets",
+        "auto",
+        "auto"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "video/OrbitSheets",
+        "format": "auto",
+        "codec": "auto"
+      }
+    },
+    {
+      "id": 80,
+      "type": "StringConcatenate",
+      "pos": [
+        460,
+        218
+      ],
+      "size": [
+        339.984375,
+        205.921875
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "string_a",
+          "name": "string_a",
+          "type": "STRING",
+          "widget": {
+            "name": "string_a"
+          },
+          "link": 47
+        },
+        {
+          "localized_name": "string_b",
+          "name": "string_b",
+          "type": "STRING",
+          "widget": {
+            "name": "string_b"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "delimiter",
+          "name": "delimiter",
+          "type": "STRING",
+          "widget": {
+            "name": "delimiter"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "STRING",
+          "name": "STRING",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": [
+            48
+          ]
+        }
+      ],
+      "title": "Krea2 backdrop",
+      "properties": {
+        "Node name for S&R": "StringConcatenate"
+      },
+      "widgets_values": [
+        "",
+        "plain seamless neutral grey studio backdrop, even soft lighting, no props, no text, no watermark",
+        ", "
+      ],
+      "widgets_values_named": {
+        "string_a": "",
+        "string_b": "plain seamless neutral grey studio backdrop, even soft lighting, no props, no text, no watermark",
+        "delimiter": ", "
+      }
+    },
+    {
+      "id": 81,
+      "type": "UnetLoaderGGUF",
+      "pos": [
+        1839.1315069967536,
+        262.79483042250587
+      ],
+      "size": [
+        342.421875,
+        91.078125
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "unet_name",
+          "name": "unet_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "unet_name"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "MODEL",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            49
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UnetLoaderGGUF"
+      },
+      "widgets_values": [
+        "krea2_turbo_bf16-Q4_0.gguf"
+      ],
+      "widgets_values_named": {
+        "unet_name": "krea2_turbo_bf16-Q4_0.gguf"
+      }
+    }
+  ],
+  "links": [
+    [
+      5,
+      40,
+      0,
+      39,
+      0,
+      "MODEL"
+    ],
+    [
+      7,
+      39,
+      0,
+      73,
+      0,
+      "MODEL"
+    ],
+    [
+      9,
+      21,
+      0,
+      25,
+      0,
+      "CLIP"
+    ],
+    [
+      10,
+      73,
+      0,
+      74,
+      0,
+      "MODEL"
+    ],
+    [
+      11,
+      25,
+      0,
+      26,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      12,
+      74,
+      0,
+      43,
+      0,
+      "MODEL"
+    ],
+    [
+      14,
+      25,
+      0,
+      28,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      15,
+      26,
+      0,
+      28,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      16,
+      27,
+      0,
+      28,
+      3,
+      "LATENT"
+    ],
+    [
+      17,
+      43,
+      0,
+      47,
+      0,
+      "MODEL"
+    ],
+    [
+      18,
+      28,
+      0,
+      29,
+      0,
+      "LATENT"
+    ],
+    [
+      19,
+      22,
+      0,
+      29,
+      1,
+      "VAE"
+    ],
+    [
+      20,
+      41,
+      0,
+      44,
+      0,
+      "CLIP"
+    ],
+    [
+      21,
+      42,
+      0,
+      44,
+      1,
+      "VAE"
+    ],
+    [
+      22,
+      10,
+      0,
+      44,
+      4,
+      "STRING"
+    ],
+    [
+      23,
+      29,
+      0,
+      44,
+      2,
+      "IMAGE"
+    ],
+    [
+      24,
+      43,
+      0,
+      48,
+      0,
+      "MODEL"
+    ],
+    [
+      25,
+      44,
+      0,
+      48,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      26,
+      45,
+      0,
+      49,
+      0,
+      "NOISE"
+    ],
+    [
+      27,
+      48,
+      0,
+      49,
+      1,
+      "GUIDER"
+    ],
+    [
+      28,
+      46,
+      0,
+      49,
+      2,
+      "SAMPLER"
+    ],
+    [
+      29,
+      47,
+      0,
+      49,
+      3,
+      "SIGMAS"
+    ],
+    [
+      30,
+      44,
+      1,
+      49,
+      4,
+      "LATENT"
+    ],
+    [
+      31,
+      49,
+      0,
+      50,
+      0,
+      "LATENT"
+    ],
+    [
+      32,
+      42,
+      0,
+      50,
+      1,
+      "VAE"
+    ],
+    [
+      33,
+      49,
+      0,
+      52,
+      0,
+      "LATENT"
+    ],
+    [
+      34,
+      51,
+      0,
+      52,
+      1,
+      "VAE"
+    ],
+    [
+      35,
+      50,
+      0,
+      60,
+      0,
+      "IMAGE"
+    ],
+    [
+      36,
+      10,
+      0,
+      60,
+      6,
+      "STRING"
+    ],
+    [
+      37,
+      52,
+      0,
+      72,
+      0,
+      "AUDIO"
+    ],
+    [
+      38,
+      60,
+      0,
+      61,
+      0,
+      "IMAGE"
+    ],
+    [
+      39,
+      60,
+      1,
+      71,
+      0,
+      "STRING"
+    ],
+    [
+      40,
+      61,
+      0,
+      70,
+      0,
+      "IMAGE"
+    ],
+    [
+      41,
+      29,
+      0,
+      75,
+      0,
+      "IMAGE"
+    ],
+    [
+      42,
+      21,
+      0,
+      60,
+      1,
+      "CLIP"
+    ],
+    [
+      43,
+      50,
+      0,
+      78,
+      0,
+      "IMAGE"
+    ],
+    [
+      44,
+      52,
+      0,
+      78,
+      1,
+      "AUDIO"
+    ],
+    [
+      45,
+      78,
+      0,
+      79,
+      0,
+      "VIDEO"
+    ],
+    [
+      47,
+      10,
+      0,
+      80,
+      0,
+      "STRING"
+    ],
+    [
+      48,
+      80,
+      0,
+      25,
+      1,
+      "STRING"
+    ],
+    [
+      49,
+      81,
+      0,
+      28,
+      0,
+      "MODEL"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "1 \u00b7 Anchor frame",
+      "bounding": [
+        -46,
+        -1,
+        3199.575757575757,
+        1068.6060606060587
+      ],
+      "color": "#3f5159",
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "2 \u00b7 MiniMax-H3 camera move",
+      "bounding": [
+        3174,
+        -92,
+        2275.030303030302,
+        1164.2424242424227
+      ],
+      "color": "#39553f",
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "3 \u00b7 Pick frames + sheet",
+      "bounding": [
+        5474,
+        -27,
+        1427.1340672623364,
+        1103.3427920348204
+      ],
+      "color": "#5c4a2e",
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.724729500000003,
+      "offset": [
+        -4868.744501258204,
+        -31.39819102841207
+      ]
+    }
+  },
+  "version": 0.4,
+  "properties": {
+    "production_studio_template": "generic_prop_sheet_real_nodes_v1"
+  }
+}

@@ -65,7 +65,9 @@ You can also use:
 Ctrl+Alt+End
 ```
 
-`Ctrl+Alt+End` is the keyboard toggle. The extension also listens to Pi's raw terminal-input hook and routes the chord through Pi's own key parser when normal extension shortcut dispatch is unavailable; it does not require the user to run a shell command.
+`Ctrl+Alt+End` is the keyboard toggle.
+The extension also listens to Pi's raw terminal-input hook and routes the chord through Pi's own key parser when normal extension shortcut dispatch is unavailable.
+It does not require the user to run a shell command.
 
 ## Keep the two Todo panels small
 

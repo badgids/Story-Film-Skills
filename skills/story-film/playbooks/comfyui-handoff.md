@@ -1,14 +1,14 @@
 # ComfyUI Portable Package
 
 
-> Before model-specific prompts or ComfyUI workflows, run `generation-model-setup`. Poll the live ComfyUI model inventory and record the user-selected adapter plus exact model resources for each production process. MiniMax H3 is only the default video adapter. Do not guess concrete model files, VAEs, text encoders, LoRAs, audio models, or upscalers.
+> Before ComfyUI generation or model-specific prompt adaptation, run `generation-workflow-setup`. Select a complete workflow from the ordinary numbered catalog. The selected workflow owns its checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, and other graph settings. Do not run the retired per-resource TUI interview.
 
 1. Run `project-impact` if upstream artifacts changed since the last generation package.
 2. Read the requested scene, shot, cue, or sequence scope.
 3. Ensure required `reference-assets` are approved or explicitly missing.
-4. `generation-pack` for missing or stale model-neutral briefs.
-5. Resolve video generation through `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`. Do not silently select LTX or another video model. Run selected model adapters when prewritten prompts belong in the package.
-6. `comfyui-handoff`: write the standalone portable handoff file.
+4. Run `generation-pack` for missing or stale model-neutral briefs.
+5. Run `generation-workflow-setup` for each task required by the portable package. Record the complete workflow choice; run the prompt adapter implied by the selected workflow when prewritten prompts belong in the package.
+6. `comfyui-handoff`: write the standalone portable handoff file with workflow selections or materialized project-relative workflow paths.
 7. Run `prompt-qc` on included prompts and continuity checks across regenerated boundaries.
 
-Done when `04_generation/comfyui_handoff.json` contains exactly the requested work, all paths are project-relative, every input and expected output is identifiable, and no external skill pack is required to understand the package.
+Done when `04_generation/comfyui_handoff.json` contains exactly the requested work, all paths are project-relative, every selected workflow/input/expected output is identifiable, and no external skill pack is required to understand the package.

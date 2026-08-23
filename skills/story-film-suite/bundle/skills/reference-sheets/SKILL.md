@@ -10,7 +10,7 @@ license: Apache-2.0
 
 ## Procedure
 
-Read `../../references/REFERENCE_SHEETS.md`. Validate `reference_sheet_plans.json`. Use sanitized H3/OrbitSheets blueprints only when their live dependencies are present.
+Read `../../references/REFERENCE_SHEETS.md`. Validate `reference_sheet_plans.json`. Before generation, use `generation-workflow-setup` to choose the complete character-sheet, location-orbit, prop-sheet, or orbit-sheet workflow from the numbered catalog. Bundled workflows under `comfyui_workflows/` are real editable workflow sources, not sanitized blueprints. Validate the selected workflow and its live dependencies before execution.
 
 ## Done
 

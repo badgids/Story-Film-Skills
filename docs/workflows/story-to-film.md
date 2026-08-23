@@ -23,6 +23,7 @@ idea
   -> screenplay
   -> production plan
   -> shots and audio plans
+  -> workflow selection
   -> generated media
   -> approved takes
   -> edit
@@ -73,9 +74,13 @@ Run production coverage before generation.
 
 Prepare model-neutral briefs first.
 
-Adapt the briefs to the selected image, audio, or video model. For video, the user owns the choice. If the user does not choose, use MiniMax H3 (`minimax-h3`).
+For each required generation task, choose a complete ComfyUI workflow from the ordinary numbered catalog. Story-Film can offer bundled workflows, project defaults, saved ComfyUI workflows, templates, external sources, or a generated live-schema workflow.
 
-Validate ComfyUI workflows before a run.
+The selected workflow owns its checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, and other graph settings.
+
+Adapt prompts only as required by the selected workflow/model family.
+
+Validate the selected ComfyUI workflow before a run.
 
 Use resource-safe generation when the local LLM and ComfyUI models cannot fit in memory at the same time.
 
@@ -112,6 +117,6 @@ Run the final completeness audit for a finished feature.
 ## Related pages
 
 - [Feature film](feature-film.md)
-- [Choose the video generation model](../generation/model-selection.md)
+- [Choose ComfyUI workflows](../generation/workflow-selection.md)
 - [ComfyUI generation](../generation/comfyui.md)
 - [Final completeness audit](../release/completion.md)

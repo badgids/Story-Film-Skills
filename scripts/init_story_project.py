@@ -30,6 +30,7 @@ DIRS = [
     '04_generation/prompts/ace-step-xl',
     '04_generation/prompts/minimax-music-3',
     '04_generation/prompts/stable-audio-3',
+    '04_generation/comfyui/default_workflows',
     '04_generation/comfyui/workflows',
     '04_generation/comfyui/templates',
     '04_generation/comfyui/fragments',
@@ -95,6 +96,9 @@ def main():
     decision_map_md = root / '00_project/decision_map.md'
     resource_policy = root / '00_project/resource_policy.json'
     model_preferences = root / '00_project/model_preferences.json'
+    workflow_preferences = root / '00_project/workflow_preferences.json'
+    workflow_sources = root / '00_project/workflow_sources.json'
+    workflow_catalog = root / '00_project/comfyui_workflow_catalog.json'
     resource_handoff = root / '00_project/resource_handoff.json'
     resource_events = root / '00_project/resource_events.jsonl'
     sequence_manifest = root / '00_project/sequence_manifest.json'
@@ -211,6 +215,15 @@ def main():
         decision_map_md.write_text('# Production Compass\n\nDestination: not set\n', encoding='utf-8')
     if not model_preferences.exists():
         model_preferences.write_text(json.dumps(default_preferences(), indent=2) + '\n', encoding='utf-8')
+    if not workflow_preferences.exists():
+        workflow_preferences.write_text(json.dumps({'schema_version': 1, 'selections': {}, 'updated_at': ''}, indent=2) + '\n', encoding='utf-8')
+    if not workflow_sources.exists():
+        workflow_sources.write_text(json.dumps({'schema_version': 1, 'sources': []}, indent=2) + '\n', encoding='utf-8')
+    if not workflow_catalog.exists():
+        workflow_catalog.write_text(json.dumps({
+            'schema_version': 1, 'generated_at': '', 'category': '', 'query': '',
+            'comfyui_url': '', 'count': 0, 'workflows': [], 'warnings': []
+        }, indent=2) + '\n', encoding='utf-8')
     if not resource_policy.exists():
         resource_policy.write_text(json.dumps({
             'schema_version': 1,

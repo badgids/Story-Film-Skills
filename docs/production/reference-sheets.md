@@ -5,13 +5,28 @@
 ## Table of contents
 
 - [Sheet types](#sheet-types)
+- [Workflow categories](#workflow-categories)
 - [Prop functional views](#prop-functional-views)
 - [Staged grounding](#staged-grounding)
 - [Related pages](#related-pages)
 
 ## Sheet types
 
-Story-Film supports character, location, and prop reference-sheet plans. View counts are production choices, not universal rules.
+Story-Film supports character, location, prop, orbit, and other reference-sheet plans. View counts are production choices, not universal rules.
+
+## Workflow categories
+
+Reference-sheet generation uses the same workflow-first selection system as other ComfyUI tasks.
+
+Relevant catalog categories include:
+
+- `character-sheet`
+- `orbit-sheet`
+- `location-orbit`
+- `image`
+- `image-edit`
+
+Bundled workflows are under `comfyui_workflows/<task>/<model>/`. Saved ComfyUI workflows, templates, project defaults, and external workflow directories can appear in the same numbered list.
 
 ## Prop functional views
 
@@ -24,4 +39,4 @@ Complex storyboard grounding may proceed from composition to environment/style t
 ## Related pages
 
 - [Reference authority](reference-authority.md)
-- [Sanitized ComfyUI workflows](../generation/sanitized-workflows.md)
+- [Choose ComfyUI workflows](../generation/workflow-selection.md)

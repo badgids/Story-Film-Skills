@@ -120,11 +120,27 @@ def main() -> int:
         except Exception as exc:
             errors.append(f'00_project/decision_map.json: {exc}')
 
+    workflow_preferences_path = root / '00_project/workflow_preferences.json'
+    workflow_first = False
+    if workflow_preferences_path.exists():
+        try:
+            workflow_preferences_obj = load_json(workflow_preferences_path)
+            selections = workflow_preferences_obj.get('selections', {}) if isinstance(workflow_preferences_obj, dict) else {}
+            if not isinstance(selections, dict):
+                errors.append('00_project/workflow_preferences.json: selections must be an object')
+            else:
+                workflow_first = bool(selections)
+        except Exception as exc:
+            errors.append(f'00_project/workflow_preferences.json: {exc}')
+
     model_preferences_path = root / '00_project/model_preferences.json'
     model_inventory_path = root / '00_project/comfyui_model_inventory.json'
     selected_video_model = None
     video_shot_overrides = {}
-    if model_preferences_path.exists():
+    # Legacy model preferences remain readable for older projects, but once a
+    # workflow-first selection exists they are not generation authority and may
+    # not block project validation merely because that legacy resource profile is stale.
+    if model_preferences_path.exists() and not workflow_first:
         try:
             model_preferences_obj = normalize_model_preferences(load_json(model_preferences_path))
             model_inventory_obj = load_json(model_inventory_path) if model_inventory_path.exists() else None

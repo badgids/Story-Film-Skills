@@ -1,7 +1,7 @@
 # Short Film
 
 
-> Before model-specific prompts or ComfyUI workflows, run `generation-model-setup`. Poll the live ComfyUI model inventory and record the user-selected adapter plus exact model resources for each production process. MiniMax H3 is only the default video adapter. Do not guess concrete model files, VAEs, text encoders, LoRAs, audio models, or upscalers.
+> Before ComfyUI generation or model-specific prompt adaptation, run `generation-workflow-setup`. Select a complete workflow from the ordinary numbered catalog. The selected workflow owns its checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, and other graph settings. Do not run the retired per-resource TUI interview.
 
 1. `story-brief`: include target runtime.
 2. `story-architecture`: one central dramatic question and minimal subplot load.
@@ -15,8 +15,8 @@
 10. `reference-assets`: create only continuity-critical references the short uses.
 11. `previz-plan` or `production-diagrams` for scenes whose blocking or geography needs them.
 12. Run `production-capabilities`, `performance-blocking`, `shot-design`, `shot-list`, `storyboard-prompts`, audio skills as needed, then `shooting-script` and `production-coverage`. Required visible dialogue must preserve exact line, speaker, timing, and covering-shot sync before generation.
-13. Run `generation-pack`. Resolve the video model from `MODEL_SELECTION.md`: honor the user's choice; otherwise default to `minimax-h3`. Then run the selected adapters, `prompt-qc`, `edit-plan`, and `editorial-package` as needed. If media is generated, run `media-qc` before `take-selection`.
-14. Use `comfyui-handoff` when the user wants a portable generation package.
+13. Run `generation-pack`. For every generation task actually needed by the scope, run `generation-workflow-setup`, show the complete numbered workflow list, and record the user's workflow choice. Then run only the prompt adapter required by that selected workflow, `prompt-qc`, `edit-plan`, and `editorial-package` as needed. If media is generated, run `media-qc` before `take-selection`.
+14. Use `comfyui-handoff` when the user wants a portable generation package. The handoff records selected workflow identities rather than rebuilding model stacks.
 15. If the user also wants actual ComfyUI rendering, follow the ComfyUI Generate playbook after the handoff and keep prompt IDs and outputs tied to the originating shot/cue IDs. Register concrete outputs with `asset-approval`.
 16. If the endpoint is an actual finished short film, run `film-finishing`.
 17. If editable Kdenlive/Shotcut projects or additional deterministic media edits are requested, run `media-editing-and-project-export`.

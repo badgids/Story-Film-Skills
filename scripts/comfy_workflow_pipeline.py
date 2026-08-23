@@ -26,6 +26,7 @@ import comfyui_control
 import comfy_workflow_runtime
 import model_inventory
 import resource_handoff
+import workflow_catalog as workflow_selection
 
 SCHEMA_VERSION = 1
 CONTRACT_REL = "04_generation/comfyui/recovery/workflow_build_contract.json"
@@ -52,6 +53,13 @@ MEDIA_DEFAULTS = {
         "records": "04_generation/audio_briefs.jsonl",
         "output_kind": "audio",
     },
+}
+
+WORKFLOW_PREFERENCES_REL = "00_project/workflow_preferences.json"
+MEDIA_WORKFLOW_CATEGORIES = {
+    "image": {"image", "image-edit", "character-sheet", "orbit-sheet", "location-orbit", "prop-sheet", "storyboard", "upscale"},
+    "video": {"video", "upscale", "frame-interpolation"},
+    "audio": {"tts", "music", "sfx"},
 }
 
 
@@ -413,6 +421,62 @@ def _source_candidate_path(index: int, row: dict[str, Any]) -> str:
     return f"04_generation/comfyui/recovery/sources/{index:02d}-{_safe_name(joined)}.json"
 
 
+def _selected_workflow_authority(root: Path, media: str, query: str) -> dict[str, Any] | None:
+    preferences_path = root / WORKFLOW_PREFERENCES_REL
+    if not preferences_path.is_file():
+        return None
+    obj = _read_json(preferences_path)
+    selections = obj.get("selections")
+    if not isinstance(selections, dict) or not selections:
+        return None
+
+    compatible = MEDIA_WORKFLOW_CATEGORIES[media]
+    available = {
+        str(category): dict(selection)
+        for category, selection in selections.items()
+        if str(category) in compatible and isinstance(selection, dict)
+    }
+    if not available:
+        return None
+
+    inferred = workflow_selection.infer_category(query)
+    if inferred in available:
+        category = inferred
+    elif len(available) == 1:
+        category = next(iter(available))
+    else:
+        choices = ", ".join(sorted(available))
+        raise WorkflowPipelineError(
+            f"multiple durable selected workflows can serve media_type={media}: {choices}; "
+            "make the workflow/model query name the intended task category"
+        )
+
+    selected = available[category]
+    if str(selected.get("source") or "") == "generate-new":
+        return {"category": category, "selection": selected, "generate_new": True}
+
+    materialized = str(selected.get("materialized_path") or "").strip()
+    if not materialized:
+        raise WorkflowPipelineError(
+            f"durable selected workflow for {category} has not been materialized; "
+            f"run workflow_catalog.py materialize PROJECT {category} before workflow preparation"
+        )
+    path = _rel_path(
+        root,
+        materialized,
+        prefixes=("04_generation/comfyui/templates/selected/", "04_generation/comfyui/workflows/"),
+    )
+    if not path.is_file():
+        raise WorkflowPipelineError(f"durable selected workflow is missing: {materialized}")
+    return {
+        "category": category,
+        "selection": selected,
+        "generate_new": False,
+        "path": path.relative_to(root).as_posix(),
+        "format": workflow_selection.detect_format(path),
+    }
+
+
 def prepare(
     project: str | Path,
     comfyui_url: str,
@@ -437,9 +501,26 @@ def prepare(
         raise WorkflowPipelineError("running ComfyUI returned no live node schemas")
 
     inventory = model_inventory.scan(root, comfyui_url)
-    catalog = comfy_workflow_runtime.workflow_catalog(root, comfyui_url, query=query)
-    rows = catalog.get("workflows", []) if isinstance(catalog, dict) else []
-    rows = [dict(row) for row in rows if isinstance(row, dict)]
+    selected_workflow_authority = _selected_workflow_authority(root, media, query)
+    if selected_workflow_authority is None:
+        catalog = comfy_workflow_runtime.workflow_catalog(root, comfyui_url, query=query)
+        rows = catalog.get("workflows", []) if isinstance(catalog, dict) else []
+        rows = [dict(row) for row in rows if isinstance(row, dict)]
+    elif selected_workflow_authority.get("generate_new"):
+        # The user explicitly selected the live-schema generation fallback. Do not
+        # independently choose a different existing graph here.
+        rows = []
+    else:
+        selected = selected_workflow_authority["selection"]
+        rows = [{
+            "source": "project-workflow",
+            "name": str(selected.get("name") or Path(selected_workflow_authority["path"]).name),
+            "path": selected_workflow_authority["path"],
+            "format": selected_workflow_authority.get("format", "unknown"),
+            "selected_workflow_authority": True,
+            "workflow_category": selected_workflow_authority["category"],
+            "original_source": selected.get("source"),
+        }]
     source_limit = max(1, min(int(source_limit), 30))
 
     source_results: list[dict[str, Any]] = []
@@ -553,12 +634,18 @@ def prepare(
         "live_node_schemas": schema_snapshot.relative_to(root).as_posix(),
         "model_inventory": model_inventory.json_path(root).relative_to(root).as_posix(),
         "model_summary": model_inventory.inventory_summary(inventory),
+        "selected_workflow_authority": selected_workflow_authority or {},
         "source_candidates": source_results,
         "source_limit_per_source": source_limit,
         "source_counts": per_source,
         "valid_existing_sources": valid_existing,
         "direct_finalizable_sources": finalizable_existing,
     }
+    if selected_workflow_authority:
+        if selected_workflow_authority.get("generate_new"):
+            contract["llm_role"][0] = "Author one canonical API-format workflow candidate from the live schemas because the user selected generate-new."
+        else:
+            contract["llm_role"][0] = "Adapt only the durable selected workflow source when adaptation is required; do not choose another workflow."
     contract_path = _rel_path(root, CONTRACT_REL)
     _write_json(contract_path, contract)
     return {
@@ -575,6 +662,7 @@ def prepare(
         "valid_existing_sources": valid_existing,
         "direct_finalizable_sources": finalizable_existing,
         "source_candidates": source_results,
+        "selected_workflow_authority": selected_workflow_authority or {},
         "source_limit_per_source": source_limit,
         "source_counts": per_source,
         "next_step": (

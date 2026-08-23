@@ -48,9 +48,9 @@ If the requested endpoint is a story bible, deep character/world lock, or durabl
 If the user wants to pressure-test an idea, resolve creative ambiguity, turn existing discussion into a durable production specification, split a large production into executable work units, or chart a project whose route is not yet clear, route through `playbooks/creative-planning-and-execution.md`. Facts that can be discovered from files or tools are agent work; creative decisions remain the user's unless explicitly delegated.
 
 
-## Generation model and resource selection
+## Generation workflow selection
 
-Before creating model-specific prompts or ComfyUI workflows, read `../generation-model-setup/SKILL.md`. Poll the active ComfyUI model inventory and show the user the available choices for every production process that applies. Record the adapter/model family and exact concrete resources in `00_project/model_preferences.json`. Do not infer VAEs, text encoders, LoRAs, checkpoints, audio models, upscalers, or other installed resources from adapter names or installed file order. MiniMax H3 remains the default video adapter only when the user did not choose a video adapter.
+Before ComfyUI generation, read `../generation-workflow-setup/SKILL.md`. Build the relevant complete workflow catalog and show it as an ordinary numbered list. Record the selected workflow in `00_project/workflow_preferences.json`, materialize a project-owned copy, and validate that graph. The selected workflow owns its concrete models, VAEs, encoders, LoRAs, audio models, upscalers, sampler settings, and other graph configuration. Do not launch the retired per-resource TUI interview.
 
 ## Production-integrity routing
 

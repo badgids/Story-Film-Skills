@@ -94,7 +94,7 @@ For film production, preserve traceability from screenplay scene and `LINE-###` 
 
 Create a model-neutral brief first, then adapt it for Qwen, Krea, H3, LTX, TTS, music, or sound models. Visible-dialogue synchronization, end-frame handoff, and capture behavior are model-neutral production intent when present. Read `VISIBLE_DIALOGUE_SYNC.md` before compiling required visible speech.
 
-Read `MODEL_SELECTION.md` before any model-specific generation. The user owns adapter/model-family choices and the concrete ComfyUI resource choices for each production process. Poll the active ComfyUI inventory before asking the user to select checkpoints, diffusion models, VAEs, text encoders, LoRAs, audio encoders, upscalers, or other model files. MiniMax H3 is the default video adapter only when the user has not chosen a video adapter. Do not infer concrete resource choices from the adapter default.
+Read `WORKFLOW_SELECTION.md` before ComfyUI generation. The user chooses complete workflows by number from built-ins, custom/project defaults, saved ComfyUI workflows, ComfyUI templates, registered external sources, or the live-schema generation fallback. The selected workflow owns the concrete model/resource stack stored in that graph. Do not run a separate adapter/checkpoint/VAE/text-encoder/LoRA interview after workflow selection.
 
 ## 9. Preserve uncertainty
 

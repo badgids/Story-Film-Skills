@@ -71,6 +71,11 @@ def main():
             errors.append(f'{p}: description longer than 1024 chars')
     for p in ROOT.rglob('*'):
         if p.is_file() and p.suffix.lower() in {'.md', '.txt', '.py', '.sh', '.json', '.jsonl', '.csv'}:
+            # Bundled and user-supplied ComfyUI workflow JSON is imported executable/source
+            # asset content, not Story-Film-authored prose. Preserve it exactly instead of
+            # applying documentation typography rules to workflow prompts, notes, or metadata.
+            if 'comfyui_workflows' in p.parts:
+                continue
             try:
                 text = p.read_text(encoding='utf-8')
             except UnicodeDecodeError:

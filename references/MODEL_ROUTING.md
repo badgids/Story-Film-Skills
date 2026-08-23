@@ -1,12 +1,17 @@
 # Model Routing
 
-Model routing is advisory. It does not override the user's model choice.
+Model routing is advisory. The selected ComfyUI workflow is the generation authority.
 
-Read `MODEL_SELECTION.md` first. Model routing is advisory for every generation process. It does not override the user's adapter/model-family choice or any exact ComfyUI resource selection.
+Read `WORKFLOW_SELECTION.md` first. Story-Film no longer asks the user to separately select a model family and then assemble checkpoints, VAEs, text encoders, LoRAs, audio models, and upscalers through a TUI.
 
-Before model-specific ComfyUI work, poll the active ComfyUI inventory and let the user choose the process adapter plus exact installed resources. MiniMax H3 is the default video adapter only when no video adapter has been selected. It does not select a checkpoint, diffusion model, VAE, text encoder, or LoRA.
+Use the sections below to:
 
-Use the sections below to explain capabilities, recommend alternatives, or adapt prompts after a model has been selected.
+- describe what a workflow/model family is good at;
+- rank or explain workflow choices in the numbered catalog;
+- choose the correct prompt adapter after the user selects a workflow;
+- recommend another workflow when the selected source has a documented limitation.
+
+Do not let model routing override `00_project/workflow_preferences.json`.
 
 ## Qwen Image 2512
 
@@ -22,24 +27,28 @@ Use for look exploration, style search, moodboards, expressive stills, and style
 
 ## MiniMax H3
 
-Use for audio-video generation where image, video, or audio references and synchronized sound are central. Select among text-to-audio-video, first-frame, first-last-frame, last-frame, and full-reference modes.
+Use for audio-video generation where image, video, or audio references and synchronized sound are central. Workflow variants can cover text-to-audio-video, image-to-video, reference-to-video/audio, chained generation, exact-audio routes, enhancement, and upscaling.
 
-## LTX 2.5
+## LTX
 
-Use for production video shots with explicit shot design, physical action, camera movement, lighting, dialogue, ambience, and music. Use single-shot prompts for continuous performance and image-to-video continuity. Use 2 to 4 explicit cuts only when a multi-shot generation is intentional.
+Use for production video workflows with explicit shot design, physical action, camera movement, lighting, dialogue, ambience, and music. The bundled library can contain more than one LTX generation or enhancement workflow.
+
+## Wan 2.2
+
+Use for compatible text-to-video, image-to-video, storyboard, and related video workflows when present in the selected workflow catalog.
 
 ## Qwen3 TTS
 
-Use for character voice design, controlled predefined voices, and voice cloning. For a reusable invented character voice, design a short voice reference first, then clone from that reference for consistent later lines.
+Use for character voice design, controlled predefined voices, and voice cloning when an available workflow provides that route.
 
-## ACE-Step 1.5 XL
+## ACE-Step
 
-Use for local high-quality score or song generation when you want structured control over caption, lyrics or temporal structure, BPM, key, time signature, and generation task type.
+Use for local score or song generation when an available workflow provides structured music controls.
 
 ## MiniMax Music 3
 
-Use for score or song prompts that benefit from a rich musical brief plus explicit genre, mood, vocal, instrument, BPM, and lyric fields.
+Use for score or song workflows that benefit from MiniMax Music generation.
 
-## Stable Audio 3
+## Stable Audio
 
-Use for instrumental music, isolated stems, short sound effects, samples, ambience, audio-to-audio transformation, inpainting, and continuation. Do not use it for intelligible dialogue.
+Use for instrumental music, isolated stems, short sound effects, samples, ambience, audio-to-audio transformation, inpainting, and continuation when an available workflow provides that route. Do not use it for intelligible dialogue.

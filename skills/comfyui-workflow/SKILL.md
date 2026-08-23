@@ -1,6 +1,6 @@
 ---
 name: comfyui-workflow
-description: Detect ComfyUI UI versus API workflow JSON, inspect graph requirements, validate API workflows against live node schemas, patch named API inputs safely, preserve originals, and map story-film generation briefs onto executable live workflows without guessing node classes.
+description: Select, preserve, inspect, validate, patch, convert, and promote complete ComfyUI workflows from Story-Film's workflow library, project defaults, saved ComfyUI workflows, templates, external sources, or live-schema generation.
 disable-model-invocation: true
 author: Alan Guice (Badgids)
 license: Apache-2.0
@@ -10,54 +10,96 @@ license: Apache-2.0
 
 ## Read
 
+- `../../references/WORKFLOW_SELECTION.md`
 - `../../references/COMFYUI_WORKFLOWS.md`
 - `../../references/COMFYUI_NATIVE_API.md`
 - `../../references/COMFYUI_SECURITY.md`
-- `../../references/MODEL_SELECTION.md`
 - `../../references/COMFYUI_BOUNDED_WORKFLOW.md`
 - `../../references/COMFYUI_WORKFLOW_CONTRACTS.md`
 - `../../references/REFERENCE_AUTHORITY.md`
 - `../../references/DIALOGUE_AUDIO_AUTHORITY.md`
 
-## Procedure
+## Workflow-first rule
 
-### Bounded production workflow path
+A complete selected workflow is the generation configuration.
 
-For ordinary Story-Film production recovery or workflow creation, use the Pi-native `story_comfy_workflow` tool before the lower-level procedure below.
+Do not ask the user to rebuild its model stack through separate adapter/checkpoint/VAE/text-encoder/LoRA questions. Do not let legacy `model_preferences.json` override the selected workflow.
 
-1. Call `story_comfy_workflow` with `action=prepare`, a concrete workflow/model query, and the media type.
-2. The deterministic script owns source discovery/fetching, live node/model snapshots, and the build contract.
-3. If no directly finalizable source exists, the LLM may adapt a preserved source or author exactly one canonical API graph using only the live schemas. The LLM builds the graph; it does not fan out shots or build the batch.
-4. Put `__STORY_FILM_PROMPT__` in the positive-prompt input. Optional deterministic markers are `__STORY_FILM_NEGATIVE_PROMPT__` and `__STORY_FILM_FILENAME_PREFIX__`.
-5. Pass the single canonical graph to `story_comfy_workflow` with `action=finalize`. Deterministic code owns live validation, approved-prompt reuse, per-shot fan-out, quarantine, offline-batch rebuild, and resource-handoff arming.
-6. If finalization reports a graph error, repair only the canonical graph and retry. Do not create/install custom nodes as a fallback.
-7. When finalization returns `waiting-for-agent-end`, stop backend work and end the agent turn cleanly.
+Before constructing a new graph:
 
-See `../../references/COMFYUI_BOUNDED_WORKFLOW.md`.
+1. read `generation-workflow-setup`;
+2. build the relevant numbered workflow catalog with `scripts/workflow_catalog.py`;
+3. let the user choose by number;
+4. record the selection;
+5. materialize a project-owned copy.
 
-1. Run `scripts/comfyui_control.py --project PROJECT workflow-catalog` before constructing a new executable graph. Sanitized blueprints under `references/comfyui_workflows/` are preserved topology sources only; resolve them through the same discovery/preservation path rather than submitting them directly.
-2. Select the first suitable source in this order: already validated project workflow; project template; saved ComfyUI user workflow; official core template; installed custom-node example workflow.
-3. Fetch/copy the selected source without overwriting it. A failed runnable copy is repaired minimally; it is never replaced wholesale by a guessed model-family graph.
-4. Identify the workflow format.
-5. If API format, inspect its required class types and links.
-6. When a live server is available, validate every class against `/object_info` and verify required inputs.
-7. Read `00_project/model_preferences.json` and the current ComfyUI model inventory when model-specific resources are part of the graph. A selected workflow must use the user's exact active profile. If the graph names a different checkpoint, diffusion model, VAE, text encoder, LoRA, audio model, upscaler, or other selected resource, block and repair the mapping instead of letting the workflow override the user's selection.
-8. Decide whether this is a throwaway graph or reusable source. For reusable/growing work and an available current comfy-cli, prefer template -> slots/decompose -> fragment/blueprint -> compose. For a small one-time API graph, patch the exact named input in a preserved copy.
-9. For a UI-format workflow, use comfy-cli's supported run/conversion path when available or obtain an API export before native submission.
-10. Only when no suitable existing source exists may a new API candidate be constructed from live-discovered schemas. Do not construct class names from memory. Write it outside the runnable workflows directory first, then use `workflow-promote`; invalid candidates are not promoted.
-11. Validate the selected workflow-family contract when one exists. Inspect `references/comfyui_workflow_dependencies.json` and report any missing optional custom-node packages without installing them.
-12. For reference-driven graphs, write/audit `04_generation/comfyui/reference_bindings.jsonl` so prompt ordinals, graph inputs, `REF-###`/`MEDIA-###`, staged paths, and hashes agree after conversion or patching.
-13. Confirm the requested result reaches a live output node or documented retrievable output path.
-14. Save only live-validated runnable API graphs under `04_generation/comfyui/workflows/`.
+Bundled workflow sources are under `../../comfyui_workflows/<task>/<model>/`. They are actual editable workflows, not sanitized blueprints.
 
-Prompt adapters such as `qwen-image-2512` are not executable workflow specifications. Never translate an adapter/model-family label into a guessed `class_type`, API node, checkpoint name, or loader chain.
+## Bounded production workflow path
 
-Bundled offline commands:
+For ordinary Story-Film production recovery or workflow creation, use the Pi-native `story_comfy_workflow` tool when available after a workflow has been selected/materialized.
+
+1. Start from the exact selected project-owned source.
+2. Preserve that source. Never edit the bundled, saved-ComfyUI, template, or external original in place.
+3. Identify UI versus API format.
+4. Inspect the graph and required node classes.
+5. When a live server is available, validate every required class and input against `/object_info`.
+6. Verify the concrete model/resource names already stored in the workflow against the active server and node dropdowns where applicable.
+7. Stage current project inputs and references.
+8. Patch only named production values that the selected graph actually exposes: approved prompts, project input identities, output prefixes/IDs, requested dimensions, seeds, durations, or other explicit production parameters.
+9. Run workflow-family contract validation when a contract applies.
+10. For reference-driven graphs, write/audit `04_generation/comfyui/reference_bindings.jsonl` so prompt ordinals, graph inputs, `REF-###`/`MEDIA-###`, staged paths, and hashes agree.
+11. Confirm the requested result reaches a live output node or documented retrievable output path.
+12. Promote only a live-validated runnable API graph into `04_generation/comfyui/workflows/`.
+
+If finalization reports a graph error, repair only the selected project-owned copy and retry. Do not replace it wholesale with a guessed model-family graph.
+
+## Source discovery
+
+The numbered workflow catalog can contain:
+
+- Story-Film built-ins;
+- package custom defaults;
+- project defaults;
+- existing project workflows/templates;
+- the user's saved ComfyUI workflows;
+- ComfyUI core templates;
+- installed custom-node templates;
+- user-registered external workflow files/directories;
+- a `generate-new` choice.
+
+There is no four-choice limit.
+
+## Generate-new fallback
+
+Only when the user selects the catalog's `generate-new` entry may Story-Film author a new candidate.
+
+Use only live-discovered schemas. Do not construct class names from memory. Write the candidate outside the runnable workflow directory, validate it, then promote it. Missing custom nodes are blockers; do not install them automatically.
+
+After the generated workflow is saved into the project, refresh the workflow catalog so it becomes a normal selectable project workflow.
+
+## Model and prompt behavior
+
+The selected workflow owns its concrete checkpoint, diffusion model, VAE, text encoders, LoRAs, audio models, upscalers, and node-specific model fields.
+
+Prompt adapters remain allowed for prompt grammar. Infer the applicable prompt adapter from the selected workflow/model family when needed; do not ask for a second generation model selection.
+
+If a selected workflow names unavailable resources, report the blocker. Do not silently swap to another model or workflow.
+
+## Bundled offline commands
 
 ```text
 python scripts/comfyui_workflow.py inspect WORKFLOW.json
 python scripts/comfyui_workflow.py classes WORKFLOW.json
 python scripts/comfyui_workflow.py patch WORKFLOW.json --node 12 --input text --value 'new prompt' --out patched.json
+```
+
+Workflow selection and materialization:
+
+```text
+python scripts/workflow_catalog.py catalog PROJECT --category video --url http://127.0.0.1:8188
+python scripts/workflow_catalog.py choose PROJECT 3
+python scripts/workflow_catalog.py materialize PROJECT video --url http://127.0.0.1:8188
 ```
 
 Live validation:
@@ -66,18 +108,10 @@ Live validation:
 python scripts/comfyui_control.py validate --workflow WORKFLOW.json
 ```
 
-Workflow discovery and source preservation:
-
-```text
-python scripts/comfyui_control.py --project PROJECT workflow-catalog --query image
-python scripts/comfyui_control.py --project PROJECT workflow-fetch --source core --name TEMPLATE --out 04_generation/comfyui/templates/TEMPLATE.json
-python scripts/comfyui_control.py --project PROJECT workflow-promote --candidate CANDIDATE.json --out 04_generation/comfyui/workflows/SHOT-001.json
-```
-
-## Story-film mapping
+## Story-Film mapping
 
 When mapping `comfyui_handoff.json`, process one shot or cue at a time. Map only named inputs that the selected live workflow actually exposes. Canon and approved prompts remain authoritative.
 
 ## Done
 
-The workflow format is known, required node classes are explicit, requested edits are minimal, and the runnable API graph passes the available preflight checks.
+The workflow choice is durable, the source is preserved, the project-owned copy is known, required node classes and resource names are explicit, requested edits are minimal, and the runnable API graph passes the available preflight checks.

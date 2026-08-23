@@ -1,5 +1,11 @@
 # ComfyUI Workflow Rules
 
+## Workflow-selection authority
+
+Read `WORKFLOW_SELECTION.md` before generation. Story-Film selects a complete workflow by number and materializes a project-owned copy before adapting or executing it. The selected workflow is authoritative for its concrete model/resource stack. Do not reopen the retired per-model/per-resource TUI interview, and do not let later workflow discovery silently replace the user's durable selection.
+
+Bundled complete workflows live under `comfyui_workflows/<task>/<model>/`. Project defaults, package custom workflows, saved ComfyUI workflows, ComfyUI templates, registered external sources, and live-schema-generated workflows participate in the same catalog.
+
 ## Two JSON forms
 
 ComfyUI commonly exposes two related workflow representations.

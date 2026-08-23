@@ -195,24 +195,26 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.30')
-        self.assertEqual(version_display.display_version(version), 'v0.0.30')
+        self.assertEqual(version, '00.00.31')
+        self.assertEqual(version_display.display_version(version), 'v0.0.31')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.31'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.32'], check=True)
 
-    def test_model_selection_question_limit_is_only_page_size(self):
-        reference = (ROOT / 'references/MODEL_SELECTION.md').read_text(encoding='utf-8')
-        skill = (ROOT / 'skills/generation-model-setup/SKILL.md').read_text(encoding='utf-8')
-        docs = (ROOT / 'docs/generation/model-selection.md').read_text(encoding='utf-8')
+    def test_workflow_selection_has_no_four_choice_limit(self):
+        reference = (ROOT / 'references/WORKFLOW_SELECTION.md').read_text(encoding='utf-8')
+        skill = (ROOT / 'skills/generation-workflow-setup/SKILL.md').read_text(encoding='utf-8')
+        legacy = (ROOT / 'references/MODEL_SELECTION.md').read_text(encoding='utf-8')
+        docs = (ROOT / 'docs/generation/workflow-selection.md').read_text(encoding='utf-8')
 
-        self.assertIn('page-size limit only', reference)
-        self.assertIn('Repeat until every required decision', reference)
-        self.assertIn('Never merge unrelated choices because one page is full', skill)
-        self.assertIn('Never choose the fifth or later decision yourself', skill)
-        self.assertIn('ask the next page if unresolved required decisions remain', skill)
-        self.assertIn('Story-Film treats that limit as a page size', docs)
-        self.assertIn('must not combine music and SFX/Foley', docs)
+        self.assertIn('print an ordinary numbered list', reference)
+        self.assertIn('more than four entries', reference)
+        self.assertIn('There is no four-choice limit for workflow selection.', skill)
+        self.assertIn('Do **not** use `ask_user_question`', skill)
+        self.assertIn('Direct per-model/per-resource generation selection was retired', legacy)
+        self.assertIn('not the generation-selection authority', legacy)
+        self.assertIn('normal numbered list', docs)
+        self.assertIn('There can be more than four choices', docs)
 
     def test_project_init_and_validate(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1586,17 +1588,17 @@ class Tests(unittest.TestCase):
             self.assertIn('extra_model_paths.yaml', md)
             self.assertIn('does not scan the local filesystem', md)
 
-        setup_skill = (ROOT / 'skills/generation-model-setup/SKILL.md').read_text(encoding='utf-8')
+        workflow_setup_skill = (ROOT / 'skills/generation-workflow-setup/SKILL.md').read_text(encoding='utf-8')
         discover_skill = (ROOT / 'skills/comfyui-discover/SKILL.md').read_text(encoding='utf-8')
         extension = (ROOT / 'extensions/story-film-progress/index.ts').read_text(encoding='utf-8')
         for token in ['extra_model_paths.yaml', '/models', 'Do not run `find /`']:
-            self.assertIn(token, setup_skill)
+            self.assertIn(token, workflow_setup_skill)
         self.assertIn('input.required', discover_skill)
         self.assertIn('comfyModelFilesystemScanBlockReason', extension)
         self.assertIn('model_inventory.py scan', extension)
         self.assertIn('rawRegistryEndpoint', extension)
         self.assertIn('Do not write or run one-off curl/wget/Python parsers', extension)
-        self.assertIn('Do not replace it with direct `curl`', setup_skill)
+        self.assertIn('Do not replace it with direct `curl`', workflow_setup_skill)
 
     def test_screenplay_consistency_uses_canon_not_hardcoded_names(self):
         with tempfile.TemporaryDirectory() as td:

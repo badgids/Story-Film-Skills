@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.30`
-**Canonical version:** `00.00.30`
+**Display version:** `v0.0.31`
+**Canonical version:** `00.00.31`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -15,7 +15,7 @@ v0.0.11 completes the initial prototype-building phase. The project now includes
 
 - [What it can do](#what-it-can-do)
 - [Feature-length production](#feature-length-production)
-- [Choose generation models](#choose-generation-models)
+- [Choose ComfyUI workflows](#choose-comfyui-workflows)
 - [Install](#install)
   - [Install with Pi](#install-with-pi-recommended)
   - [Project-only Pi install](#project-only-pi-install)
@@ -24,7 +24,7 @@ v0.0.11 completes the initial prototype-building phase. The project now includes
   - [Install with npx skills](#install-with-npx-skills)
 - [Use Story-Film Skills](#use-story-film-skills)
 - [Example and test prompts](#example-and-test-prompts)
-- [Video generation model choice](#video-generation-model-choice)
+- [Video workflow selection](#video-workflow-selection)
 - [Local LLM and ComfyUI memory handoff](#local-llm-and-comfyui-memory-handoff)
 - [Interactive Pi Todo](#interactive-pi-todo)
 - [Documentation](#documentation)
@@ -50,8 +50,8 @@ Story-Film Skills can manage a project from a loose idea to a finished release p
 - approved dialogue-audio authority with SHA-256 parity, pre-generation timing checks, and visible-speaker separation;
 - character, location, and prop reference-sheet plans including functional/mechanical prop views and optional staged grounding;
 - voice, dialogue, music, ambience, Foley, and SFX planning;
-- ComfyUI workflow validation, reference-binding audits, reusable workflow contracts, and sanitized workflow blueprints;
-- user-controlled per-process ComfyUI model stacks, including exact VAEs, text encoders, LoRAs, audio models, upscalers, and custom model choices;
+- ComfyUI workflow validation, reference-binding audits, reusable workflow contracts, and complete built-in editable workflows organized by task and model family;
+- workflow-first generation using numbered choices from built-ins, project/package defaults, saved ComfyUI workflows, ComfyUI templates, external workflow directories, or live-schema generation;
 - resource-safe offline ComfyUI batches for machines that cannot hold an LLM and generation model at the same time;
 - deterministic media QC and take selection;
 - explicit safe cleanup of rejected registered media and repair of missing disposable runtime copies from approved media;
@@ -78,15 +78,15 @@ v0.0.11 adds nine controls for long films:
 
 Read the [Feature-scale production guide](docs/production/feature-scale.md).
 
-## Choose generation models
+## Choose ComfyUI workflows
 
-Story-Film Skills polls the active ComfyUI server before model-specific generation. Pi can then show the installed choices for image generation, image editing, video, TTS, music, SFX/Foley, upscaling, frame interpolation, VAEs, text encoders, LoRAs, and other server-reported model folders.
+Story-Film Skills selects complete ComfyUI workflows instead of rebuilding a model stack through a long series of TUI questions. A selected workflow owns the concrete model/checkpoint, VAE, encoders, LoRAs, sampler/scheduler settings, audio models, upscalers, and other graph configuration stored in it.
 
-The user owns these choices. MiniMax H3 is the default video adapter only when the user did not choose a video adapter. That default does not choose a concrete checkpoint, VAE, text encoder, or LoRA.
+Workflow choices are shown as an ordinary numbered list. The list is not limited to four options. Story-Film can combine built-ins under `comfyui_workflows/<task>/<model>/`, custom defaults, workflows saved in ComfyUI, ComfyUI templates, user-specified workflow files/directories, and a live-schema generate-new fallback.
 
-If the host question UI can show only a few questions at once, Story-Film paginates the unresolved decisions across multiple user-answer rounds. The UI limit never authorizes Story-Film to merge independent choices or silently choose the remainder.
+Built-in workflows are complete editable ComfyUI JSON files. Open one in ComfyUI, change models or graph settings, save it, and Story-Film can discover that saved workflow as another choice.
 
-Read [Choose generation models and ComfyUI resources](docs/generation/model-selection.md).
+Read [Choose ComfyUI workflows](docs/generation/workflow-selection.md).
 
 ## Install
 
@@ -242,11 +242,11 @@ Use a prompt unchanged for a full production test. For a cheaper first test, the
 
 Start with the [Examples and test prompts guide](docs/examples/README.md). The raw prompt library is in [`examples/`](examples/README.md).
 
-## Video generation model choice
+## Video workflow selection
 
-The user owns the video-generation model choice. If the user does not choose a video model, Story-Film Skills uses **MiniMax H3** (`minimax-h3`). LTX 2.5 and other adapters remain optional choices. Story-Film Skills must not silently replace MiniMax H3 because another model appears to fit a shot better or because MiniMax H3 is missing.
+Video generation uses the same workflow-first rule as every other ComfyUI task. Story-Film prints the complete relevant numbered workflow list and the user chooses one workflow. The selected video workflow owns its model files and graph configuration; Story-Film does not separately force a video adapter or silently replace the selected workflow.
 
-See [Choose the video generation model](docs/generation/model-selection.md).
+See [Choose ComfyUI workflows](docs/generation/workflow-selection.md).
 
 ## Local LLM and ComfyUI memory handoff
 

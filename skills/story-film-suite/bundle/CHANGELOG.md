@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.0.31 (00.00.31) - 2026-08-23
+
+- Replaced per-model/per-resource Pi TUI selection with workflow-first ComfyUI selection using ordinary numbered lists with no four-option limit.
+- Added durable workflow selections, external workflow-source registration, project/package custom defaults, saved ComfyUI workflow discovery, ComfyUI template discovery, and a live-schema generate-new fallback.
+- Added the root `comfyui_workflows/<task>/<model>/` library and replaced the sanitized blueprint set with the actual workflows supplied for this release; the source ZIP is not bundled.
+- Preserved the corrected release archive as 12 production/reference workflow JSONs plus 3 research/source workflow JSONs, with research excluded from ordinary selection menus.
+- Made the selected workflow authoritative for its checkpoint/model, VAE, text encoders, LoRAs, audio models, upscalers, samplers, schedulers, nodes, and other concrete graph settings.
+- Added project-owned workflow materialization and wired the bounded ComfyUI workflow pipeline to honor a durable selected workflow instead of independently choosing another graph.
+- Retained legacy model preference/inventory tools only for compatibility and debugging; they no longer override workflow-first selection.
+- Updated ComfyUI, reference-sheet, project-schema, routing, command, bundle, and user documentation and added deterministic v0.0.31 workflow-selection tests.
+
 ## v0.0.30 (00.00.30) - 2026-08-23
 
 - Fixed generation-model setup so a host question UI limit is treated only as a page size, not as a cap on user-controlled production decisions.
