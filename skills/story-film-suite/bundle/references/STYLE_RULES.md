@@ -1,6 +1,6 @@
 # Writing Rules
 
-These rules apply to every artifact written for a human or generation model.
+These rules apply to Story-Film-authored artifacts written for a human or generation model. ComfyUI workflow JSON is workflow data and has the explicit punctuation exemption below.
 
 ## Required style
 
@@ -15,7 +15,7 @@ These rules apply to every artifact written for a human or generation model.
 
 ## Hard rules
 
-- Never use an em dash character.
+- Never use an em dash character outside ComfyUI workflow JSON. Preserve punctuation inside imported, user-authored, vendor, and Story-Film ComfyUI workflows instead of style-normalizing the graph data.
 - Never write "same as before", "as above", "previously described", or any other shortcut inside a generation prompt.
 - Never invent praise, importance, symbolism, or emotional depth that the story has not earned.
 - Never summarize the theme inside dialogue unless a character would naturally do so.

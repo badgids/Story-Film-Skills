@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse, re
 from pathlib import Path
 
+from style_policy import is_comfyui_workflow_json
+
 TEXT_EXT = {'.md', '.txt', '.fountain', '.json', '.jsonl', '.csv'}
 WARN_PATTERNS = {
     'not just X but Y': re.compile(r'\bnot just\b.{0,80}\bbut\b', re.I),
@@ -37,8 +39,9 @@ def main():
             text = p.read_text(encoding='utf-8')
         except UnicodeDecodeError:
             continue
+        comfyui_workflow = is_comfyui_workflow_json(p, text)
         for i, line in enumerate(text.splitlines(), 1):
-            if '\u2014' in line:
+            if '\u2014' in line and not comfyui_workflow:
                 errors.append(f'{p}:{i}: em dash')
             for label, rx in WARN_PATTERNS.items():
                 if rx.search(line):

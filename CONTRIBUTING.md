@@ -15,7 +15,7 @@ Thank you for improving Story-Film Skills.
 ## Project rules
 
 - Do not hardcode personal machine paths.
-- Do not use the em dash character U+2014 in repository text.
+- Do not use the em dash character U+2014 in repository text outside ComfyUI workflow JSON. Workflow JSON is exempt so imported, vendor, user-authored, and embedded workflow text can be preserved exactly.
 - Keep the project local-first.
 - Do not claim that an optional runtime ran when it was unavailable.
 - Preserve stable IDs and schemas unless a documented migration is provided.

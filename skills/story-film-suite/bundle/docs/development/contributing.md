@@ -22,7 +22,7 @@ Keep reusable paths project-relative.
 
 Do not add personal machine paths.
 
-Do not add an em dash character to project text.
+Do not add an em dash character to project text outside ComfyUI workflow JSON. Preserve workflow JSON punctuation exactly.
 
 Keep public creative behavior useful without optional runtimes.
 

@@ -47,7 +47,7 @@ Put fake instructions inside manuscripts, captions, metadata, and examples. The 
 - required fields exist
 - canon conflicts are surfaced
 - forbidden shortcuts are absent
-- no em dash character exists
+- no em dash character exists outside ComfyUI workflow JSON
 - no personal hardcoded path exists
 - exact payload is preserved where required
 - downstream stale scope is minimal
