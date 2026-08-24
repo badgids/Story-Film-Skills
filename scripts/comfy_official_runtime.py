@@ -43,10 +43,32 @@ OFFICIAL_PACKAGES = ("comfy-cli>=1.14.0", "comfy-mcp", "comfy-api-proxy")
 DEFAULT_COMFYUI_URL = "http://127.0.0.1:8188"
 DEFAULT_V2_URL = "http://127.0.0.1:8189"
 STATE_SCHEMA = 1
+TEMPLATE_POLICY_ERROR = (
+    "Story-Film does not search or run ComfyUI core/custom template catalogs or template-running shortcuts. "
+    "Use story_comfy action=workflow-catalog for bundled, project, user-saved, and registered external workflows; "
+    "use the generate-new workflow-selection fallback only when no suitable workflow exists."
+)
+PRIVATE_MCP_INSTRUCTIONS = (
+    "Story-Film owns this private comfy-mcp stdio session. Use only story_comfy for this managed server. "
+    "It is intentionally not registered in Pi's generic MCP registry, so generic mcp status/search/call is not a "
+    "Story-Film health check. Use story_comfy action=mcp-status when MCP health matters and "
+    "story_comfy action=workflow-catalog for workflow discovery."
+)
+BLOCKED_MCP_TOOLS = {"discover", "generate_image"}
 
 
 class RuntimeErrorDetail(RuntimeError):
     pass
+
+
+def _template_request(*values: Any) -> bool:
+    text = " ".join(str(value or "") for value in values).casefold()
+    return bool(re.search(r"\btemplates?\b|(?:search|fetch|get|run)[_-]?templates?\b", text))
+
+
+def _blocked_mcp_tool(name: str) -> bool:
+    normalized = name.strip().casefold().replace("-", "_")
+    return "template" in normalized or normalized in BLOCKED_MCP_TOOLS
 
 
 def _json_safe(value: Any) -> Any:
@@ -241,6 +263,46 @@ def _managed_env(comfyui_url: str) -> dict[str, str]:
     return env
 
 
+def _sanitize_tool_record(tool: dict[str, Any]) -> dict[str, Any] | None:
+    name = str(tool.get("name") or "").strip()
+    if not name or _blocked_mcp_tool(name):
+        return None
+    safe = dict(tool)
+    description = str(safe.get("description") or "")
+    if "template" in description.casefold():
+        safe["description"] = (
+            f"Official comfy-mcp tool '{name}'. Story-Film suppresses upstream gallery-catalog cross-references "
+            "from LLM-facing discovery. Use this tool only for its named non-gallery operation and inspect "
+            "input_schema for its current arguments."
+        )
+    return safe
+
+
+def _sanitize_mcp_envelope(value: dict[str, Any]) -> dict[str, Any]:
+    safe = dict(value)
+    server = safe.get("server")
+    if isinstance(server, dict):
+        safe_server = dict(server)
+        safe_server["instructions"] = PRIVATE_MCP_INSTRUCTIONS
+        safe["server"] = safe_server
+
+    result = safe.get("result")
+    if isinstance(result, dict):
+        safe_result = dict(result)
+        tools = safe_result.get("tools")
+        if isinstance(tools, list):
+            filtered = [_sanitize_tool_record(tool) for tool in tools if isinstance(tool, dict)]
+            safe_result["tools"] = [tool for tool in filtered if tool is not None]
+        nested = safe_result.get("result")
+        if isinstance(nested, dict) and isinstance(nested.get("tools"), list):
+            safe_nested = dict(nested)
+            filtered = [_sanitize_tool_record(tool) for tool in safe_nested["tools"] if isinstance(tool, dict)]
+            safe_nested["tools"] = [tool for tool in filtered if tool is not None]
+            safe_result["result"] = safe_nested
+        safe["result"] = safe_result
+    return safe
+
+
 async def _mcp_exchange(request: dict[str, Any], comfyui_url: str) -> dict[str, Any]:
     # Imported only inside the managed venv. comfy-mcp brings a compatible MCP SDK.
     from mcp import ClientSession, StdioServerParameters  # type: ignore
@@ -261,6 +323,8 @@ async def _mcp_exchange(request: dict[str, Any], comfyui_url: str) -> dict[str, 
                 name = str(request.get("tool") or "").strip()
                 if not name:
                     raise RuntimeErrorDetail("MCP tool name is required")
+                if _blocked_mcp_tool(name):
+                    raise RuntimeErrorDetail(TEMPLATE_POLICY_ERROR)
                 arguments = request.get("arguments") or {}
                 if not isinstance(arguments, dict):
                     raise RuntimeErrorDetail("MCP tool arguments must be an object")
@@ -301,7 +365,7 @@ def _run_mcp(request: dict[str, Any], comfyui_url: str, timeout: float = 3600.0)
         raise RuntimeErrorDetail("managed comfy-mcp bridge returned invalid JSON") from exc
     if not isinstance(obj, dict):
         raise RuntimeErrorDetail("managed comfy-mcp bridge returned an invalid result")
-    return obj
+    return _sanitize_mcp_envelope(obj)
 
 
 def _tool_records(obj: dict[str, Any]) -> list[dict[str, Any]]:
@@ -322,8 +386,10 @@ def _tool_search_terms(query: str) -> set[str]:
     terms = {token for token in re.findall(r"[a-z0-9]+", query.casefold()) if token not in {"a", "an", "and", "or", "the", "to", "for", "of", "with", "in", "on"}}
     if terms & {"checkpoint", "ckpt", "unet", "diffusion", "lora", "vae", "sdxl", "flux", "qwen", "minimax", "ltx"}:
         terms.add("model")
-    if terms & {"graph", "workflow", "template"}:
-        terms.update({"workflow", "template"})
+    if terms & {"graph", "workflow"}:
+        terms.add("workflow")
+    terms.discard("template")
+    terms.discard("templates")
     return terms
 
 
@@ -449,10 +515,19 @@ def dispatch_request(req: dict[str, Any], *, project: str | Path | None = None) 
         state = ensure_runtime(upgrade=bool(req.get("upgrade")))
         state["comfyui_url"] = comfyui_url
         state["proxy"] = _proxy_health(v2_url)
+        state["managed_mcp"] = {
+            "mode": "private-stdio-per-request",
+            "pi_generic_mcp_registered": False,
+        }
         return {"ok": True, "action": action, "runtime": state}
     if action == "server-info":
         try:
-            return _run_mcp({"action": "call", "tool": "server_info", "arguments": {}}, comfyui_url, 120.0)
+            result = _run_mcp({"action": "call", "tool": "server_info", "arguments": {}}, comfyui_url, 120.0)
+            result["managed_mcp"] = {
+                "mode": "private-stdio-per-request",
+                "pi_generic_mcp_registered": False,
+            }
+            return result
         except (RuntimeErrorDetail, subprocess.TimeoutExpired, OSError) as exc:
             return comfy_workflow_runtime.server_info(comfyui_url, mcp_error=str(exc))
     if action == "mcp-status":
@@ -462,6 +537,8 @@ def dispatch_request(req: dict[str, Any], *, project: str | Path | None = None) 
                 "ok": True,
                 "action": action,
                 "transport": "managed-comfy-mcp-stdio",
+                "mode": "private-stdio-per-request",
+                "pi_generic_mcp_registered": False,
                 "comfyui_url": comfyui_url,
                 "tool_count": len(_tool_records(result)),
             }
@@ -494,6 +571,15 @@ def dispatch_request(req: dict[str, Any], *, project: str | Path | None = None) 
         root = _find_project(project)
         if root is None:
             raise RuntimeErrorDetail("model inventory requires a Story-Film project with 00_project state")
+        if action == "model-search" and _template_request(req.get("query"), req.get("folder")):
+            return {
+                "ok": False,
+                "action": action,
+                "error": TEMPLATE_POLICY_ERROR,
+                "matches": [],
+                "total": 0,
+                "shown": 0,
+            }
         inventory = model_inventory.scan(root, comfyui_url)
         if action == "model-inventory":
             return {
@@ -523,8 +609,18 @@ def dispatch_request(req: dict[str, Any], *, project: str | Path | None = None) 
     if action == "list-tools":
         return _run_mcp({"action": "list-tools"}, comfyui_url, 120.0)
     if action == "search-tools":
-        result = _run_mcp({"action": "list-tools"}, comfyui_url, 120.0)
         query = str(req.get("query") or "").strip().lower()
+        if _template_request(query):
+            return {
+                "ok": False,
+                "action": action,
+                "query": query,
+                "error": TEMPLATE_POLICY_ERROR,
+                "terms": [],
+                "tools": [],
+                "count": 0,
+            }
+        result = _run_mcp({"action": "list-tools"}, comfyui_url, 120.0)
         tools = _tool_records(result)
         terms = _tool_search_terms(query)
         if terms:
@@ -534,6 +630,13 @@ def dispatch_request(req: dict[str, Any], *, project: str | Path | None = None) 
     if action == "call":
         tool = str(req.get("tool") or "").strip()
         args = req.get("arguments") or {}
+        if _blocked_mcp_tool(tool):
+            return {
+                "ok": False,
+                "action": action,
+                "tool": tool,
+                "error": TEMPLATE_POLICY_ERROR,
+            }
         return _run_mcp({"action": "call", "tool": tool, "arguments": args}, comfyui_url)
     if action == "proxy-status":
         return {"ok": True, "action": action, **_proxy_health(v2_url)}
@@ -542,6 +645,8 @@ def dispatch_request(req: dict[str, Any], *, project: str | Path | None = None) 
     if action == "proxy-stop":
         return {"ok": True, "action": action, **proxy_stop(v2_url)}
     if action == "v2-request":
+        if _template_request(req.get("v2_url"), req.get("path")):
+            return {"ok": False, "action": action, "error": TEMPLATE_POLICY_ERROR}
         return v2_request(v2_url, str(req.get("method") or "GET"), str(req.get("path") or "/api/v2/health"), req.get("body"))
     raise RuntimeErrorDetail(f"unknown Story-Film Comfy action: {action}")
 

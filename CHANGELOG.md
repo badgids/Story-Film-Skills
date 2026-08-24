@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.37 (00.00.37) - 2026-08-23
+
+- Hardened Story-Film's managed comfy-mcp bridge so upstream template-gallery instructions and template-running shortcuts cannot override Story-Film workflow-selection policy.
+- Filtered template-related MCP tools and template cross-references from LLM-facing discovery while preserving allowed non-gallery comfy-mcp operations.
+- Rejected template-oriented `search-tools`, `model-search`, direct MCP calls, and API-v2 requests at the Python runtime boundary and redirected workflow discovery to `story_comfy action=workflow-catalog`.
+- Clarified that Story-Film's managed comfy-mcp process is a private stdio runtime behind `story_comfy`, so Pi's generic MCP registry is not the authoritative health or control surface.
+- Updated deterministic runtime tests so template catalog exposure is treated as a failure rather than an expected capability.
+- Rebuilt the self-contained Story-Film suite bundle with the same managed-MCP isolation behavior.
+
 ## v0.0.36 (00.00.36) - 2026-08-23
 
 - Made new film/video project initialization atomic with optional `--playbook`, so the authoritative progress ledger and mapped ComfyUI workflow preflight are created before creative production can begin.

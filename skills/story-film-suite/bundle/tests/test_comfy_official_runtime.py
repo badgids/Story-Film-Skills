@@ -38,21 +38,45 @@ class ManagedOfficialComfyRuntimeTests(unittest.TestCase):
                 self.assertEqual(runtime.resolve_comfyui_url(root / "04_generation"), "http://127.0.0.1:9191")
 
     def test_story_film_actions_route_through_managed_mcp(self):
-        fake = {"ok": True, "result": {"tools": [
-            {"name": "server_info", "description": "server"},
-            {"name": "search_templates", "description": "templates"},
-            {"name": "search_models", "description": "List or search local model files"},
-        ]}}
-        with patch.object(runtime, "_run_mcp", return_value=fake) as call:
+        raw = {
+            "ok": True,
+            "server": {"instructions": "Start from a template: search_templates then run_template."},
+            "result": {"tools": [
+                {"name": "server_info", "description": "server"},
+                {"name": "search_templates", "description": "templates"},
+                {"name": "generate_image", "description": "Uses a default template and search_templates."},
+                {"name": "search_models", "description": "List local model files; do not use search_templates for this."},
+            ]},
+        }
+        safe = runtime._sanitize_mcp_envelope(raw)
+        safe_text = json.dumps(safe)
+        self.assertNotIn("search_templates", safe_text)
+        self.assertNotIn("run_template", safe_text)
+        self.assertNotIn("generate_image", safe_text)
+        self.assertIn("private comfy-mcp stdio session", safe["server"]["instructions"])
+
+        with patch.object(runtime, "_run_mcp", return_value=safe) as call:
             out = runtime.dispatch_request({"action": "server-info"})
             self.assertTrue(out["ok"])
+            self.assertEqual(out["managed_mcp"]["mode"], "private-stdio-per-request")
+            self.assertFalse(out["managed_mcp"]["pi_generic_mcp_registered"])
             self.assertEqual(call.call_args.args[0]["tool"], "server_info")
-        with patch.object(runtime, "_run_mcp", return_value=fake):
-            out = runtime.dispatch_request({"action": "search-tools", "query": "template"})
-            self.assertEqual(out["count"], 1)
-            self.assertEqual(out["tools"][0]["name"], "search_templates")
+
+        out = runtime.dispatch_request({"action": "search-tools", "query": "search_templates"})
+        self.assertFalse(out["ok"])
+        self.assertEqual(out["count"], 0)
+        self.assertIn("workflow-catalog", out["error"])
+
+        with patch.object(runtime, "_run_mcp", return_value=safe):
             out = runtime.dispatch_request({"action": "search-tools", "query": "image to image text to image sdxl flux checkpoint"})
             self.assertTrue(any(tool.get("name") == "search_models" for tool in out["tools"]))
+            self.assertNotIn("template", json.dumps(out).lower())
+
+        with patch.object(runtime, "_run_mcp") as call:
+            blocked = runtime.dispatch_request({"action": "call", "tool": "search_templates", "arguments": {}})
+            self.assertFalse(blocked["ok"])
+            self.assertIn("workflow-catalog", blocked["error"])
+            call.assert_not_called()
 
     def test_native_model_inventory_searches_all_live_folders_and_node_choices(self):
         inventory = {
