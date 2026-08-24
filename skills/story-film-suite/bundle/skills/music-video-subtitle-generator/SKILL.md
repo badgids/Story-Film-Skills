@@ -24,4 +24,5 @@ Use for music videos or emotional music shorts where lyrics, beat, performance, 
 
 ## H3 handoff
 
+Whether this skill was selected automatically or invoked directly, return through `h3-prompt-writing`, then `minimax-h3`, then `scripts/minimax_h3_prompt_validator.py`, and finally `prompt-qc`; this skill is a content/style overlay, not a standalone final-prompt path.
 Use `h3-prompt-writing` to encode each H3 clip. Long-form stitching remains a Story-Film editorial task, not a request for one overlong H3 prompt.

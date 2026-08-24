@@ -26,4 +26,5 @@ Use for stylized 3D animated shorts where character consistency, scene continuit
 
 ## H3 handoff
 
+Whether this skill was selected automatically or invoked directly, return through `h3-prompt-writing`, then `minimax-h3`, then `scripts/minimax_h3_prompt_validator.py`, and finally `prompt-qc`; this skill is a content/style overlay, not a standalone final-prompt path.
 `h3-prompt-writing` controls final H3 syntax. `minimax-h3` controls Story-Film reference, dialogue, audio, and temporal constraints.

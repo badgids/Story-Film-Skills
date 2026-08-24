@@ -69,6 +69,7 @@ def main() -> int:
         ('v0.0.35 runtime preflight guards', [sys.executable, '-m', 'unittest', 'tests.test_v0035_runtime_preflight_guards']),
         ('v0.0.36 startup preflight hard gate', [sys.executable, '-m', 'unittest', 'tests.test_v0036_startup_preflight_hard_gate']),
         ('v0.0.39 MiniMax H3 skill stack', [sys.executable, '-m', 'unittest', 'tests.test_v0039_minimax_h3_skills']),
+        ('v0.0.40 MiniMax H3 hardening', [sys.executable, '-m', 'unittest', 'tests.test_v0040_minimax_h3_hardening']),
         ('static eval definitions', [sys.executable, str(ROOT / 'scripts/run_evals.py'), '--definitions-only']),
     ]
     for label, cmd in gates:

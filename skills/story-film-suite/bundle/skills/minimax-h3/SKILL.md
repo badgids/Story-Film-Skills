@@ -18,9 +18,9 @@ Every MiniMax H3 prompt uses this stack in order:
 4. Zero or one automatically selected H3 style skill from `references/MINIMAX_H3_SKILL_ROUTING.md`. Use more than one only when the user explicitly asks for a hybrid.
 5. This Story-Film adapter's project-specific continuity, exact-audio, reference-scope, and capture constraints.
 
-Run `python scripts/minimax_h3_skill_router.py --text "<brief>"` as the deterministic first-pass style route. An explicit user selection of one of the eight style skills overrides automatic classification.
+Story-Film runs `python scripts/minimax_h3_skill_router.py --text "<brief>"` automatically whenever the selected prompt adapter is `minimax-h3`; the user does not need to call `h3-prompt-writing` or a style skill separately. An explicit user selection of one of the eight style skills overrides automatic style classification but still returns through `h3-prompt-writing`, this `minimax-h3` adapter, deterministic H3 format validation, and `prompt-qc`.
 
-A style skill enriches content. It never replaces `h3-prompt-writing`, never changes the selected workflow, and never overrides Story-Film canon or reference authority.
+A style skill enriches content. It never replaces `h3-prompt-writing`, never changes the selected workflow, and never overrides Story-Film canon, reference authority, approved-audio authority, or workflow/runtime capability.
 
 ## Prompt audit metadata
 
@@ -79,12 +79,18 @@ Use stable `<Subject N>`, `<Picture N>`, `<Video N>`, and `<Audio N>` labels. St
 - Keep reference labels consistent and preserve Story-Film reference authority scopes. A character atlas is not automatically composition authority and a temporal tail is not identity authority.
 - Tie first or last frames to the timeline explicitly in keyframe modes. When `end_frame.required` is present, end the described timeline in that state and use FL2VA/L2VA only when the selected local workflow actually uses last-frame conditioning.
 - For Ref2VA continuation, a registered visual-only previous-shot tail may carry temporal continuity. Its audio must be stripped before it becomes a visual reference.
-- When approved dialogue audio exists, preserve model-neutral seconds and the exact approved source. If live ComfyUI exposes `MiniMaxH3TimedAudio` and `MiniMaxH3ExactAudioLock`, the optional exact-audio profile may convert start seconds to H3's 24 fps target timeline and pair the lock with core `MiniMaxH3AddGuide` at the same frame. If those nodes are absent, report the capability as unavailable; never install them silently.
+- When approved dialogue audio exists, preserve model-neutral seconds, approved media identity, and the exact approved source. If the selected workflow uses `MiniMaxH3ExactAudioLock`, that workflow is generation authority for exact target audio: convert approved start seconds to H3's 24 fps target timeline, feed each independently timed source through `MiniMaxH3TimedAudio`, lock the resulting H3 target-audio latent with `MiniMaxH3ExactAudioLock`, and when the selected workflow includes it, reinforce the same source through core `MiniMaxH3AddGuide` at the same target frame.
+- A prompt/style skill must not replace that path with H3-regenerated dialogue/music, prompt-only timing, post-hoc muxing as a substitute for conditioning, a different workflow, or a reduced speaker/event model. `MiniMaxH3ExactAudioLock` uses autogrowing timed-audio inputs; Do not impose an artificial speaker or utterance count. Preserve the workflow's selected overlap, overflow, gain, and exact-audio policies.
+- If a required exact-audio node is absent from live `/object_info`, block the selected workflow and report the missing capability. Do not silently install the node and do not silently choose another workflow.
 - Preserve source `capture_behavior` as visible capture properties rather than inventing camera hardware.
 - Use concrete image and sound descriptions instead of generic quality adjectives.
 - A style overlay must not invent brand facts, dialogue, lyrics, scientific claims, character identity, reference roles, or continuity facts.
 - Save under `04_generation/prompts/minimax-h3/<shot-id>.md`.
 
+## Deterministic format gate
+
+Before `prompt-qc` or generation, run `python scripts/minimax_h3_prompt_validator.py --mode <T2VA|I2VA|FL2VA|L2VA|Ref2VA> --duration <seconds> --prompt-file <final-model-prompt-body>`. Pass only the final H3 model-prompt body, not Story-Film audit metadata. A validation error is a blocker. Repair the prompt and rerun the validator; do not submit malformed H3 syntax to ComfyUI.
+
 ## Done
 
-The prompt file records its H3 base/style routing, all references resolve, H3 section order and syntax are correct, and described audiovisual time equals the requested duration.
+The prompt file records its H3 base/style routing, all references resolve, the deterministic H3 format gate passes, H3 section order and syntax are correct, and described audiovisual time equals the requested duration.

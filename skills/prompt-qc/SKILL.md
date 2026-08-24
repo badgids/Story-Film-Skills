@@ -27,7 +27,7 @@ license: Apache-2.0
    - required end-frame state and capture behavior survive without conflicting camera instructions
    - negative constraints do not fight positive instructions
    - model-specific fields and section order are correct
-   - for MiniMax H3, `h3_base_skill` is `h3-prompt-writing`, the applicable style skill was selected (or explicitly recorded as `none`), the style overlay did not replace the H3 field structure, and the final prompt follows the selected base/Ref2VA guide
+   - for MiniMax H3, `h3_base_skill` is `h3-prompt-writing`, the applicable style skill was selected (or explicitly recorded as `none`), the style overlay did not replace the H3 field structure, the final prompt follows the selected base/Ref2VA guide, and `scripts/minimax_h3_prompt_validator.py` passes for the actual mode and duration before generation
 3. Fix prompt-level defects directly. Escalate canon conflicts to the upstream artifact.
 4. Run the style checker over prompt files.
 

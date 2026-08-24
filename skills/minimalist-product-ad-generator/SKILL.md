@@ -26,4 +26,5 @@ Use for a physical product ad, e-commerce short, product launch, or premium mini
 
 ## H3 handoff
 
+Whether this skill was selected automatically or invoked directly, return through `h3-prompt-writing`, then `minimax-h3`, then `scripts/minimax_h3_prompt_validator.py`, and finally `prompt-qc`; this skill is a content/style overlay, not a standalone final-prompt path.
 After applying these content rules, format the final prompt through `h3-prompt-writing` and then `minimax-h3`. Story-Film canon, reference authority, duration, and exact visible text remain authoritative.

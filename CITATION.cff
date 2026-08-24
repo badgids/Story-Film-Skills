@@ -6,6 +6,6 @@ authors:
   - family-names: Guice
     given-names: Alan
     alias: Badgids
-version: 0.0.39
+version: 0.0.40
 date-released: 2026-08-24
 license: Apache-2.0

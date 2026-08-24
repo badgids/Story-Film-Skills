@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.0.40 (00.00.40) - 2026-08-24
+
+- Hardened automatic MiniMax H3 skill routing and added deterministic final-prompt format validation.
+- Preserved selected-workflow authority for ComfyUI-H3-ExactAudioLock, timed audio, same-frame MiniMaxH3AddGuide reinforcement, autogrowing audio-source counts, and exact-audio workflow policies.
+- Added regression guards for H3 prompt formatting and existing custom-node/workflow capabilities.
+
 ## v0.0.39 (00.00.39) - 2026-08-24
 
 - Added all nine current MiniMax H3 skill capabilities to Story-Film: the mandatory `h3-prompt-writing` base plus eight conditional style skills.

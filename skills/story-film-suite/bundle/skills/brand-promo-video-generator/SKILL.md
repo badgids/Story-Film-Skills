@@ -22,4 +22,5 @@ Use for promotional shorts built from verified or user-provided identity-bearing
 
 ## H3 handoff
 
+Whether this skill was selected automatically or invoked directly, return through `h3-prompt-writing`, then `minimax-h3`, then `scripts/minimax_h3_prompt_validator.py`, and finally `prompt-qc`; this skill is a content/style overlay, not a standalone final-prompt path.
 Format the final audiovisual prompt with `h3-prompt-writing`. Story-Film source provenance and canon override promotional embellishment.
