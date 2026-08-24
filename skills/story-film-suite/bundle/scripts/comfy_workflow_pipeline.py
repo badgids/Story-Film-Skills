@@ -567,7 +567,7 @@ def prepare(
                     root,
                     comfyui_url,
                     source=source,
-                    name=name,
+                    name=str(row.get("path") or name),
                     module=module,
                     out_path=out_rel,
                 )
@@ -617,7 +617,7 @@ def prepare(
             "Return the candidate workflow to workflow-finalize. Do not fan out shots, build the offline batch, install nodes, launch ComfyUI, or scan model directories.",
         ],
         "script_role": [
-            "Search and preserve existing workflow sources.",
+            "Search and preserve workflows only from the extension's comfyui_workflows library.",
             "Capture live installed node schemas and model inventory.",
             "Reject unknown nodes, invalid inputs/model choices, and incompatible links.",
             "Expand one accepted canonical workflow into per-record runnable workflows.",

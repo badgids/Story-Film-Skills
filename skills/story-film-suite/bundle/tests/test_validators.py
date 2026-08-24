@@ -195,11 +195,11 @@ class Tests(unittest.TestCase):
 
     def test_version_format_and_next(self):
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '00.00.37')
-        self.assertEqual(version_display.display_version(version), 'v0.0.37')
+        self.assertEqual(version, '00.00.38')
+        self.assertEqual(version_display.display_version(version), 'v0.0.38')
         self.assertEqual(version_display.display_version('01.10.23'), 'v1.10.23')
         self.assertEqual(version_display.display_version('20.01.03'), 'v20.1.3')
-        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.38'], check=True)
+        subprocess.run([sys.executable, str(ROOT / 'scripts/bump_version.py'), '--check-next', '00.00.39'], check=True)
 
     def test_workflow_selection_has_no_four_choice_limit(self):
         reference = (ROOT / 'references/WORKFLOW_SELECTION.md').read_text(encoding='utf-8')
@@ -1649,7 +1649,7 @@ class Tests(unittest.TestCase):
             self.assertNotEqual(proc.returncode,0)
             self.assertIn('COMP-###',proc.stdout)
 
-    def test_comfyui_workflow_catalog_reuses_existing_sources_and_rejects_guesses(self):
+    def test_comfyui_workflow_catalog_does_not_scan_project_or_userdata_and_rejects_guesses(self):
         workflow = {
             '1': {'class_type': 'TestNode', 'inputs': {'choice': 'a', 'value': 3}},
             '2': {'class_type': 'SaveTest', 'inputs': {'data': ['1', 0]}},
@@ -1660,19 +1660,29 @@ class Tests(unittest.TestCase):
             workflows.mkdir(parents=True)
             (workflows / 'local.json').write_text(json.dumps(workflow), encoding='utf-8')
             client = comfyui_control.Client('http://127.0.0.1:1')
-            with patch.object(client, 'user_workflows', return_value=[
-                {'source': 'user', 'name': 'saved.json', 'path': 'workflows/saved.json'}
-            ]), patch.object(client, 'get', side_effect=AssertionError('template catalog must not be queried')):
+            with patch.object(
+                client,
+                'user_workflows',
+                side_effect=AssertionError('ComfyUI userdata workflows must not be scanned'),
+            ), patch.object(
+                client,
+                'get',
+                side_effect=AssertionError('ComfyUI/template workflow discovery must not be queried'),
+            ):
                 catalog = client.workflow_catalog(project)
-            self.assertEqual(
-                [x['source'] for x in catalog['workflows']],
-                ['project-workflow', 'user'],
+            self.assertEqual(catalog['workflows'], [])
+            self.assertTrue(
+                any('workflow discovery is disabled' in warning.lower() for warning in catalog['warnings'])
             )
-            with patch.object(client, '_get_first', return_value=workflow):
-                self.assertEqual(client.fetch_workflow_source('user', 'saved.json'), workflow)
-            for source in ('core', 'custom'):
-                with self.assertRaises(ValueError):
+            for source in ('user', 'core', 'custom', 'project-workflow'):
+                with self.assertRaisesRegex(ValueError, 'comfyui_workflows/custom'):
                     client.fetch_workflow_source(source, 'not-used')
+
+        authoring = (ROOT / 'skills/comfyui-workflow/SKILL.md').read_text(encoding='utf-8')
+        self.assertIn('Explicit workflow authoring', authoring)
+        self.assertIn('Do not require a `generate-new` catalog entry', authoring)
+        self.assertIn('comfyui_workflows/custom/<task>/<model>/', authoring)
+
         with FakeComfyServer() as srv:
             guessed = {'1': {'class_type': 'QwenImageTextToImageApi', 'inputs': {}}}
             verdict = comfyui_control.Client(srv.url).validate_workflow(guessed)

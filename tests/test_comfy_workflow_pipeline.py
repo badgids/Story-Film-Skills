@@ -93,18 +93,18 @@ class Tests(unittest.TestCase):
         )
         return root
 
-    def test_prepare_owns_discovery_and_preserves_nested_user_source(self):
+    def test_prepare_uses_extension_workflow_catalog(self):
         with tempfile.TemporaryDirectory() as td:
             root = self.project(td)
             catalog = {
                 'ok': True,
-                'workflows': [{'source': 'user', 'name': 'User/Qwen/image_qwen_Image_2512.json'}],
+                'workflows': [{'source': 'built-in', 'name': 'image_qwen_Image_2512.json', 'path': 'comfyui_workflows/image/Qwen-Image-2512/image_qwen_Image_2512.json'}],
                 'warnings': [],
             }
             fetched = root / '04_generation/comfyui/recovery/sources/01-user-User-Qwen-image_qwen_Image_2512.json'
             def fake_fetch(project, url, *, source, name, module='', out_path=''):
-                self.assertEqual(source, 'user')
-                self.assertEqual(name, 'User/Qwen/image_qwen_Image_2512.json')
+                self.assertEqual(source, 'built-in')
+                self.assertEqual(name, 'comfyui_workflows/image/Qwen-Image-2512/image_qwen_Image_2512.json')
                 path = root / out_path
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(json.dumps({'1': {'class_type': 'PromptNode', 'inputs': {'text': 'source'}}}), encoding='utf-8')
@@ -122,16 +122,12 @@ class Tests(unittest.TestCase):
             self.assertEqual(out['status'], 'llm-candidate-required')
             self.assertTrue((root / out['contract']).is_file())
             self.assertTrue((root / out['live_node_schemas']).is_file())
-            self.assertEqual(out['source_candidates'][0]['name'], 'User/Qwen/image_qwen_Image_2512.json')
+            self.assertEqual(out['source_candidates'][0]['name'], 'image_qwen_Image_2512.json')
 
-    def test_prepare_does_not_let_project_workflows_starve_user_sources(self):
+    def test_prepare_does_not_scan_project_or_user_workflow_sources(self):
         with tempfile.TemporaryDirectory() as td:
             root = self.project(td)
-            rows = [
-                {"source": "project-workflow", "name": f"SHOT-{i:03d}.json", "path": f"04_generation/comfyui/workflows/SHOT-{i:03d}.json"}
-                for i in range(1, 15)
-            ]
-            rows.append({"source": "user", "name": "User/Qwen/image_qwen_Image_2512.json"})
+            rows = [{"source": "built-in", "name": "image_qwen_Image_2512.json", "path": "comfyui_workflows/image/Qwen-Image-2512/image_qwen_Image_2512.json"}]
             fetched_names = []
 
             def fake_validate(project, url, *, workflow_path):
@@ -154,9 +150,8 @@ class Tests(unittest.TestCase):
                 (root / '00_project/comfyui_model_inventory.json').write_text('{}\n')
                 out = pipeline.prepare(root, 'http://127.0.0.1:8188', query='qwen image 2512 gguf', source_limit=2)
 
-            self.assertIn(('user', 'User/Qwen/image_qwen_Image_2512.json'), fetched_names)
-            self.assertEqual(out['source_counts']['project-workflow'], 2)
-            self.assertEqual(out['source_counts']['user'], 1)
+            self.assertIn(('built-in', 'comfyui_workflows/image/Qwen-Image-2512/image_qwen_Image_2512.json'), fetched_names)
+            self.assertEqual(out['source_counts'], {'built-in': 1})
 
     def test_finalize_accepts_one_llm_graph_then_script_fans_out_and_builds_batch(self):
         with tempfile.TemporaryDirectory() as td:
@@ -223,12 +218,12 @@ class Tests(unittest.TestCase):
                     pipeline.finalize(root, 'http://127.0.0.1:8188', workflow=candidate)
             self.assertEqual(existing.read_text(encoding='utf-8'), '{"old": true}\n')
 
-    def test_nested_user_workflow_fetch_preserves_path_segments(self):
+    def test_comfyui_userdata_fetch_is_disabled(self):
         path = ROOT / 'scripts/comfyui_control.py'
         if not path.is_file():
             self.skipTest('comfyui_control.py not present in isolated patch harness')
         source = path.read_text(encoding='utf-8')
-        self.assertIn('urllib.parse.quote(rel, safe="/")', source)
+        self.assertIn('ComfyUI userdata workflow fetching is disabled', source)
 
 
     def test_existing_offline_batch_is_authoritative_record_source(self):

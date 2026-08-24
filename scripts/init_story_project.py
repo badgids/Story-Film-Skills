@@ -30,7 +30,6 @@ DIRS = [
     '04_generation/prompts/ace-step-xl',
     '04_generation/prompts/minimax-music-3',
     '04_generation/prompts/stable-audio-3',
-    '04_generation/comfyui/default_workflows',
     '04_generation/comfyui/workflows',
     '04_generation/comfyui/templates',
     '04_generation/comfyui/fragments',
@@ -102,7 +101,6 @@ def main():
     resource_policy = root / '00_project/resource_policy.json'
     model_preferences = root / '00_project/model_preferences.json'
     workflow_preferences = root / '00_project/workflow_preferences.json'
-    workflow_sources = root / '00_project/workflow_sources.json'
     workflow_catalog = root / '00_project/comfyui_workflow_catalog.json'
     workflow_preflight = root / '00_project/workflow_preflight.json'
     resource_handoff = root / '00_project/resource_handoff.json'
@@ -223,8 +221,6 @@ def main():
         model_preferences.write_text(json.dumps(default_preferences(), indent=2) + '\n', encoding='utf-8')
     if not workflow_preferences.exists():
         workflow_preferences.write_text(json.dumps({'schema_version': 1, 'selections': {}, 'updated_at': ''}, indent=2) + '\n', encoding='utf-8')
-    if not workflow_sources.exists():
-        workflow_sources.write_text(json.dumps({'schema_version': 1, 'sources': []}, indent=2) + '\n', encoding='utf-8')
     if not workflow_catalog.exists():
         workflow_catalog.write_text(json.dumps({
             'schema_version': 1, 'generated_at': '', 'category': '', 'query': '',

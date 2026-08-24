@@ -1,4 +1,4 @@
 # image-edit workflows
 
-No workflow for this category was included in the replacement workflow archive used for v0.0.31.
-Story-Film can still list project defaults, package custom defaults, saved ComfyUI workflows, ComfyUI templates, registered external workflow directories, or generate a new workflow from live ComfyUI schemas.
+Story-Film catalogs this category only from the extension's `comfyui_workflows/` tree.
+Add custom workflow JSON files under `comfyui_workflows/custom/image-edit/<model>/`.

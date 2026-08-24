@@ -18,7 +18,7 @@ license: Apache-2.0
 
 1. In Pi, call `story_comfy` with `action=server-info`. Story-Film bootstraps the official control runtime automatically when needed.
 2. The managed comfy-mcp process is private stdio behind `story_comfy`; it is not registered in Pi's generic `mcp` tool. Do not use generic `mcp status/search/call` for Story-Film, and do not treat `MCP: 0/0 servers` there as a managed-runtime failure. Use `story_comfy action=mcp-status` when MCP health matters.
-3. Use `action=workflow-catalog` for workflow discovery and the native model/node actions for those inventories. Use `action=search-tools` only when an allowed non-gallery MCP verb is genuinely unknown. Story-Film filters upstream template-gallery tools and cross-references out of discovery.
+3. Use `action=workflow-catalog` for workflow discovery; it reads only the extension's `comfyui_workflows/` library. Use the native model/node actions for live inventories. Use `action=search-tools` only when an allowed non-gallery, non-workflow-discovery MCP verb is genuinely unknown. Story-Film filters upstream workflow/template discovery tools out of the LLM-facing MCP surface.
 4. Use `action=call` for the selected allowed official tool. Do not use template-catalog or template-running shortcuts.
 5. Validate workflow compatibility before running and keep Story-Film's workflow promotion gates around executable project copies.
 6. For long work, submit asynchronously, monitor by prompt ID, then fetch outputs.

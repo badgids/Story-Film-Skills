@@ -11,7 +11,7 @@
 - [What Story-Film searches](#what-story-film-searches)
 - [Materialize the selected workflow](#materialize-the-selected-workflow)
 - [The workflow owns its model choices](#the-workflow-owns-its-model-choices)
-- [Generate a new workflow](#generate-a-new-workflow)
+- [Create or add a custom workflow](#creating-a-new-workflow)
 - [Supplied workflow portability](#supplied-workflow-portability)
 - [Current selections](#current-selections)
 - [Related pages](#related-pages)
@@ -94,8 +94,8 @@ comfyui_workflows/
     Qwen3-VL/
 ```
 
-The v0.0.32 release ships at least 29 workflow JSON files.
-Twenty-six are ordinary production/reference workflows and three are retained research sources. User-added workflows are not capped and are not included in that release-minimum count.
+The extension ships at least 29 workflow JSON files in this baseline.
+Twenty-six are ordinary production/reference workflows and three are retained research sources. Custom workflows placed under `comfyui_workflows/custom/` are not capped and are not included in that release-minimum count.
 The 14 new Krea2 and Qwen files come from the user-supplied workflow archive.
 Story-Film installs the workflow JSON files, not the source ZIP.
 
@@ -112,14 +112,11 @@ The output is an ordinary numbered list:
 ```text
 Workflow choices for video:
 
-1. [project-default] MiniMax-H3 - my_default_h3.json
+1. [package-custom] MiniMax-H3 - my_custom_h3.json
 2. [built-in] MiniMax-H3 - video_minimax_h3_i2v.json
 3. [built-in] MiniMax-H3 - video_minimax_h3_r2v.json
 4. [built-in] MiniMax-H3 - video_minimax_h3_r2v_exact_audio_hybrid.json
 5. [built-in] MiniMax-H3 - video_minimax_h3_t2v.json
-6. [comfyui-user] Unspecified - workflows/my_saved_video.json
-7. [external] Unspecified - studio_video.json
-8. [generate-new] Live ComfyUI schemas - Generate a new video workflow
 
 Reply with the number you want to use.
 ```
@@ -164,73 +161,25 @@ comfyui_workflows/custom/video/My-H3-Setup/my_h3_workflow.json
 
 These appear as `package-custom`.
 
-### Project-local custom defaults
+### Adding your own workflows
 
-For custom defaults that belong to one film project, use:
-
-```text
-04_generation/comfyui/default_workflows/<task>/<model>/
-```
-
-This is usually safer than modifying the installed package because a package update does not replace the project directory.
-
-These appear as `project-default`.
-
-### Workflows you saved in ComfyUI
-
-When Story-Film can reach the active ComfyUI server, it asks ComfyUI for the workflows saved in the user's workflow area.
-
-You do not need to copy those files into Story-Film first.
-
-A common workflow is:
-
-1. open one of Story-Film's bundled workflows in ComfyUI;
-2. change the checkpoint, VAE, text encoder, LoRA, sampler, scheduler, nodes, or other settings;
-3. save the result as your own ComfyUI workflow;
-4. refresh the Story-Film workflow catalog;
-5. select your saved workflow by number.
-
-### ComfyUI templates
-
-Story-Film does not search ComfyUI core or custom-node template catalogs. If you want to use one, open it in ComfyUI and save it into your own workflow area, or export/register it as an external workflow. Story-Film will then see it as an ordinary user-saved or external workflow.
-
-### Another workflow file or directory
-
-Register another file:
-
-```bash
-python scripts/workflow_catalog.py source-add . /path/to/workflow.json
-```
-
-Register a directory:
-
-```bash
-python scripts/workflow_catalog.py source-add . /path/to/workflows
-```
-
-If automatic task detection is not clear, record the category:
-
-```bash
-python scripts/workflow_catalog.py source-add . /path/to/workflows --category video --model My-Video-Setup
-```
-
-Show registered sources:
-
-```bash
-python scripts/workflow_catalog.py source-list .
-```
-
-The project stores these registrations in:
+Story-Film does not scan project folders, ComfyUI userdata, template catalogs, or arbitrary external directories for workflow selection. To add a workflow, copy its JSON file into the extension library:
 
 ```text
-00_project/workflow_sources.json
+comfyui_workflows/custom/<task>/<model>/
 ```
 
-Story-Film source code never hardcodes your personal workflow path.
+For example:
+
+```text
+comfyui_workflows/custom/video/My-H3-Setup/my_h3_workflow.json
+```
+
+Refresh the numbered catalog after copying the file. It will appear as `package-custom`. This keeps discovery deterministic and portable: every selectable Story-Film workflow is physically inside the extension.
 
 ## Materialize the selected workflow
 
-Bundled workflows, external workflows, and saved ComfyUI workflows are preserved as sources.
+Bundled and package-custom workflows are preserved as extension sources.
 
 Before Story-Film edits one for the current production, it creates a project-owned copy:
 
@@ -256,18 +205,27 @@ If the selected workflow references something your active ComfyUI server cannot 
 
 You can:
 
-- edit the workflow in ComfyUI and save a new version;
+- edit the workflow in ComfyUI and copy/export the new JSON into `comfyui_workflows/custom/<task>/<model>/`;
 - install or restore the missing dependency yourself;
-- choose another workflow number;
-- ask Story-Film to generate a new workflow from the live node schemas.
+- choose another workflow number.
 
-## Generate a new workflow
+## Creating a new workflow
 
-When the catalog includes the `generate-new` choice and you select it, Story-Film can create one candidate using the live ComfyUI node schemas.
+Story-Film still creates new ComfyUI workflows when the user explicitly asks it to create, build, author, or design one. That is a workflow-authoring operation, not another discovery source and not an automatic fallback row in every workflow menu.
 
-The candidate must use the bounded workflow-generation path and pass live validation. Story-Film must not invent node classes from memory and must not silently install custom nodes.
+For an explicit authoring request:
 
-After the generated workflow is saved into the project, it becomes a normal project workflow and can be selected like every other workflow.
+1. inspect the running ComfyUI server's live node and model schemas;
+2. construct one bounded candidate from classes and inputs that actually exist;
+3. keep the candidate outside `04_generation/comfyui/workflows/` until it passes validation;
+4. validate required inputs, links, model/resource choices, and retrievable outputs;
+5. promote a project-specific runnable graph only through the normal validated promotion path;
+6. for a reusable Story-Film workflow, save or copy the validated JSON into `comfyui_workflows/custom/<task>/<model>/`;
+7. refresh the extension workflow catalog so the new workflow becomes a normal `package-custom` numbered choice.
+
+Do not invent node classes from memory. Missing custom nodes or models are blockers unless the user separately approves the required environment change.
+
+A newly authored or exported workflow becomes selectable only after its JSON file is placed under `comfyui_workflows/custom/<task>/<model>/` and the catalog is refreshed. Live ComfyUI schemas are authoring/validation inputs; they are not a separate workflow-discovery source.
 
 ## Supplied workflow portability
 

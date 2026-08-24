@@ -58,7 +58,7 @@ class V0035RuntimePreflightGuardTests(unittest.TestCase):
             prefs = json.loads(prefs_path.read_text(encoding="utf-8"))
             prefs["selections"] = {
                 category: {
-                    "source": "test",
+                    "source": "built-in",
                     "category": category,
                     "name": f"{category}.json",
                 }

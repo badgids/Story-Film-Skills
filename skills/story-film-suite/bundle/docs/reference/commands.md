@@ -51,12 +51,10 @@ Use `--help` on each script for all arguments.
 Workflow-first selection:
 
 ```bash
-python scripts/workflow_catalog.py catalog PROJECT --category video --url http://127.0.0.1:8188
+python scripts/workflow_catalog.py catalog PROJECT --category video
 python scripts/workflow_catalog.py choose PROJECT 3
 python scripts/workflow_catalog.py show PROJECT
-python scripts/workflow_catalog.py materialize PROJECT video --url http://127.0.0.1:8188
-python scripts/workflow_catalog.py source-add PROJECT /path/to/workflow-or-directory
-python scripts/workflow_catalog.py source-list PROJECT
+python scripts/workflow_catalog.py materialize PROJECT video
 ```
 
 ComfyUI inspection and execution helpers:

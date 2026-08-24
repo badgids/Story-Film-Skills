@@ -26,7 +26,7 @@ Relevant catalog categories include:
 - `image`
 - `image-edit`
 
-Bundled workflows are under `comfyui_workflows/<task>/<model>/`. Saved ComfyUI workflows, templates, project defaults, and external workflow directories can appear in the same numbered list.
+Bundled workflows are under `comfyui_workflows/<task>/<model>/`. Additional user/custom Story-Film workflows must be copied under `comfyui_workflows/custom/<task>/<model>/` before they can appear in the numbered list.
 
 ## Prop functional views
 

@@ -44,9 +44,9 @@ DEFAULT_COMFYUI_URL = "http://127.0.0.1:8188"
 DEFAULT_V2_URL = "http://127.0.0.1:8189"
 STATE_SCHEMA = 1
 TEMPLATE_POLICY_ERROR = (
-    "Story-Film does not search or run ComfyUI core/custom template catalogs or template-running shortcuts. "
-    "Use story_comfy action=workflow-catalog for bundled, project, user-saved, and registered external workflows; "
-    "use the generate-new workflow-selection fallback only when no suitable workflow exists."
+    "Story-Film does not search ComfyUI template catalogs, userdata workflows, project workflow folders, or external workflow paths. "
+    "Use story_comfy action=workflow-catalog for the extension's comfyui_workflows library. "
+    "To add a custom workflow, copy it into comfyui_workflows/custom/<task>/<model>/."
 )
 PRIVATE_MCP_INSTRUCTIONS = (
     "Story-Film owns this private comfy-mcp stdio session. Use only story_comfy for this managed server. "
@@ -68,7 +68,11 @@ def _template_request(*values: Any) -> bool:
 
 def _blocked_mcp_tool(name: str) -> bool:
     normalized = name.strip().casefold().replace("-", "_")
-    return "template" in normalized or normalized in BLOCKED_MCP_TOOLS
+    workflow_discovery = bool(
+        re.match(r"^(?:search|list|find|discover|fetch|get)_.*workflows?$", normalized)
+        or re.match(r"^workflows?_(?:search|list|find|discover|fetch|get)$", normalized)
+    )
+    return "template" in normalized or normalized in BLOCKED_MCP_TOOLS or workflow_discovery
 
 
 def _json_safe(value: Any) -> Any:

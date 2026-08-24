@@ -1,6 +1,6 @@
 ---
 name: generation-workflow-setup
-description: Discover complete ComfyUI workflows from Story-Film's bundled library, project defaults, saved ComfyUI user workflows, external workflow sources, or live-schema generation, then let the user select each required task from an ordinary numbered list.
+description: Discover complete ComfyUI workflows only from Story-Film's extension-local comfyui_workflows library, then let the user select each required task from an ordinary numbered list.
 disable-model-invocation: true
 author: Alan Guice (Badgids)
 license: Apache-2.0
@@ -26,32 +26,27 @@ Only missing categories or an explicit user-requested workflow change open an in
 
 1. Check `00_project/workflow_preferences.json` first. If the task already has a durable selection and no change was requested, reuse it without another user question.
 2. Determine the generation task category that the current preflight or production step needs.
-3. Discover the active ComfyUI server when the user's saved ComfyUI workflows are relevant. Do not search ComfyUI core/custom template catalogs.
-4. For a missing category, run `../../scripts/workflow_catalog.py catalog <project-root> --category <task> --url <server-url>`.
-5. Add `--query <text>` when the task needs a narrower subset.
-6. Show the command's complete ordinary numbered list to the user.
-7. Do **not** use `ask_user_question` or another TUI picker for workflow selection.
-8. Do **not** truncate the list. Story-Film imposes no maximum workflow count. Show every discovered workflow, including user-added workflows, regardless of how many choices exist.
+3. For a missing category, run `../../scripts/workflow_catalog.py catalog <project-root> --category <task>`.
+4. Add `--query <text>` when the task needs a narrower subset.
+5. Show the command's complete ordinary numbered list to the user.
+6. Do **not** use `ask_user_question` or another TUI picker for workflow selection.
+7. Do **not** truncate the list. Story-Film imposes no maximum workflow count. Show every built-in and package-custom workflow in the extension library regardless of how many choices exist.
    There is no four-choice limit for workflow selection. There is no higher Story-Film workflow-count limit.
-9. Ask the user to reply with the number of the workflow to use.
-10. After the user replies, record that exact choice with `workflow_catalog.py choose`.
-11. Materialize the selected source with `workflow_catalog.py materialize` unless the selected source is the `generate-new` choice.
-12. If `generate-new` was selected, use `comfyui-workflow` to build one candidate from live schemas, validate it, save it as a project workflow, refresh the catalog, and record the resulting real workflow.
-13. Inspect and live-validate the selected workflow before execution.
-14. If the workflow names unavailable models or missing nodes, report the exact blocker. Do not silently replace the workflow, model, VAE, encoder, LoRA, or other resource.
-15. Continue to the next required task category only after the current workflow choice is recorded.
+8. Ask the user to reply with the number of the workflow to use.
+9. After the user replies, record that exact choice with `workflow_catalog.py choose`.
+10. Materialize the selected extension source with `workflow_catalog.py materialize`.
+11. Inspect and live-validate the selected workflow before execution.
+12. If the workflow names unavailable models or missing nodes, report the exact blocker. Do not silently replace the workflow, model, VAE, encoder, LoRA, or other resource.
+13. Continue to the next required task category only after the current workflow choice is recorded.
 
 ## Source types
 
-The catalog can include:
+The catalog can include only:
 
 - bundled workflows under `../../comfyui_workflows/<task>/<model>/`;
-- package custom defaults under `../../comfyui_workflows/custom/<task>/<model>/`;
-- project defaults under `04_generation/comfyui/default_workflows/<task>/<model>/`;
-- existing project workflows;
-- workflows saved by the user inside ComfyUI;
-- explicit external files or directories registered by the user;
-- a final `generate-new` choice.
+- package custom workflows under `../../comfyui_workflows/custom/<task>/<model>/`.
+
+Project workflow/default folders, ComfyUI userdata, arbitrary external paths, and ComfyUI template catalogs are not discovery sources.
 
 Do not prefer a source merely because it appears first. The user chooses from the numbered list.
 
@@ -69,27 +64,21 @@ When checking whether resource names stored in the selected workflow are availab
 
 Use `scripts/model_inventory.py scan` only for low-level diagnostics and compatibility reporting. Do not run `find /` or another filesystem sweep to rediscover model files. Do not replace it with direct `curl`, `wget`, or one-off Python parsers. The running ComfyUI registry is runtime truth for model availability.
 
-## Custom workflow locations
+## Custom workflow location
 
-Package-level custom defaults:
+To add any custom, edited, exported, or newly authored workflow to Story-Film, copy its JSON file under:
 
 ```text
 comfyui_workflows/custom/<task>/<model>/
 ```
 
-Project-local defaults:
+Refresh the catalog after copying it. Story-Film never registers or scans an arbitrary external workflow path.
 
-```text
-04_generation/comfyui/default_workflows/<task>/<model>/
-```
+## Explicit workflow creation
 
-Register another file or directory:
+Do not add a `generate-new` choice to every normal workflow catalog. However, if the user explicitly asks Story-Film to create, build, author, or design a new ComfyUI workflow, route to `comfyui-workflow` and use its bounded live-schema authoring path.
 
-```bash
-python scripts/workflow_catalog.py source-add <project-root> <workflow-or-directory>
-```
-
-Saved ComfyUI user workflows appear in the live catalog. ComfyUI core/custom templates do not. If the user wants a template, they must save or copy it into their own ComfyUI workflow area first.
+The new candidate must be built from real live node/model schemas, validated before promotion, and must not invent node classes or silently install dependencies. If the new workflow should become reusable/selectable by Story-Film, save or copy the validated JSON into `comfyui_workflows/custom/<task>/<model>/`, refresh the catalog, and record that real workflow as the durable selection when appropriate.
 
 ## Done
 

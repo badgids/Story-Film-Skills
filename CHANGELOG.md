@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.0.38 (00.00.38) - 2026-08-24
+
+- Made `comfyui_workflows/` the only authoritative workflow-discovery location for Story-Film.
+- Removed selectable-workflow scanning of ComfyUI userdata/saved workflows, project workflow/default directories, registered external workflow paths, and template catalogs.
+- Kept custom workflows user-extensible through `comfyui_workflows/custom/<task>/<model>/`; users can copy exported or newly authored workflow JSON files there and refresh the catalog.
+- Preserved explicit new-workflow authoring: when the user asks Story-Film to create/build/author/design a workflow, Story-Film may use live ComfyUI node/model schemas to construct and validate a bounded candidate, then store reusable JSON under `comfyui_workflows/custom/<task>/<model>/`. This authoring path is separate from extension-only workflow discovery and is not an automatic catalog fallback.
+- Routed Pi-native `story_comfy workflow-catalog` and the bounded workflow pipeline through the extension-local catalog while retaining live ComfyUI node/model discovery, validation, and execution.
+- Blocked managed comfy-mcp workflow-discovery tools from bypassing the extension-local workflow policy.
+- Invalidated legacy durable selections from retired sources during workflow preflight so existing projects request a clean extension-library selection.
+- Updated workflow-selection documentation, ComfyUI guidance, project schema, skills, playbooks, and regression coverage for the extension-only policy.
+- Rebuilt the self-contained Story-Film suite bundle from the canonical sources.
+
 ## v0.0.37 (00.00.37) - 2026-08-23
 
 - Hardened Story-Film's managed comfy-mcp bridge so upstream template-gallery instructions and template-running shortcuts cannot override Story-Film workflow-selection policy.

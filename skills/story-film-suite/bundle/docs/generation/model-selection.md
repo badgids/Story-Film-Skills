@@ -19,12 +19,12 @@ Choose a complete workflow for each required task. The workflow already contains
 Use:
 
 ```bash
-python scripts/workflow_catalog.py catalog . --category video --url http://127.0.0.1:8188
+python scripts/workflow_catalog.py catalog . --category video
 ```
 
 Story-Film prints the full relevant numbered list, even when it contains more than four options. Reply with the number you want.
 
-Read [Choose ComfyUI workflows](workflow-selection.md) for built-in workflow directories, project defaults, saved ComfyUI workflows, templates, external workflow directories, materialization, and generated-workflow fallback.
+Read [Choose ComfyUI workflows](workflow-selection.md) for the bundled library, `comfyui_workflows/custom/<task>/<model>/`, materialization, and live validation.
 
 ## Compatibility tools
 

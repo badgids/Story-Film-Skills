@@ -46,6 +46,7 @@ class ManagedOfficialComfyRuntimeTests(unittest.TestCase):
                 {"name": "search_templates", "description": "templates"},
                 {"name": "generate_image", "description": "Uses a default template and search_templates."},
                 {"name": "search_models", "description": "List local model files; do not use search_templates for this."},
+                {"name": "list_workflows", "description": "List saved user workflows."},
             ]},
         }
         safe = runtime._sanitize_mcp_envelope(raw)
@@ -53,6 +54,7 @@ class ManagedOfficialComfyRuntimeTests(unittest.TestCase):
         self.assertNotIn("search_templates", safe_text)
         self.assertNotIn("run_template", safe_text)
         self.assertNotIn("generate_image", safe_text)
+        self.assertNotIn("list_workflows", safe_text)
         self.assertIn("private comfy-mcp stdio session", safe["server"]["instructions"])
 
         with patch.object(runtime, "_run_mcp", return_value=safe) as call:

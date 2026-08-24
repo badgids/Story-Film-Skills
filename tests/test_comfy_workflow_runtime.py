@@ -72,16 +72,14 @@ class Tests(unittest.TestCase):
         (root / '04_generation/comfyui/templates').mkdir(parents=True)
         return root
 
-    def test_catalog_searches_workflow_content_not_mcp_tool_names(self):
-        with tempfile.TemporaryDirectory() as td, patch.object(workflow, '_client', return_value=FakeClient()):
+    def test_catalog_uses_extension_library_without_comfyui_workflow_scan(self):
+        with tempfile.TemporaryDirectory() as td, patch.object(workflow, '_client') as client:
             root = self.project(td)
             complete = workflow.workflow_catalog(root, 'http://127.0.0.1:8188')
-            self.assertEqual([row['source'] for row in complete['workflows']], ['project-workflow', 'user'])
-            self.assertNotIn('core', {row['source'] for row in complete['workflows']})
-            out = workflow.workflow_catalog(root, 'http://127.0.0.1:8188', query='qwen image 2512 local')
-            self.assertEqual(out['count'], 1)
-            self.assertEqual(out['workflows'][0]['source'], 'user')
-            self.assertIn('live-validate', out['workflows'][0]['runnable_state'])
+            client.assert_not_called()
+            self.assertTrue(complete['workflows'])
+            self.assertTrue(all(row['source'] in {'built-in', 'package-custom'} for row in complete['workflows']))
+            self.assertEqual(complete['priority'], ['package-custom', 'built-in'])
 
     def test_node_search_and_path_use_only_live_installed_nodes(self):
         with patch.object(workflow, '_client', return_value=FakeClient()):
@@ -110,16 +108,16 @@ class Tests(unittest.TestCase):
             self.assertFalse(verdict['verdict']['valid'])
             self.assertTrue(any('expects IMAGE' in e and 'is MODEL' in e for e in verdict['verdict']['errors']))
 
-    def test_fetch_cannot_bypass_promotion_into_runnable_directory(self):
-        with tempfile.TemporaryDirectory() as td, patch.object(workflow, '_client', return_value=FakeClient()):
+    def test_fetch_rejects_non_extension_sources_and_runnable_destination(self):
+        with tempfile.TemporaryDirectory() as td:
             root = self.project(td)
-            with self.assertRaises(workflow.WorkflowRuntimeError):
-                workflow.workflow_fetch(root, 'http://127.0.0.1:8188', source='user', name='Qwen Image GGUF.json', out_path='04_generation/comfyui/workflows/direct.json')
-            out = workflow.workflow_fetch(root, 'http://127.0.0.1:8188', source='user', name='Qwen Image GGUF.json')
-            self.assertTrue((root / out['path']).is_file())
-            for source in ('core', 'custom', 'project-template'):
+            for source in ('user', 'project-workflow', 'core', 'custom', 'external'):
                 with self.assertRaises(workflow.WorkflowRuntimeError):
                     workflow.workflow_fetch(root, 'http://127.0.0.1:8188', source=source, name='not-used')
+            catalog = workflow.workflow_catalog(root, 'http://127.0.0.1:8188')
+            row = catalog['workflows'][0]
+            with self.assertRaises(workflow.WorkflowRuntimeError):
+                workflow.workflow_fetch(root, 'http://127.0.0.1:8188', source=row['source'], name=row['path'], out_path='04_generation/comfyui/workflows/direct.json')
 
 
 if __name__ == '__main__':

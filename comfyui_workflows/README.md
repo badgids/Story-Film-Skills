@@ -26,7 +26,7 @@ comfyui_workflows/
 
 The JSON files in this directory are the supplied workflows themselves. They are **not sanitized blueprints** and are not rewritten to remove their configured model/resource choices. Open any workflow in ComfyUI, make changes, and save a customized copy if you want a different model stack or graph.
 
-The v0.0.32 library contains at least 29 release workflow JSON files: 26 production/reference workflows and 3 research sources. The 14 workflows added in v0.0.32 provide Krea2 and Qwen built-ins for image, image editing, character sheets, storyboards, orbit sheets, and ComfyUI LLM text generation. Users may add any number of additional package-custom, project, saved-ComfyUI, template, or external workflows; Story-Film does not impose a catalog maximum.
+The library contains at least 29 baseline workflow JSON files: 26 production/reference workflows and 3 research sources. Users may add any number of additional Story-Film workflows under `comfyui_workflows/custom/<task>/<model>/`; Story-Film does not impose a catalog maximum.
 
 ## Custom Story-Film defaults
 
@@ -36,15 +36,11 @@ To add your own package-level defaults, place workflow JSON files under:
 comfyui_workflows/custom/<task>/<model>/
 ```
 
-For a single Story-Film project, place custom defaults under:
+Package custom workflows take priority over built-ins when Story-Film constructs a numbered workflow menu.
 
-```text
-04_generation/comfyui/default_workflows/<task>/<model>/
-```
+Story-Film does not discover selectable workflows anywhere else. Project workflow/template directories remain production outputs/staging only, and the connected ComfyUI instance is used for live node/model validation and execution rather than workflow discovery.
 
-Project defaults take priority over package custom defaults, which take priority over built-ins when Story-Film constructs a numbered workflow menu.
-
-Story-Film can also discover workflows saved in the connected ComfyUI instance, ComfyUI core/custom-node templates, registered external workflow files/directories, and project workflows/templates.
+Explicit workflow creation is still supported. When a user asks Story-Film to author a new workflow, Story-Film may build and validate it from live ComfyUI schemas; reusable authored JSON should then be placed under `comfyui_workflows/custom/<task>/<model>/` so it becomes a normal catalog choice.
 
 ## Research sources
 

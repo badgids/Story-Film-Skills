@@ -10,6 +10,9 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS = ROOT / "scripts"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
 WORKFLOW_ROOT = ROOT / "comfyui_workflows"
 
 
@@ -44,7 +47,7 @@ class V0031WorkflowSelectionTests(unittest.TestCase):
         for rel in required:
             self.assertTrue((WORKFLOW_ROOT / rel).is_file(), rel)
 
-    def test_video_catalog_is_numbered_and_not_limited_to_four(self):
+    def test_video_catalog_is_numbered_and_complete_for_extension_library(self):
         with tempfile.TemporaryDirectory() as td:
             project = Path(td) / "film"
             subprocess.run(
@@ -66,7 +69,14 @@ class V0031WorkflowSelectionTests(unittest.TestCase):
                 capture_output=True,
             )
             catalog = json.loads((project / "00_project/comfyui_workflow_catalog.json").read_text(encoding="utf-8"))
-            self.assertGreater(len(catalog["workflows"]), 4)
+            expected_video = list((WORKFLOW_ROOT / "video").rglob("*.json"))
+            custom_video = WORKFLOW_ROOT / "custom" / "video"
+            if custom_video.is_dir():
+                expected_video.extend(custom_video.rglob("*.json"))
+            self.assertEqual(len(catalog["workflows"]), len(expected_video))
+            self.assertTrue(
+                all(row["source"] in {"built-in", "package-custom"} for row in catalog["workflows"])
+            )
             self.assertRegex(result.stdout, r"(?m)^1\. \[built-in\]")
             self.assertIn("Reply with the number you want to use.", result.stdout)
             self.assertNotIn("ask_user_question", result.stdout)
@@ -92,7 +102,7 @@ class V0031WorkflowSelectionTests(unittest.TestCase):
             self.assertTrue(materialized.is_file())
             json.loads(materialized.read_text(encoding="utf-8"))
 
-    def test_external_and_project_default_workflow_sources(self):
+    def test_catalog_ignores_project_and_external_workflows(self):
         with tempfile.TemporaryDirectory() as td:
             base = Path(td)
             project = base / "film"
@@ -101,50 +111,19 @@ class V0031WorkflowSelectionTests(unittest.TestCase):
                 check=True,
                 stdout=subprocess.DEVNULL,
             )
-
             project_default = project / "04_generation/comfyui/default_workflows/sfx/CustomSFX/default.json"
             project_default.parent.mkdir(parents=True, exist_ok=True)
             project_default.write_text(json.dumps({"1": {"class_type": "TestSFX", "inputs": {}}}), encoding="utf-8")
+            project_workflow = project / "04_generation/comfyui/workflows/project.json"
+            project_workflow.write_text(json.dumps({"1": {"class_type": "ProjectNode", "inputs": {}}}), encoding="utf-8")
 
-            external = base / "external-workflows"
-            external.mkdir()
-            (external / "studio_sfx.json").write_text(
-                json.dumps({"1": {"class_type": "ExternalSFX", "inputs": {}}}),
-                encoding="utf-8",
-            )
-
-            subprocess.run(
-                [
-                    sys.executable,
-                    str(ROOT / "scripts/workflow_catalog.py"),
-                    "source-add",
-                    str(project),
-                    str(external),
-                    "--category",
-                    "sfx",
-                    "--model",
-                    "StudioSFX",
-                ],
-                check=True,
-                stdout=subprocess.DEVNULL,
-            )
-            subprocess.run(
-                [
-                    sys.executable,
-                    str(ROOT / "scripts/workflow_catalog.py"),
-                    "catalog",
-                    str(project),
-                    "--category",
-                    "sfx",
-                    "--no-generate",
-                ],
-                check=True,
-                stdout=subprocess.DEVNULL,
-            )
-            catalog = json.loads((project / "00_project/comfyui_workflow_catalog.json").read_text(encoding="utf-8"))
+            catalog = __import__("workflow_catalog").build_catalog(project, category="sfx", include_generate=False)
             sources = {row["source"] for row in catalog["workflows"]}
-            self.assertIn("project-default", sources)
-            self.assertIn("external", sources)
+            self.assertTrue(sources <= {"built-in", "package-custom"})
+            self.assertNotIn("project-default", sources)
+            self.assertNotIn("project-workflow", sources)
+            self.assertNotIn("external", sources)
+            self.assertNotIn("comfyui-user", sources)
 
     def test_workflow_first_contract_retires_model_tui(self):
         reference = (ROOT / "references/WORKFLOW_SELECTION.md").read_text(encoding="utf-8")
@@ -158,9 +137,9 @@ class V0031WorkflowSelectionTests(unittest.TestCase):
         self.assertIn("There is no four-choice limit", setup)
         self.assertIn("Direct interactive model/resource selection was retired", legacy)
         self.assertIn("comfyui_workflows/custom/<task>/<model>/", docs)
-        self.assertIn("04_generation/comfyui/default_workflows/<task>/<model>/", docs)
-        self.assertIn("does not search ComfyUI core or custom-node template catalogs", docs)
-        self.assertIn("ComfyUI templates are user-managed", reference)
+        self.assertIn("does not scan project folders, ComfyUI userdata", docs)
+        self.assertIn("Story-Film does **not** scan:", reference)
+        self.assertIn("Explicit workflow creation", reference)
         self.assertNotIn("[comfyui-core-template]", docs)
 
         pipeline = (ROOT / "scripts/comfy_workflow_pipeline.py").read_text(encoding="utf-8")
@@ -173,8 +152,9 @@ class V0031WorkflowSelectionTests(unittest.TestCase):
         self.assertIn("Preserve it exactly", validator)
 
         comfy_generate = (ROOT / "skills/story-film/playbooks/comfyui-generate.md").read_text(encoding="utf-8")
-        self.assertNotIn("`generate-new`", comfy_generate)
-        self.assertIn("generate-new catalog option", comfy_generate)
+        self.assertNotIn("generate-new catalog option", comfy_generate)
+        self.assertIn("explicitly asks Story-Film to create a new workflow", comfy_generate)
+        self.assertIn("bounded live-schema workflow-authoring path", comfy_generate)
 
 
 if __name__ == "__main__":

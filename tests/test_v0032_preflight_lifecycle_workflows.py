@@ -110,7 +110,7 @@ class V0032PreflightLifecycleWorkflowTests(unittest.TestCase):
             self.assertTrue(path.is_file(), rel)
             self.assertIsInstance(json.loads(path.read_text(encoding="utf-8")), dict, rel)
 
-    def test_user_added_workflow_catalog_has_no_story_film_maximum(self):
+    def test_project_workflows_are_not_discovery_sources(self):
         with tempfile.TemporaryDirectory() as td:
             project = Path(td) / "film"
             subprocess.run(
@@ -120,21 +120,14 @@ class V0032PreflightLifecycleWorkflowTests(unittest.TestCase):
             )
             custom = project / "04_generation/comfyui/default_workflows/image/UserAdded"
             custom.mkdir(parents=True, exist_ok=True)
-            wanted = 137
-            for index in range(wanted):
+            for index in range(137):
                 (custom / f"user_{index:03d}.json").write_text(
                     json.dumps({"1": {"class_type": "UserNode", "inputs": {"index": index}}}),
                     encoding="utf-8",
                 )
-            catalog = workflow_catalog.build_catalog(
-                project, category="image", include_generate=False
-            )
-            user_rows = [
-                row for row in catalog["workflows"]
-                if row.get("source") == "project-default"
-                and "/UserAdded/" in str(row.get("path", ""))
-            ]
-            self.assertEqual(len(user_rows), wanted)
+            catalog = workflow_catalog.build_catalog(project, category="image", include_generate=False)
+            self.assertFalse(any(row.get("source") == "project-default" for row in catalog["workflows"]))
+            self.assertTrue(all(row.get("source") in {"built-in", "package-custom"} for row in catalog["workflows"]))
             self.assertNotIn("limit", catalog)
 
     def test_film_workflow_preflight_is_complete_before_story_work(self):
@@ -156,7 +149,7 @@ class V0032PreflightLifecycleWorkflowTests(unittest.TestCase):
             prefs_path = project / "00_project/workflow_preferences.json"
             prefs = json.loads(prefs_path.read_text(encoding="utf-8"))
             prefs["selections"] = {
-                category: {"source": "test", "category": category, "name": category + ".json"}
+                category: {"source": "built-in", "category": category, "name": category + ".json"}
                 for category in state["required_categories"]
             }
             prefs_path.write_text(json.dumps(prefs, indent=2) + "\n", encoding="utf-8")

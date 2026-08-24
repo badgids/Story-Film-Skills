@@ -56,7 +56,7 @@ For every missing category, run the normal numbered workflow catalog and record 
 
 A later missing model, node, input, or other live validation dependency is a blocker. It is not permission to silently select a different workflow or restart the workflow interview.
 
-Workflow discovery is unbounded by Story-Film. Enumerate every relevant built-in, package-custom, project-default, project-workflow, saved-ComfyUI, external, and user-added workflow returned by discovery. Do not cap, truncate, or silently omit choices because the catalog is large.
+Workflow discovery is unbounded by Story-Film within the extension library. Enumerate every relevant built-in and package-custom workflow under `comfyui_workflows/`; do not cap, truncate, or silently omit choices because the catalog is large.
 
 Durable preflight state is stored in:
 
@@ -66,7 +66,7 @@ Durable preflight state is stored in:
 
 ## Workflow sources
 
-Story-Film can catalog workflows from all of these sources.
+Story-Film catalogs workflows from one authoritative location: the extension's `comfyui_workflows/` directory.
 
 ### 1. Bundled Story-Film workflows
 
@@ -76,63 +76,43 @@ The built-in library is:
 comfyui_workflows/<task>/<model>/*.json
 ```
 
-These are complete editable ComfyUI workflow JSON files.
+These are complete editable ComfyUI workflow JSON files. `research/` remains excluded from ordinary production selection.
 
-### 2. Package-level custom defaults
+### 2. User/custom Story-Film workflows
 
-Users who intentionally maintain a customized Story-Film installation can add workflow defaults under:
+To add a workflow for Story-Film, copy the JSON file into:
 
 ```text
 comfyui_workflows/custom/<task>/<model>/*.json
 ```
 
-These appear in the same catalog but are labeled as package custom workflows.
+These appear in the same numbered catalog as `package-custom` workflows. There is no catalog-size limit.
 
-### 3. Project-local default workflows
+Story-Film does **not** scan:
 
-Project-specific defaults belong under:
+- ComfyUI's saved/userdata workflows;
+- ComfyUI core or custom-node template catalogs;
+- `04_generation/comfyui/default_workflows/`;
+- `04_generation/comfyui/workflows/`;
+- arbitrary user-registered files or directories.
 
-```text
-04_generation/comfyui/default_workflows/<task>/<model>/*.json
-```
+Project `templates/` and `workflows/` directories remain production staging/output areas after selection; they are not discovery sources. If a user creates or exports a new workflow, copy it into the appropriate `comfyui_workflows/custom/<task>/<model>/` directory before refreshing the catalog.
 
-This is the preferred place for project-owned defaults because package updates do not replace them.
+## Explicit workflow creation
 
-### 4. Existing project workflows
+Workflow **creation remains supported**. Extension-only discovery does not mean Story-Film is limited to workflows that already exist.
 
-Story-Film catalogs JSON workflows already present under:
+When the user explicitly asks Story-Film to create, build, author, or design a new ComfyUI workflow:
 
-```text
-04_generation/comfyui/workflows/
-```
+1. treat that request as workflow authoring, not workflow discovery;
+2. use the running ComfyUI server's live node/model schemas to determine real installed classes, inputs, outputs, and resource choices;
+3. build one bounded candidate outside the runnable workflow directory;
+4. validate the candidate against the live schemas and normal Story-Film workflow gates;
+5. do not invent node classes from memory and do not silently install missing custom nodes;
+6. promote a validated project-specific candidate only through the normal workflow-promotion path;
+7. when the workflow should be reusable/selectable by Story-Film, save or copy its JSON into `comfyui_workflows/custom/<task>/<model>/` and refresh the catalog.
 
-`04_generation/comfyui/templates/` remains an internal project-owned staging/materialization area. Files placed there are not added to workflow selection merely because they are templates.
-
-### 5. The user's saved ComfyUI workflows
-
-When the running ComfyUI server exposes its userdata workflow listing, Story-Film catalogs the user's saved workflows from ComfyUI.
-
-### 6. ComfyUI templates are user-managed
-
-Story-Film does not search ComfyUI core or custom-node template catalogs. If the user wants to use one of those templates, they can open it in ComfyUI and save it into their own workflow area, or register an exported workflow file/directory as an external source. It then participates in selection as a normal user-saved or external workflow.
-
-### 7. Explicit external files or directories
-
-The user can point Story-Film at another `.json` workflow or directory of workflows.
-
-Registered external sources are stored in:
-
-```text
-00_project/workflow_sources.json
-```
-
-Paths are user-provided runtime configuration. Story-Film source code must never contain a hardcoded personal machine path.
-
-### 8. A new Story-Film-generated workflow
-
-If none of the available workflows fits, the numbered catalog can include a `generate-new` choice.
-
-Choosing it authorizes Story-Film to create one candidate from the running ComfyUI server's live node schemas using the bounded workflow-generation path. The candidate must pass live validation before becoming runnable. Story-Film must not guess node classes from memory or silently install missing custom nodes.
+Story-Film does not need a permanent `generate-new` row in every numbered catalog. Explicit user intent to create a workflow is sufficient authorization to enter the bounded workflow-authoring path.
 
 ## Numbered selection, not a TUI question limit
 
@@ -154,14 +134,11 @@ Example:
 ```text
 Video workflow choices:
 
-1. [project default] MiniMax-H3 - my_h3_default.json
+1. [package-custom] MiniMax-H3 - my_h3_custom.json
 2. [built-in] MiniMax-H3 - video_minimax_h3_i2v.json
 3. [built-in] MiniMax-H3 - video_minimax_h3_r2v.json
 4. [built-in] MiniMax-H3 - video_minimax_h3_r2v_exact_audio_hybrid.json
 5. [built-in] MiniMax-H3 - video_minimax_h3_t2v.json
-6. [ComfyUI saved] workflows/my_video_workflow.json
-7. [external] studio_video.json
-8. [generate] Generate a new workflow from live ComfyUI schemas
 
 Reply with the number you want to use.
 ```
@@ -174,13 +151,11 @@ The numeric catalog entry is ephemeral. The durable selection stores the workflo
 
 `00_project/workflow_preferences.json` stores selected workflows by task category.
 
-`00_project/workflow_sources.json` stores user-registered external files or directories.
-
-A selection record includes enough source identity to reopen or materialize the same workflow without reconstructing the choice from chat history.
+A selection record includes enough extension-library source identity to reopen or materialize the same workflow without reconstructing the choice from chat history.
 
 ## Materialization
 
-Never edit a bundled workflow, a saved ComfyUI workflow, or an external source in place during production.
+Never edit a bundled or package-custom source in place during production.
 
 Copy or fetch the selected source into the project first:
 
@@ -190,7 +165,7 @@ Copy or fetch the selected source into the project first:
 
 The selected copy remains editable and inspectable.
 
-When a user opens a bundled workflow in ComfyUI, changes its model choices or settings, and saves it as a ComfyUI user workflow, that saved workflow becomes a separate selectable source on the next catalog refresh.
+When a user edits a workflow in ComfyUI, the edited/exported JSON becomes selectable only after it is copied into `comfyui_workflows/custom/<task>/<model>/` and the Story-Film catalog is refreshed.
 
 ## Validation
 

@@ -74,7 +74,7 @@ Run production coverage before generation.
 
 Prepare model-neutral briefs first.
 
-For ComfyUI-backed production, the required workflows were selected during pre-story workflow preflight. Reuse those durable selections here. Story-Film may use bundled workflows, package custom defaults, project defaults/workflows, saved ComfyUI user workflows, registered external workflows, or the live-schema generate-new fallback. It does not search ComfyUI core/custom template catalogs.
+For ComfyUI-backed production, the required workflows were selected during pre-story workflow preflight. Reuse those durable selections here. Story-Film selects only from its `comfyui_workflows/` extension library: bundled workflows plus files copied into `comfyui_workflows/custom/<task>/<model>/`.
 
 The selected workflow owns its checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, and other graph settings.
 

@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import shutil
 from datetime import datetime, timezone
@@ -15,12 +14,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 LIBRARY_ROOT = ROOT / "comfyui_workflows"
-PROJECT_DEFAULTS = Path("04_generation/comfyui/default_workflows")
-PROJECT_WORKFLOWS = Path("04_generation/comfyui/workflows")
 PROJECT_TEMPLATES = Path("04_generation/comfyui/templates")
 CATALOG_FILE = Path("00_project/comfyui_workflow_catalog.json")
 PREFERENCES_FILE = Path("00_project/workflow_preferences.json")
-SOURCES_FILE = Path("00_project/workflow_sources.json")
 
 CATEGORIES = (
     "image",
@@ -235,108 +231,6 @@ def scan_structured(
     return rows
 
 
-def scan_project_loose(root: Path, rel: Path, source: str) -> list[dict[str, Any]]:
-    base = root / rel
-    rows: list[dict[str, Any]] = []
-    if not base.is_dir():
-        return rows
-    for path in sorted(base.rglob("*.json")):
-        relative = path.relative_to(root).as_posix()
-        text = relative
-        rows.append(
-            local_entry(
-                source=source,
-                path=path,
-                category=infer_category(text),
-                model=infer_model(text),
-                storage="project-relative",
-                display_path=relative,
-            )
-        )
-    return rows
-
-
-def sources_path(root: Path) -> Path:
-    return root / SOURCES_FILE
-
-
-def source_records(root: Path) -> list[dict[str, Any]]:
-    obj = load_json(sources_path(root), {"schema_version": 1, "sources": []})
-    rows = obj.get("sources", []) if isinstance(obj, dict) else []
-    return [dict(x) for x in rows if isinstance(x, dict)]
-
-
-def scan_external(root: Path) -> tuple[list[dict[str, Any]], list[str]]:
-    rows: list[dict[str, Any]] = []
-    warnings: list[str] = []
-    for index, record in enumerate(source_records(root), 1):
-        raw = str(record.get("path") or "").strip()
-        if not raw:
-            continue
-        source_path = Path(raw).expanduser()
-        if not source_path.is_absolute():
-            source_path = (root / source_path).resolve()
-        else:
-            source_path = source_path.resolve()
-        category_override = normalize_category(str(record.get("category") or "")) if record.get("category") else ""
-        model_override = str(record.get("model") or "").strip()
-        if source_path.is_file():
-            candidates = [source_path] if source_path.suffix.lower() == ".json" else []
-        elif source_path.is_dir():
-            candidates = sorted(source_path.rglob("*.json"))
-        else:
-            warnings.append(f"external workflow source #{index} is unavailable: {source_path}")
-            continue
-        for path in candidates:
-            label = f"{source_path.name}/{path.relative_to(source_path).as_posix()}" if source_path.is_dir() else path.name
-            rows.append(
-                local_entry(
-                    source="external",
-                    path=path,
-                    category=category_override or infer_category(label),
-                    model=model_override or infer_model(label),
-                    storage="absolute",
-                    display_path=str(path),
-                )
-            )
-    return rows, warnings
-
-
-def live_entries(root: Path, url: str) -> tuple[list[dict[str, Any]], list[str]]:
-    if not url:
-        return [], []
-    try:
-        from comfyui_control import Client, resolve_url  # type: ignore
-        client = Client(resolve_url(url))
-        result = client.workflow_catalog(root)
-    except Exception as exc:
-        return [], [f"live ComfyUI workflow catalog unavailable: {exc}"]
-
-    rows: list[dict[str, Any]] = []
-    warnings = list(result.get("warnings", [])) if isinstance(result, dict) else []
-    for item in result.get("workflows", []) if isinstance(result, dict) else []:
-        if not isinstance(item, dict):
-            continue
-        raw_source = str(item.get("source") or "")
-        if raw_source != "user":
-            continue
-        text = json.dumps(item, ensure_ascii=False, sort_keys=True)
-        model_text = " ".join(str(x) for x in item.get("models", [])) if isinstance(item.get("models"), list) else text
-        rows.append(
-            {
-                "source": "comfyui-user",
-                "category": infer_category(text),
-                "model": infer_model(model_text + " " + text),
-                "name": str(item.get("name") or item.get("title") or "workflow"),
-                "module": str(item.get("module") or ""),
-                "format": "remote",
-                "remote_source": "user",
-                "metadata": item,
-            }
-        )
-    return rows, warnings
-
-
 def dedupe(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -366,6 +260,10 @@ def build_catalog(
     url: str = "",
     include_generate: bool = True,
 ) -> dict[str, Any]:
+    # `url` and `include_generate` remain accepted for backward-compatible callers,
+    # but workflow discovery is deliberately extension-local. Story-Film never scans
+    # the project, ComfyUI userdata, or arbitrary external paths for selectable graphs.
+    del root, url, include_generate
     rows: list[dict[str, Any]] = []
     warnings: list[str] = []
 
@@ -386,23 +284,6 @@ def build_catalog(
             display_prefix="comfyui_workflows/custom",
         )
     )
-    rows.extend(
-        scan_structured(
-            root / PROJECT_DEFAULTS,
-            source="project-default",
-            storage="project-relative",
-            display_prefix=PROJECT_DEFAULTS.as_posix(),
-        )
-    )
-    rows.extend(scan_project_loose(root, PROJECT_WORKFLOWS, "project-workflow"))
-
-    external_rows, external_warnings = scan_external(root)
-    rows.extend(external_rows)
-    warnings.extend(external_warnings)
-
-    remote_rows, remote_warnings = live_entries(root, url)
-    rows.extend(remote_rows)
-    warnings.extend(remote_warnings)
 
     rows = dedupe(rows)
     wanted = normalize_category(category) if category else ""
@@ -417,15 +298,7 @@ def build_catalog(
             if needle in json.dumps(row, ensure_ascii=False, sort_keys=True).casefold()
         ]
 
-    priority = {
-        "project-default": 0,
-        "package-custom": 1,
-        "built-in": 2,
-        "project-workflow": 3,
-        "comfyui-user": 4,
-        "external": 5,
-        "generate-new": 6,
-    }
+    priority = {"package-custom": 0, "built-in": 1}
     rows.sort(
         key=lambda row: (
             priority.get(str(row.get("source")), 99),
@@ -433,17 +306,6 @@ def build_catalog(
             str(row.get("name", "")).casefold(),
         )
     )
-
-    if wanted and include_generate:
-        rows.append(
-            {
-                "source": "generate-new",
-                "category": wanted,
-                "model": "Live ComfyUI schemas",
-                "name": f"Generate a new {wanted} workflow",
-                "format": "generated-candidate",
-            }
-        )
 
     numbered: list[dict[str, Any]] = []
     for number, row in enumerate(rows, 1):
@@ -456,7 +318,7 @@ def build_catalog(
         "generated_at": now(),
         "category": wanted,
         "query": query,
-        "comfyui_url": url,
+        "workflow_library": "comfyui_workflows",
         "count": len(numbered),
         "workflows": numbered,
         "warnings": warnings,
@@ -553,75 +415,19 @@ def cmd_clear(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_source_add(args: argparse.Namespace) -> int:
-    root = project_root(args.project)
-    path = Path(args.path).expanduser()
-    path = path.resolve() if path.is_absolute() else (Path.cwd() / path).resolve()
-    if not path.exists():
-        raise SystemExit(f"workflow source does not exist: {path}")
-    if path.is_file() and path.suffix.lower() != ".json":
-        raise SystemExit("workflow source file must be a .json file")
-    category = normalize_category(args.category) if args.category else ""
-    obj = load_json(sources_path(root), {"schema_version": 1, "sources": []})
-    if not isinstance(obj, dict):
-        obj = {"schema_version": 1, "sources": []}
-    sources = obj.setdefault("sources", [])
-    if not isinstance(sources, list):
-        sources = []
-        obj["sources"] = sources
-    record = {
-        "path": str(path),
-        "category": category,
-        "model": args.model.strip(),
-        "added_at": now(),
-    }
-    if any(isinstance(row, dict) and str(row.get("path")) == str(path) for row in sources):
-        raise SystemExit(f"workflow source is already registered: {path}")
-    sources.append(record)
-    write_json(sources_path(root), obj)
-    print(json.dumps({"number": len(sources), **record}, indent=2, ensure_ascii=False))
-    return 0
-
-
-def cmd_source_list(args: argparse.Namespace) -> int:
-    root = project_root(args.project)
-    rows = source_records(root)
-    for index, row in enumerate(rows, 1):
-        print(f"{index}. {row.get('path', '')}")
-        if row.get("category") or row.get("model"):
-            print(f"   category={row.get('category') or 'auto'} model={row.get('model') or 'auto'}")
-    if not rows:
-        print("No external workflow sources are registered.")
-    return 0
-
-
-def cmd_source_remove(args: argparse.Namespace) -> int:
-    root = project_root(args.project)
-    obj = load_json(sources_path(root), {"schema_version": 1, "sources": []})
-    rows = obj.get("sources", []) if isinstance(obj, dict) else []
-    if not isinstance(rows, list):
-        rows = []
-    number = int(args.number)
-    if number < 1 or number > len(rows):
-        raise SystemExit(f"source number must be between 1 and {len(rows)}")
-    removed = rows.pop(number - 1)
-    obj["sources"] = rows
-    write_json(sources_path(root), obj)
-    print(json.dumps(removed, indent=2, ensure_ascii=False))
-    return 0
-
-
 def resolve_local_entry(root: Path, selected: dict[str, Any]) -> Path:
+    del root
     storage = selected.get("storage")
     raw = str(selected.get("path") or "")
-    if storage == "repo-relative":
-        path = (ROOT / raw).resolve()
-    elif storage == "project-relative":
-        path = (root / raw).resolve()
-    elif storage == "absolute":
-        path = Path(raw).expanduser().resolve()
-    else:
-        raise SystemExit("selected workflow does not have a local source path")
+    if storage != "repo-relative":
+        raise SystemExit(
+            "selected workflow is from a retired external/project source; rebuild the catalog and select an extension workflow"
+        )
+    path = (ROOT / raw).resolve()
+    try:
+        path.relative_to(LIBRARY_ROOT.resolve())
+    except ValueError as exc:
+        raise SystemExit("selected workflow must stay inside the Story-Film comfyui_workflows directory") from exc
     if not path.is_file():
         raise SystemExit(f"selected workflow source is unavailable: {path}")
     return path
@@ -637,36 +443,17 @@ def cmd_materialize(args: argparse.Namespace) -> int:
         raise SystemExit(f"no workflow is selected for {category}")
 
     source = str(selected.get("source") or "")
-    if source == "generate-new":
+    if source not in {"built-in", "package-custom"}:
         raise SystemExit(
-            "generate-new is selected. Build one candidate through the bounded live-schema "
-            "comfyui-workflow path, save it as a project workflow, refresh the catalog, and choose that real workflow."
+            f"selected workflow source {source!r} is no longer selectable; rebuild the catalog and choose a workflow from comfyui_workflows/"
         )
 
     destination = root / PROJECT_TEMPLATES / "selected" / category / safe_name(str(selected.get("name") or "workflow.json"))
     destination.parent.mkdir(parents=True, exist_ok=True)
 
-    if source in {"built-in", "package-custom", "project-default", "project-workflow", "project-template", "external"}:
-        src = resolve_local_entry(root, selected)
-        if src.resolve() != destination.resolve():
-            shutil.copy2(src, destination)
-    elif source in {"comfyui-user", "comfyui-core-template", "comfyui-custom-template"}:
-        if not args.url:
-            raise SystemExit("materializing a ComfyUI-saved/template workflow requires --url")
-        try:
-            from comfyui_control import Client, resolve_url  # type: ignore
-            client = Client(resolve_url(args.url))
-            remote_source = str(selected.get("remote_source") or "")
-            workflow = client.fetch_workflow_source(
-                remote_source,
-                str(selected.get("name") or ""),
-                module=str(selected.get("module") or "") or None,
-            )
-        except Exception as exc:
-            raise SystemExit(f"could not fetch selected ComfyUI workflow: {exc}") from exc
-        destination.write_text(json.dumps(workflow, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    else:
-        raise SystemExit(f"unsupported selected workflow source: {source}")
+    src = resolve_local_entry(root, selected)
+    if src.resolve() != destination.resolve():
+        shutil.copy2(src, destination)
 
     result = {
         "category": category,
@@ -691,8 +478,8 @@ def main() -> int:
     p.add_argument("project")
     p.add_argument("--category", default="")
     p.add_argument("--query", default="")
-    p.add_argument("--url", default="")
-    p.add_argument("--no-generate", action="store_true")
+    p.add_argument("--url", default="", help=argparse.SUPPRESS)
+    p.add_argument("--no-generate", action="store_true", help=argparse.SUPPRESS)
     p.set_defaults(func=cmd_catalog)
 
     p = sub.add_parser("choose", help="Choose a numbered entry from the most recent catalog.")
@@ -709,26 +496,10 @@ def main() -> int:
     p.add_argument("category")
     p.set_defaults(func=cmd_clear)
 
-    p = sub.add_parser("source-add", help="Register another workflow JSON file or directory.")
-    p.add_argument("project")
-    p.add_argument("path")
-    p.add_argument("--category", default="")
-    p.add_argument("--model", default="")
-    p.set_defaults(func=cmd_source_add)
-
-    p = sub.add_parser("source-list", help="List registered external workflow sources.")
-    p.add_argument("project")
-    p.set_defaults(func=cmd_source_list)
-
-    p = sub.add_parser("source-remove", help="Remove a registered external workflow source by number.")
-    p.add_argument("project")
-    p.add_argument("number", type=int)
-    p.set_defaults(func=cmd_source_remove)
-
-    p = sub.add_parser("materialize", help="Copy/fetch the selected workflow into the project.")
+    p = sub.add_parser("materialize", help="Copy the selected extension workflow into the project.")
     p.add_argument("project")
     p.add_argument("category")
-    p.add_argument("--url", default="")
+    p.add_argument("--url", default="", help=argparse.SUPPRESS)
     p.set_defaults(func=cmd_materialize)
 
     args = ap.parse_args()

@@ -246,32 +246,9 @@ class Client:
         raise ComfyError(404, f"none of the compatible ComfyUI endpoints are available: {', '.join(paths)}", "; ".join(failures))
 
     def user_workflows(self) -> list[dict[str, Any]]:
-        out = self._get_first(
-            ["userdata", "api/userdata"],
-            query={"dir": "workflows", "recurse": "true", "full_info": "true"},
-        )
-        rows: list[dict[str, Any]] = []
-        if not isinstance(out, list):
-            return rows
-        for item in out:
-            if isinstance(item, str):
-                path = item
-                meta: dict[str, Any] = {}
-            elif isinstance(item, dict):
-                path = str(item.get("path", ""))
-                meta = dict(item)
-            else:
-                continue
-            if not path.lower().endswith(".json"):
-                continue
-            rows.append({
-                "source": "user",
-                "name": path,
-                "path": f"workflows/{path}" if not path.startswith("workflows/") else path,
-                "size": meta.get("size"),
-                "modified": meta.get("modified"),
-            })
-        return rows
+        # Story-Film deliberately does not enumerate ComfyUI userdata workflows.
+        # Custom Story-Film workflows belong under comfyui_workflows/custom/.
+        return []
 
     def workflow_catalog(
         self,
@@ -280,58 +257,20 @@ class Client:
         query: str | None = None,
         source: str | None = None,
     ) -> dict[str, Any]:
-        entries: list[dict[str, Any]] = []
-        warnings: list[str] = []
-        if project is not None:
-            root = Path(project).expanduser().resolve()
-            folder = root / "04_generation/comfyui/workflows"
-            if folder.is_dir():
-                for path in sorted(folder.rglob("*.json")):
-                    try:
-                        data = load_json(path)
-                        fmt = detect_format(data)
-                    except (OSError, json.JSONDecodeError):
-                        fmt = "invalid"
-                    entries.append({
-                        "source": "project-workflow",
-                        "name": path.name,
-                        "path": path.relative_to(root).as_posix(),
-                        "format": fmt,
-                    })
-        try:
-            entries.extend(self.user_workflows())
-        except ComfyError as exc:
-            if exc.status not in {404, 405}:
-                raise
-            warnings.append(f"ComfyUI user workflow listing unavailable: {exc}")
-        if source:
-            entries = [x for x in entries if x.get("source") == source]
-        if query:
-            needle = query.lower()
-            entries = [
-                x for x in entries
-                if needle in json.dumps(x, ensure_ascii=False, sort_keys=True).lower()
-            ]
-        priority = {"project-workflow": 0, "user": 1}
-        entries.sort(key=lambda x: (priority.get(str(x.get("source")), 99), str(x.get("name", "")).lower()))
-        return {"count": len(entries), "workflows": entries, "warnings": warnings}
+        del project, query, source
+        return {
+            "count": 0,
+            "workflows": [],
+            "warnings": [
+                "ComfyUI/project workflow discovery is disabled; Story-Film catalogs only its comfyui_workflows directory"
+            ],
+        }
 
     def fetch_workflow_source(self, source: str, name: str, *, module: str | None = None) -> dict[str, Any]:
-        if source != "user":
-            raise ValueError("workflow source must be user; ComfyUI template sources are not part of Story-Film workflow selection")
-        rel = name.strip().replace("\\", "/")
-        if not rel:
-            raise ValueError("user workflow name is required")
-        if not rel.startswith("workflows/"):
-            rel = "workflows/" + rel
-        if not rel.lower().endswith(".json"):
-            rel += ".json"
-        encoded = urllib.parse.quote(rel, safe="/")
-        legacy_encoded = urllib.parse.quote(rel, safe="")
-        out = self._get_first([f"userdata/{encoded}", f"api/userdata/{encoded}", f"userdata/{legacy_encoded}", f"api/userdata/{legacy_encoded}"])
-        if not isinstance(out, dict):
-            raise ValueError("user workflow did not return a JSON object")
-        return out
+        del source, name, module
+        raise ValueError(
+            "ComfyUI userdata workflow fetching is disabled; copy custom workflows into comfyui_workflows/custom/<task>/<model>/"
+        )
 
     def validate_workflow(self, workflow: dict[str, Any]) -> dict[str, Any]:
         errors = validate_offline(workflow)

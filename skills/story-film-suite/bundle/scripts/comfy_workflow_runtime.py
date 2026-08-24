@@ -12,9 +12,16 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from collections import deque
 from pathlib import Path
 from typing import Any
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+import workflow_catalog as workflow_selection
 
 STOP_WORDS = {"a", "an", "and", "for", "from", "in", "local", "of", "on", "or", "the", "to", "with", "workflow", "template"}
 MAX_PATH_DEPTH = 8
@@ -104,23 +111,17 @@ def _rank_records(rows: list[dict[str, Any]], query: str) -> list[dict[str, Any]
 
 def workflow_catalog(project: str | Path, comfyui_url: str, *, query: str = "", source: str = "") -> dict[str, Any]:
     root = _project_root(project)
-    client = _client(comfyui_url)
-    # Pull the complete catalog first. Story-Film does its own tokenized ranking so
-    # a weak model cannot accidentally turn a model name into an MCP tool-name query.
-    if source and source not in {"project-workflow", "user"}:
-        raise WorkflowRuntimeError("workflow source must be project-workflow or user")
-    result = client.workflow_catalog(root, source=source or None)
-    rows = result.get("workflows", []) if isinstance(result, dict) else []
-    rows = [
-        dict(row)
-        for row in rows
-        if isinstance(row, dict) and row.get("source") in {"project-workflow", "user"}
-    ]
+    del comfyui_url
+    if source and source not in {"built-in", "package-custom"}:
+        raise WorkflowRuntimeError("workflow source must be built-in or package-custom")
+    # Workflow discovery is extension-local. Live ComfyUI is authoritative only for
+    # node/model inventory, validation, and execution -- never for workflow listing.
+    result = workflow_selection.build_catalog(root, include_generate=False)
+    rows = [dict(row) for row in result.get("workflows", []) if isinstance(row, dict)]
+    if source:
+        rows = [row for row in rows if row.get("source") == source]
     for row in rows:
-        if row.get("source") == "project-workflow":
-            row["runnable_state"] = "requires-live-validation"
-        else:
-            row["runnable_state"] = "source-only; fetch/adapt then live-validate"
+        row["runnable_state"] = "source-only; materialize then live-validate"
     if query.strip():
         rows = _rank_records(rows, query)
     return {
@@ -131,7 +132,8 @@ def workflow_catalog(project: str | Path, comfyui_url: str, *, query: str = "", 
         "count": len(rows),
         "workflows": rows,
         "warnings": result.get("warnings", []) if isinstance(result, dict) else [],
-        "priority": ["project-workflow", "user"],
+        "priority": ["package-custom", "built-in"],
+        "workflow_library": "comfyui_workflows",
     }
 
 
@@ -151,16 +153,21 @@ def workflow_fetch(
 ) -> dict[str, Any]:
     root = _project_root(project)
     source = source.strip()
-    client = _client(comfyui_url)
-    if source == "project-workflow":
-        candidate = _project_path(root, f"04_generation/comfyui/workflows/{name}")
-        workflow = _load_json(candidate)
-        original = candidate.relative_to(root).as_posix()
-    elif source == "user":
-        workflow = client.fetch_workflow_source("user", name, module=module or None)
-        original = f"user:{name}"
-    else:
-        raise WorkflowRuntimeError("workflow source must be project-workflow or user; ComfyUI templates are not Story-Film workflow sources")
+    del comfyui_url
+    if source not in {"built-in", "package-custom"}:
+        raise WorkflowRuntimeError("workflow source must be built-in or package-custom")
+    catalog = workflow_selection.build_catalog(root, include_generate=False)
+    rows = [
+        dict(row) for row in catalog.get("workflows", [])
+        if isinstance(row, dict) and row.get("source") == source
+    ]
+    exact = [row for row in rows if str(row.get("path") or "") == name]
+    matches = exact or [row for row in rows if str(row.get("name") or "") == name]
+    if len(matches) != 1:
+        raise WorkflowRuntimeError(f"workflow source is missing or ambiguous in comfyui_workflows/: {source}:{name}")
+    source_path = workflow_selection.resolve_local_entry(root, matches[0])
+    workflow = _load_json(source_path)
+    original = str(matches[0].get("path") or source_path)
 
     if out_path:
         dest = _project_path(root, out_path)

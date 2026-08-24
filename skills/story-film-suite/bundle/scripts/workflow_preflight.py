@@ -14,6 +14,7 @@ import workflow_catalog
 
 STATE_REL = Path("00_project/workflow_preflight.json")
 PREFERENCES_REL = Path("00_project/workflow_preferences.json")
+ALLOWED_WORKFLOW_SOURCES = {"built-in", "package-custom"}
 
 FILM_PRODUCTION = (
     "image",
@@ -110,7 +111,11 @@ def refresh(root: Path, state: dict[str, Any]) -> dict[str, Any]:
     selections = prefs.get("selections", {}) if isinstance(prefs, dict) else {}
     if not isinstance(selections, dict):
         selections = {}
-    selected = [category for category in required if isinstance(selections.get(category), dict)]
+    selected = [
+        category for category in required
+        if isinstance(selections.get(category), dict)
+        and str(selections[category].get("source") or "") in ALLOWED_WORKFLOW_SOURCES
+    ]
     missing = [category for category in required if category not in selected]
     state.update(
         {

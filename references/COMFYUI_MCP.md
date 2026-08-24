@@ -16,7 +16,9 @@ This keeps Pi's LLM-facing surface stable while allowing the official MCP/CLI to
 
 ## Live introspection
 
-The MCP server can search the nodes, models, workflows, resources, and lifecycle capabilities visible to the actual ComfyUI installation. Prefer that live information over a frozen model or node list. Story-Film does not use MCP template catalogs for workflow selection; a desired ComfyUI template must first be saved by the user as a workflow or exported/registered as an external workflow.
+The MCP server can search live nodes, models, resources, and lifecycle capabilities visible to the actual ComfyUI installation. Story-Film deliberately does not use MCP workflow/template discovery for selection. Workflow choices come only from `comfyui_workflows/`; custom exports must be copied into `comfyui_workflows/custom/<task>/<model>/` first.
+
+Blocking MCP workflow discovery does not block workflow authoring. When the user explicitly asks to create a workflow, Story-Film may use approved live node/model schema capabilities and the bounded workflow-authoring path to construct and validate a new graph. Reusable authored JSON belongs under `comfyui_workflows/custom/<task>/<model>/`.
 
 ## Workflow editing
 

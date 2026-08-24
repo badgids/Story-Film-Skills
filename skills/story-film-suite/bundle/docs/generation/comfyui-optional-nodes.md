@@ -14,7 +14,7 @@
 
 Story-Film does not bundle, install, update, or silently substitute custom-node code.
 
-Bundled workflows, user-saved workflows, ComfyUI templates, project defaults, and external workflow sources can require optional custom nodes. Before use, Story-Film checks the live ComfyUI node inventory and reports missing packages.
+Bundled and package-custom workflows from Story-Film's `comfyui_workflows/` library can require optional custom nodes. Before use, Story-Film checks the live ComfyUI node inventory and reports missing packages.
 
 A missing node blocks that selected workflow. It is not permission to silently choose another workflow or install the package.
 

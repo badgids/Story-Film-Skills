@@ -1,6 +1,6 @@
 ---
 name: comfyui-workflow
-description: Select, preserve, inspect, validate, patch, convert, and promote complete ComfyUI workflows from Story-Film's workflow library, project defaults, saved ComfyUI workflows, templates, external sources, or live-schema generation.
+description: Select, preserve, inspect, validate, patch, convert, and promote complete ComfyUI workflows from Story-Film's extension-local comfyui_workflows library.
 disable-model-invocation: true
 author: Alan Guice (Badgids)
 license: Apache-2.0
@@ -40,7 +40,7 @@ Bundled workflow sources are under `../../comfyui_workflows/<task>/<model>/`. Th
 For ordinary Story-Film production recovery or workflow creation, use the Pi-native `story_comfy_workflow` tool when available after a workflow has been selected/materialized.
 
 1. Start from the exact selected project-owned source.
-2. Preserve that source. Never edit the bundled, saved-ComfyUI, template, or external original in place.
+2. Preserve that source. Never edit the bundled or package-custom extension original in place.
 3. Identify UI versus API format.
 4. Inspect the graph and required node classes.
 5. When a live server is available, validate every required class and input against `/object_info`.
@@ -56,27 +56,28 @@ If finalization reports a graph error, repair only the selected project-owned co
 
 ## Source discovery
 
-The numbered workflow catalog can contain:
+The numbered workflow catalog can contain only:
 
-- Story-Film built-ins;
-- package custom defaults;
-- project defaults;
-- existing project workflows/templates;
-- the user's saved ComfyUI workflows;
-- ComfyUI core templates;
-- installed custom-node templates;
-- user-registered external workflow files/directories;
-- a `generate-new` choice.
+- Story-Film built-ins under `comfyui_workflows/<task>/<model>/`;
+- user/custom workflows under `comfyui_workflows/custom/<task>/<model>/`.
 
-There is no four-choice limit.
+There is no four-choice limit. Story-Film never scans ComfyUI userdata, project workflow folders, arbitrary external paths, or template catalogs. A newly authored/exported workflow becomes selectable only after it is copied into the appropriate `comfyui_workflows/custom/` directory.
 
-## Generate-new fallback
+## Explicit workflow authoring
 
-Only when the user selects the catalog's `generate-new` entry may Story-Film author a new candidate.
+Workflow creation remains a supported Story-Film capability when the user explicitly asks to create, build, author, or design a new ComfyUI workflow.
 
-Use only live-discovered schemas. Do not construct class names from memory. Write the candidate outside the runnable workflow directory, validate it, then promote it. Missing custom nodes are blockers; do not install them automatically.
+This explicit authoring path is separate from catalog discovery:
 
-After the generated workflow is saved into the project, refresh the workflow catalog so it becomes a normal selectable project workflow.
+1. use `story_comfy` live node/model discovery (`node-search`, `node-info`, model inventory/search, and other approved live-schema operations) to learn what the running ComfyUI actually supports;
+2. build exactly one bounded candidate in a project staging/candidate location, never directly in the runnable workflow directory;
+3. use only live-discovered class names, inputs, output types, and resource choices;
+4. validate required inputs, links, output exposure, and model/resource availability;
+5. do not install missing custom nodes or download models without the user's separate approval;
+6. promote a project-specific candidate only after validation;
+7. when the workflow is intended to become a reusable Story-Film choice, save or copy the validated JSON into `comfyui_workflows/custom/<task>/<model>/`, refresh the catalog, and select the resulting `package-custom` workflow normally.
+
+Do not require a `generate-new` catalog entry before honoring an explicit user request to author a workflow. Conversely, do not silently author a new workflow merely because no existing catalog entry is ideal.
 
 ## Model and prompt behavior
 
