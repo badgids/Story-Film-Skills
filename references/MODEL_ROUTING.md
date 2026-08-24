@@ -27,7 +27,9 @@ Use for look exploration, style search, moodboards, expressive stills, and style
 
 ## MiniMax H3
 
-Use for audio-video generation where image, video, or audio references and synchronized sound are central. Workflow variants can cover text-to-audio-video, image-to-video, reference-to-video/audio, chained generation, exact-audio routes, enhancement, and upscaling.
+Use for audio-video generation where image, video, or audio references and synchronized sound are central. Workflow variants can cover text-to-audio-video, image-to-video, first/last-frame generation, reference-to-video/audio, chained generation, exact-audio routes, enhancement, and upscaling.
+
+Every MiniMax H3 prompt must use `h3-prompt-writing` as the formatting base. Then route the brief through `references/MINIMAX_H3_SKILL_ROUTING.md` and `scripts/minimax_h3_skill_router.py` to select an optional style overlay. The eight style skills are conditional production grammars, not replacements for H3 syntax. Story-Film canon, reference authority, exact dialogue/audio, selected workflow, and duration remain authoritative.
 
 ## LTX
 

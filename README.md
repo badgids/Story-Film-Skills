@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.38`
-**Canonical version:** `00.00.38`
+**Display version:** `v0.0.39`
+**Canonical version:** `00.00.39`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -51,6 +51,7 @@ Story-Film Skills can manage a project from a loose idea to a finished release p
 - character, location, and prop reference-sheet plans including functional/mechanical prop views and optional staged grounding;
 - voice, dialogue, music, ambience, Foley, and SFX planning;
 - ComfyUI workflow validation, reference-binding audits, reusable workflow contracts, and complete built-in editable workflows organized by task and model family;
+- MiniMax H3 prompt generation uses a mandatory `h3-prompt-writing` base plus conditional Story-Film-native adaptations of MiniMax's eight current style skills, selected by intent without importing MiniMax Hub-only tool calls;
 - workflow-first generation using numbered choices only from the extension's `comfyui_workflows/` library: bundled workflows plus user/custom workflows copied under `comfyui_workflows/custom/<task>/<model>/`;
 - resource-safe offline ComfyUI batches for machines that cannot hold an LLM and generation model at the same time;
 - deterministic media QC and take selection;

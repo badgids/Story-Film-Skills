@@ -1,0 +1,71 @@
+Story-Film H3 Ref2VA Reference
+
+This is an independently written portable reference based on the public MiniMax H3 full-reference prompt specification reviewed at commit d21241f0a4b3acbb34c97dae47fa417b7065e438. It is not a verbatim vendor copy.
+
+FINAL SECTION ORDER
+
+subject_definitions:
+summary:
+retention_analysis:
+detailed_description:
+overall_soundscape:
+non_diegetic_music:
+
+REFERENCE LABELS
+
+<Subject N>
+Reusable visible content such as a person, object, environment, clothing, prop, interface, style, action, expression, or pose.
+
+<Picture N>
+A concrete image anchor such as first frame, keyframe, last frame, edited keyframe, or shot-planning/composition anchor.
+
+<Video N>
+A whole-video source used for editing, continuation, camera/cut/rhythm structure, or other temporal relationships.
+
+<Audio N>
+A standalone or enabled synchronized audio source used for exact reuse or reference.
+
+Labels are numbered independently by type and keep the same meaning in every section.
+
+SUMMARY
+
+Use one short paragraph beginning with one or more actual task relationships, such as:
+[reference generation]
+[keyframe completion]
+[video editing + audio reuse]
+[video continuation + keyframe completion]
+[audio reference]
+
+Do not infer a task type merely because a file exists. Use the role the reference actually plays.
+
+RETENTION ANALYSIS
+
+Visible-reference relationship values:
+fully_preserved
+partially_preserved
+attribute_transfer
+weak_reference
+
+Audio relationship values:
+fully_copy
+partially_copy
+reference
+weak_reference
+
+Each relationship must stay within the reference authority defined in subject_definitions and the Story-Film reference manifest.
+
+DETAILED DESCRIPTION
+
+- Establish style in one or two sentences before [Shot 1].
+- [Shot 1] has no cut timestamp.
+- Later shots use [Shot N] At MM:SS.mmm, ...
+- Insert reference labels naturally at the moments where their content or role actually applies.
+- Use stable speaker IDs (S1), (S2), and so on.
+- Dialogue and lyrics use <d>[Language] exact source content</d>.
+- Preserve dialogue, lyrics, and visible text in their original language.
+- Use the shared base-mode camera, dialogue-continuity, and sound rules.
+- Describe composition, subject appearance/position, environment, lighting, action/state changes, camera, current sound, and exact reference use. Do not collapse the body into a plot summary.
+
+STORY-FILM AUTHORITY
+
+A reference label is not permission to broaden that asset's role. Identity-only, wardrobe-only, composition-only, temporal-only, audio-only, or other scoped references retain those scopes. When Story-Film authority and a style overlay conflict, Story-Film authority wins.

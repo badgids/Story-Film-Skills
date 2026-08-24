@@ -1,0 +1,59 @@
+Story-Film H3 Base-Mode Reference
+
+This is an independently written portable reference based on the public MiniMax H3 prompt-writing specification reviewed at commit d21241f0a4b3acbb34c97dae47fa417b7065e438. It is not a verbatim vendor copy.
+
+MODES
+
+T2VA
+Build the complete audiovisual timeline from text. No keyframe alignment line precedes the core fields.
+
+I2VA
+The supplied picture is the actual first frame at 0.00 seconds. Begin with:
+For the target video, at 0.00 seconds into the target video, <Picture 1> (from [Shot 1]) is fully referenced.
+
+FL2VA
+The first picture anchors the opening and the second picture anchors the ending. Begin with:
+How the reference pictures align with the target video - Picture 1 (from Shot 1) aligns with the 0.00-second mark of the target video; Picture 2 (from Shot N) aligns with the S.SS-second mark of the target video.
+
+L2VA
+The supplied picture anchors only the final frame. Begin with:
+How the reference pictures align with the target video - <Picture 1> (from [Shot N]) aligns with the S.SS-second mark of the target video.
+
+Replace N with the actual final shot and S.SS with the effective duration to two decimal places.
+
+CORE FIELD ORDER
+
+integrated_multimodal_description: [Shot 1] ...
+
+overall_soundscape: ...
+
+non_diegetic_music: ...
+
+SHOT RULES
+
+- Do not timestamp Shot 1.
+- Later shots use: [Shot N] At MM:SS.mmm, ...
+- Cut times strictly increase and remain inside the requested duration.
+- Prefer camera motion when the viewpoint only needs to adjust. Use a cut when new subject, state, space, viewpoint, or time information is introduced.
+- Keyframe modes must describe the physical and compositional path to or from the supplied frame rather than repeating static frame descriptions.
+
+CAMERA LANGUAGE
+
+Use natural English shot action. Useful motion types include Push In, Pull Out, Pan Left/Right, Truck Left/Right, Tilt Up/Down, Pedestal Up/Down, Arc Shot, Tracking Shot, Static Shot, slight/strong shake, POV, Zoom In/Out, and roll. State small/large amplitude or slow/fast speed only when it materially affects the shot.
+
+SPEAKERS AND DIALOGUE
+
+- Assign stable vocal IDs such as (S1) and (S2).
+- Keep the same ID across shots.
+- Inside <d>, include only language and exact user-provided words.
+- General form: (S1) says: <d>[Language] exact content</d>. Example: <d>[English] Exact words here.</d>
+- Voiceover must be identified as off-screen voiceover; if a visible corresponding character must not lip-sync, state that the lips remain closed.
+- Use <scenetrans> when the same verbal line continues across a cut.
+- Use <cutoff> only when the clip ending truly truncates the line.
+- Visible signs, labels, or other scene text are preserved verbatim.
+
+SOUND
+
+overall_soundscape summarizes ambience, action sounds, and non-verbal human sounds across the clip. Do not duplicate dialogue, singing, or diegetic music there.
+
+non_diegetic_music describes audience-only background music through concrete instrumentation, tempo/rhythm, and dynamic change. Use N/A when there is no audience-only music.

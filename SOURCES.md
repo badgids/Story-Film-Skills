@@ -63,6 +63,9 @@ Story-Film implements these calls with a standard-library HTTP helper. It does n
 - Krea 2 introduction: https://www.krea.ai/blog/krea-2-image-model
 - Krea 2 exploratory prompting: https://www.krea.ai/blog/explorative-prompting-krea-2
 - MiniMax H3 official prompt skill: https://github.com/MiniMax-AI/MiniMax-H3/blob/main/skills/h3-prompt-writing/SKILL.md
+  - v0.0.39 reviewed MiniMax-H3 commit `d21241f0a4b3acbb34c97dae47fa417b7065e438`, including `h3-prompt-writing` and the eight style-specific skills under `skills/`.
+  - MiniMax documents `h3-prompt-writing` as portable, while the eight style skills depend on MiniMax Hub canvas and `hub_*` tools. Story-Film therefore implements independent Apache-2.0 prompt-routing adaptations of those style capabilities instead of bundling Hub-only source/tool code.
+  - Story-Film does not vendor MiniMax skill source text or model weights. The local H3 reference files are independently written summaries of the public prompt contract and retain this source pin for verification.
 - LTX 2.5 prompt guide: https://ltx.io/blog/ltx-2-5-prompt-guide
 - LTX open-source prompting guide: https://docs.ltx.io/open-source-model/usage-guides/prompting-guide
 

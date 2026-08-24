@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.0.39 (00.00.39) - 2026-08-24
+
+- Added all nine current MiniMax H3 skill capabilities to Story-Film: the mandatory `h3-prompt-writing` base plus eight conditional style skills.
+- Added portable Story-Film H3 base/Ref2VA references covering keyframe alignment, shot timing, speaker IDs, dialogue tags, reference labels, soundscape, and final section ordering.
+- Added deterministic `scripts/minimax_h3_skill_router.py` routing so generic H3 prompts always use the base skill and style-specific prompts add only the relevant overlay unless the user explicitly requests a hybrid.
+- Adapted the eight MiniMax Hub-only style skills into Story-Film-native prompt overlays without bundling Hub canvas or `hub_*` runtime assumptions.
+- Wired H3 skill routing into generation prompt creation, model routing, prompt QC, the skill catalog, source provenance, and regression tests.
+- Pinned the upstream behavior review to MiniMax-H3 commit `d21241f0a4b3acbb34c97dae47fa417b7065e438`.
+
 ## v0.0.38 (00.00.38) - 2026-08-24
 
 - Made `comfyui_workflows/` the only authoritative workflow-discovery location for Story-Film.

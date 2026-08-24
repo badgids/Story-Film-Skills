@@ -52,6 +52,8 @@ Preproduction: `production-breakdown`, `director-book`, `production-capabilities
 
 Generation: `generation-pack`, `prompt-qc`, `media-qc`, `dialogue-audio-authority`, `dialogue-timing-preflight`, `comfyui-handoff`, `comfyui`, `comfyui-discover`, `comfyui-workflow`, `comfyui-binding-audit`, `comfyui-run`, `comfyui-assets`, `comfyui-cli`, `comfyui-mcp`, `comfyui-api-v2`, `comfyui-troubleshoot`.
 
+MiniMax H3 prompt specialists: `h3-prompt-writing` (mandatory base), `minimalist-product-ad-generator`, `3d-animation-short-generator`, `papercraft-stop-motion-explainer`, `brand-promo-video-generator`, `music-video-subtitle-generator`, `co-op-game-intro-generator`, `paper-collage-explainer-generator`, `handdrawn-live-video-generator`.
+
 Audio and post: `dialogue-voice`, `edit-assist`, `motion-graphics`, `programmatic-video`, `pdf-toolkit`, `score-plan`, `sound-design`, `edit-plan`, `editorial-package`, `asset-approval`, `media-lifecycle`, `audio-master`, `video-finishing`, `timeline-assembly`, `film-master`, `media-toolkit`, `ffmpeg`, `mlt`, `imagemagick`, `mlt-export`, `editor-project-export`, `kdenlive-export`, `shotcut-export`, `delivery-qc`.
 
 Release and marketing: `campaign-brand`, `content-repurpose`, `design-system`, `production-documents`, `trailer-plan`, `trailer-assets`, `trailer-edit`, `trailer-master`, `social-campaign`, `social-cutdown`, `social-reframe`, `social-copy`, `marketing-art`, `campaign-delivery`, `release-package`.
