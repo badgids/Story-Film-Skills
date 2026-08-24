@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Type } from "typebox";
@@ -53,6 +54,7 @@ const RequestSchema = Type.Object({
   body: Type.Optional(Type.Any()),
   comfyui_url: Type.Optional(Type.String()),
   v2_url: Type.Optional(Type.String()),
+  project: Type.Optional(Type.String()),
   upgrade: Type.Optional(Type.Boolean()),
 });
 
@@ -117,6 +119,14 @@ function runOne(python: string, cwd: string, request: Record<string, unknown>, s
     });
     child.stdin.end(JSON.stringify(request));
   });
+}
+
+function requestedProjectCwd(cwd: string, value: unknown): string {
+  const raw = String(value ?? "").trim();
+  if (!raw) return cwd;
+  return raw.startsWith("~/") || raw.startsWith("~\\")
+    ? resolve(homedir(), raw.slice(2))
+    : resolve(cwd, raw);
 }
 
 async function runRuntime(cwd: string, request: Record<string, unknown>, signal?: AbortSignal): Promise<RuntimeResult> {
@@ -223,7 +233,10 @@ export default function storyFilmComfy(pi: any): void {
         }
       }
       onUpdate?.({ content: [{ type: "text", text: "Story-Film is using its managed official Comfy control runtime..." }] });
-      const value = await runRuntime(ctx.cwd, params, signal);
+      const runtimeCwd = requestedProjectCwd(ctx.cwd, params.project);
+      const request = { ...params };
+      delete request.project;
+      const value = await runRuntime(runtimeCwd, request, signal);
       return {
         content: [{ type: "text", text: resultText(value) }],
         details: value,

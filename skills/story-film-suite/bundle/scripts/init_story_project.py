@@ -67,7 +67,12 @@ def main():
     ap.add_argument('project_dir')
     ap.add_argument('--title', default='Untitled')
     ap.add_argument('--format', default='short-film')
+    ap.add_argument('--playbook', default='', help='Initialize the Story-Film progress ledger from this playbook in the same operation.')
     args = ap.parse_args()
+    selected_playbook = None
+    if args.playbook.strip():
+        import pipeline_progress as pipeline_progress_tool
+        selected_playbook = pipeline_progress_tool.playbook_path(args.playbook.strip())
     root = Path(args.project_dir).expanduser().resolve()
     for d in DIRS:
         (root / d).mkdir(parents=True, exist_ok=True)
@@ -316,6 +321,8 @@ def main():
         }, indent=2) + '\n', encoding='utf-8')
     if not brief.exists():
         brief.write_text(f'# Creative Brief\n\nTitle: {args.title}\nFormat: {args.format}\nTarget length:\nAudience:\nPremise:\nCore dramatic question:\nGenre:\nTone:\nPoint of view:\nMust include:\nMust avoid:\nProduction constraints:\nOpen decisions:\n', encoding='utf-8')
+    if selected_playbook is not None:
+        pipeline_progress_tool.initialize(root, selected_playbook, False, 3)
     print(root)
 
 if __name__ == '__main__':

@@ -18,12 +18,12 @@ The full path is:
 
 ```text
 idea
+  -> workflow preflight when ComfyUI-backed
   -> story plan
   -> story or book
   -> screenplay
   -> production plan
   -> shots and audio plans
-  -> workflow selection
   -> generated media
   -> approved takes
   -> edit
@@ -74,7 +74,7 @@ Run production coverage before generation.
 
 Prepare model-neutral briefs first.
 
-For each required generation task, choose a complete ComfyUI workflow from the ordinary numbered catalog. Story-Film can offer bundled workflows, project defaults, saved ComfyUI workflows, templates, external sources, or a generated live-schema workflow.
+For ComfyUI-backed production, the required workflows were selected during pre-story workflow preflight. Reuse those durable selections here. Story-Film may use bundled workflows, package custom defaults, project defaults/workflows, saved ComfyUI user workflows, registered external workflows, or the live-schema generate-new fallback. It does not search ComfyUI core/custom template catalogs.
 
 The selected workflow owns its checkpoint/model, VAE, encoders, LoRAs, audio models, upscalers, nodes, and other graph settings.
 

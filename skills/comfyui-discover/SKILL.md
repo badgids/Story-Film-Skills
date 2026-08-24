@@ -16,14 +16,15 @@ license: Apache-2.0
 ## Procedure
 
 1. In Pi, begin with `story_comfy action=server-info`. Do this before any shell, filesystem, or guessed-path attempt to locate ComfyUI.
-2. Use the user-supplied server URL when present. Otherwise use the configured environment URL or loopback default.
-3. Probe the server before doing generation work.
-4. Read system stats and features.
-5. Query exact node classes or filtered node catalog only when the task needs them. In Pi use `story_comfy action=node-search` or `action=node-info`.
-6. Before building a workflow, run the bundled workflow catalog. In Pi use `story_comfy action=workflow-catalog`. It combines Story-Film's included workflows, project/user-added workflows, and the user's saved ComfyUI workflows. It does not query ComfyUI core/custom template catalogs.
-7. Query model categories and filenames only when model availability matters. In Pi use `story_comfy action=model-inventory` and `action=model-search`. The server registries include model roots registered through `extra_model_paths.yaml`.
-8. Use `/object_info` through Story-Film's managed/native control layer for node schemas. Its node input schema is under `input.required` and `input.optional`. Do not treat an empty result from an incorrectly parsed `inputs` field as evidence that models are missing.
-9. Save a project snapshot to `04_generation/comfyui/server_snapshot.json` when reproducibility or later diagnosis benefits.
+2. If the Story-Film project is a child of Pi's current working directory, pass `project=<project-root>` to project-scoped `story_comfy` actions. Project creation does not change Pi's working directory.
+3. Use the user-supplied server URL when present. Otherwise use the configured environment URL or loopback default.
+4. Probe the server before doing generation work.
+5. Read system stats and features.
+6. Query exact node classes or filtered node catalog only when the task needs them. In Pi use `story_comfy action=node-search` or `action=node-info`.
+7. Before building a workflow, run the bundled workflow catalog. In Pi use `story_comfy action=workflow-catalog`. It combines Story-Film's included workflows, project/user-added workflows, and the user's saved ComfyUI workflows. It does not query ComfyUI core/custom template catalogs.
+8. Query model categories and filenames only when model availability matters. In Pi use `story_comfy action=model-inventory` and `action=model-search`. The server registries include model roots registered through `extra_model_paths.yaml`.
+9. Use `/object_info` through Story-Film's managed/native control layer for node schemas. Its node input schema is under `input.required` and `input.optional`. Do not treat an empty result from an incorrectly parsed `inputs` field as evidence that models are missing.
+10. Save a project snapshot to `04_generation/comfyui/server_snapshot.json` when reproducibility or later diagnosis benefits.
 
 Bundled commands:
 

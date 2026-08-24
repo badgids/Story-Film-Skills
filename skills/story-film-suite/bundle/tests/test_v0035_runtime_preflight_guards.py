@@ -80,10 +80,11 @@ class V0035RuntimePreflightGuardTests(unittest.TestCase):
             "workflow_preflight.json",
             "workflowPreflightBlockReason",
             "packageRediscoveryBlockReason",
-            "invalidProjectInitBlockReason",
+            "projectRootFromTarget",
+            "storyFilmManagedStateBlockReason",
             "generation-workflow-setup",
             "HARD GATE",
-            "init_story_project.py does not accept --playbook",
+            "no active authoritative pipeline",
         ):
             self.assertIn(token, source)
         self.assertNotIn("official core template", source)
@@ -92,7 +93,8 @@ class V0035RuntimePreflightGuardTests(unittest.TestCase):
     def test_story_router_has_direct_package_paths_and_blocking_preflight_rule(self):
         router = (ROOT / "skills/story-film/SKILL.md").read_text(encoding="utf-8")
         self.assertIn("CATALOG.md` is the file beside this router", router)
-        self.assertIn("does not accept `--playbook`", router)
+        self.assertIn("--playbook <playbook>", router)
+        self.assertIn("skills/story-film/playbooks/<name>.md", router)
         self.assertIn("mark the workflow-preflight target blocked", router)
         self.assertIn("unrelated installed skill packs", router)
 

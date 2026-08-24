@@ -67,6 +67,7 @@ def main() -> int:
         ('v0.0.32 preflight and LLM lifecycle', [sys.executable, '-m', 'unittest', 'tests.test_v0032_preflight_lifecycle_workflows']),
         ('post-v0.0.32 ComfyUI style exemption', [sys.executable, '-m', 'unittest', 'tests.test_v0033_comfyui_style_exemption']),
         ('v0.0.35 runtime preflight guards', [sys.executable, '-m', 'unittest', 'tests.test_v0035_runtime_preflight_guards']),
+        ('v0.0.36 startup preflight hard gate', [sys.executable, '-m', 'unittest', 'tests.test_v0036_startup_preflight_hard_gate']),
         ('static eval definitions', [sys.executable, str(ROOT / 'scripts/run_evals.py'), '--definitions-only']),
     ]
     for label, cmd in gates:

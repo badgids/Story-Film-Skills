@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.0.36 (00.00.36) - 2026-08-23
+
+- Made new film/video project initialization atomic with optional `--playbook`, so the authoritative progress ledger and mapped ComfyUI workflow preflight are created before creative production can begin.
+- Added Pi runtime enforcement for child Story-Film projects when Pi remains in the parent directory, blocking story, canon, screenplay, preproduction, and generation-prompt writes until an authoritative pipeline is active and required workflow preflight is complete.
+- Protected `pipeline_progress.json`, `workflow_preflight.json`, and `workflow_preferences.json` as deterministic Story-Film-owned state instead of allowing agents to fabricate or directly edit pipeline/preflight selections.
+- Added explicit `story_comfy project=<project-root>` support for project-scoped ComfyUI discovery and workflow operations when the project was created below Pi's current working directory.
+- Fixed Git-package playbook routing to `skills/story-film/playbooks/<name>.md` and added runtime rejection of package-root playbook guesses and package rediscovery through `find`/`ls`.
+- Removed remaining stale documentation language that treated ComfyUI core/custom template catalogs as Story-Film workflow sources.
+- Added deterministic v0.0.36 regression coverage for atomic startup preflight, nested-project guards, managed state protection, explicit project-scoped ComfyUI operations, and corrected routing/documentation.
+- Rebuilt the self-contained Story-Film suite bundle with the same startup hard-gate behavior.
+
 ## v0.0.35 (00.00.35) - 2026-08-23
 
 - Made ComfyUI workflow preflight the first authoritative pipeline target for mapped ComfyUI-backed playbooks instead of leaving it as prose outside the progress ledger.

@@ -6,8 +6,8 @@
 
 Story-Film Skills is a local-first Agent Skills suite for story writing, book development, screenwriting, image/audio/video generation, directing, feature-film production, postproduction, and release delivery. It uses durable project files, stable IDs, deterministic validators, and recoverable workflows so an AI agent does not have to remember a whole film inside one chat context.
 
-**Display version:** `v0.0.35`
-**Canonical version:** `00.00.35`
+**Display version:** `v0.0.36`
+**Canonical version:** `00.00.36`
 
 v0.0.11 completes the initial prototype-building phase. The project now includes deterministic regression tests and a local-model smoke-test harness for the next testing phase.
 
@@ -82,11 +82,11 @@ Read the [Feature-scale production guide](docs/production/feature-scale.md).
 
 If the selected playbook will use ComfyUI anywhere in the requested endpoint, Story-Film performs workflow preflight before story or canon creation. It collects every required task workflow up front, stores the choices durably, and reuses them later without reopening the workflow interview unless the user explicitly asks to change a workflow.
 
-Story-Film imposes no maximum workflow count. The numbered catalog includes every relevant discovered built-in, user-added, project, saved-ComfyUI, template, and external workflow.
+Story-Film imposes no maximum workflow count. The numbered catalog includes every relevant bundled, package-custom, project/default, user-saved ComfyUI, registered external workflow, and the live-schema generate-new fallback.
 
 Story-Film Skills selects complete ComfyUI workflows instead of rebuilding a model stack through a long series of TUI questions. A selected workflow owns the concrete model/checkpoint, VAE, encoders, LoRAs, sampler/scheduler settings, audio models, upscalers, and other graph configuration stored in it.
 
-Workflow choices are shown as an ordinary numbered list. The list is not limited to four options. Story-Film can combine built-ins under `comfyui_workflows/<task>/<model>/`, custom defaults, workflows saved in ComfyUI, ComfyUI templates, user-specified workflow files/directories, and a live-schema generate-new fallback.
+Workflow choices are shown as an ordinary numbered list. The list is not limited to four options. Story-Film does not search ComfyUI core template catalogs or installed custom-node template catalogs. If a user wants one of those templates, they must first save or copy it into their own workflow area, where Story-Film treats it as a normal user workflow.
 
 Built-in workflows are complete editable ComfyUI JSON files. Open one in ComfyUI, change models or graph settings, save it, and Story-Film can discover that saved workflow as another choice.
 

@@ -12,7 +12,7 @@ This is the general entry point for Story-Film Skills. The package is standalone
 
 When the user explicitly invokes Story-Film, this router, its selected playbook, and `00_project/pipeline_progress.json` are the Story-Film execution authority. Do not substitute stage sequences, pipeline commands, or routing rules from unrelated installed skill packs unless the user explicitly asks to combine them.
 
-Resolve every relative path in this skill from this `SKILL.md`, not from the user's project directory or the package root. `CATALOG.md` is the file beside this router (`skills/story-film/CATALOG.md` in a Git package). The listed router, catalog, playbooks, scripts, references, and sibling skills are known package paths. Do not use Bash, `find`, `ls`, or directory scans to rediscover them.
+Resolve every relative path in this skill from this `SKILL.md`, not from the user's project directory or the package root. `CATALOG.md` is the file beside this router (`skills/story-film/CATALOG.md` in a Git package). Every `playbooks/<name>.md` path is relative to this router, so its Git-package path is `skills/story-film/playbooks/<name>.md`; never try `<package>/playbooks/<name>.md`. The listed router, catalog, playbooks, scripts, references, and sibling skills are known package paths. Do not use Bash, `find`, `ls`, or directory scans to rediscover them.
 
 ## Start
 
@@ -22,17 +22,18 @@ Resolve every relative path in this skill from this `SKILL.md`, not from the use
 4. Read `../../references/WORKFLOW_SELECTION.md`.
 5. Read `CATALOG.md` beside this file.
 6. Match the request to exactly one playbook in `playbooks/`.
-7. Read that playbook in full.
-8. If no project exists, initialize the empty project container with `../../scripts/init_story_project.py <project> [--title TITLE] [--format FORMAT]` or create the same structure manually. `init_story_project.py` does not accept `--playbook`.
-9. If the selected playbook or requested endpoint will use ComfyUI at any point, complete workflow preflight before any story or canon artifact is created. Run `../../scripts/workflow_preflight.py set` with the mapped playbook/profile or explicit required categories, then use `generation-workflow-setup` for every missing category until `workflow_preflight.py status` reports `complete`.
-10. Do not begin story, canon, screenplay, preproduction, or generation-brief work while a required ComfyUI workflow preflight is incomplete. Later playbook stages reuse the durable selections and do not ask again unless the user explicitly requests a workflow change.
-11. If ComfyUI is unavailable or a required workflow cannot be selected, mark the workflow-preflight target blocked. Do not continue into creative work and do not promise to return to preflight later.
-12. For any playbook with more than one ordered step, read `../pipeline-progress/SKILL.md`. If no active matching progress ledger exists, initialize it with `../../scripts/pipeline_progress.py init <project> --playbook <playbook>`. Pipeline initialization for a mapped ComfyUI-backed playbook creates the matching workflow-preflight state and makes `generation-workflow-setup` the first current target. If a matching ledger already exists, resume its current target instead of reconstructing progress from chat history.
-13. Execute the playbook in order. Before each specialist step, read the named sibling `SKILL.md`.
-14. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance. Do not start a later specialist or write a later artifact until the current leaf is validated and checkpointed.
-15. Update `00_project/state.json` after each completed artifact.
-16. If an approved upstream artifact changes, run `project-impact` before rebuilding downstream work.
-17. Run continuity, narrative-state, production-coverage when applicable, dramaturgy, prompt, standalone, and style checks at the gates required by the playbook.
+7. Read that playbook in full from `skills/story-film/playbooks/<playbook>.md` in a Git package.
+8. For a new project with a multi-step playbook, initialize the project and authoritative progress ledger atomically with `../../scripts/init_story_project.py <project> [--title TITLE] [--format FORMAT] --playbook <playbook>`. Do not create `pipeline_progress.json` or `workflow_preflight.json` manually.
+9. If the project already exists, or it was initialized without `--playbook`, read `../pipeline-progress/SKILL.md` and run `../../scripts/pipeline_progress.py init <project> --playbook <playbook>` before writing any story, canon, screenplay, preproduction, or generation artifact. A film/video project with an inactive progress ledger is not ready for creative production.
+10. Pipeline initialization for a mapped ComfyUI-backed playbook creates the matching workflow-preflight state and makes `generation-workflow-setup` the first current target. Complete that target before any story or canon artifact is created; use `generation-workflow-setup` for every missing category until `workflow_preflight.py status` reports `complete`.
+11. Do not begin story, canon, screenplay, preproduction, or generation-brief work while a required ComfyUI workflow preflight is incomplete. Later playbook stages reuse the durable selections and do not ask again unless the user explicitly requests a workflow change.
+12. If ComfyUI is unavailable or a required workflow cannot be selected, mark the workflow-preflight target blocked. Do not continue into creative work and do not promise to return to preflight later.
+13. If a matching progress ledger already exists, resume its current target instead of reconstructing progress from chat history or replacing the ledger.
+14. Execute the playbook in order. Before each specialist step, read the named sibling `SKILL.md`.
+15. After each actionable progress leaf, validate its artifact before checkpointing it complete. A blocking validation failure must remain on the same leaf and become `blocked`; it must not advance. Do not start a later specialist or write a later artifact until the current leaf is validated and checkpointed.
+16. Update `00_project/state.json` after each completed artifact.
+17. If an approved upstream artifact changes, run `project-impact` before rebuilding downstream work.
+18. Run continuity, narrative-state, production-coverage when applicable, dramaturgy, prompt, standalone, and style checks at the gates required by the playbook.
 
 ## Routing rule
 

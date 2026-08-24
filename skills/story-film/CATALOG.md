@@ -2,6 +2,8 @@
 
 ## Playbooks
 
+Every `playbooks/<name>.md` entry below is relative to this `CATALOG.md`. In a Git package, read it from `<package>/skills/story-film/playbooks/<name>.md`, never `<package>/playbooks/<name>.md`.
+
 - `playbooks/idea-to-book.md`: idea to complete novel, novella, or narrative book
 - `playbooks/idea-to-story.md`: idea or premise to complete prose story
 - `playbooks/story-bible-development.md`: durable Story-Film story, character, world, state, and optional visual-bible development

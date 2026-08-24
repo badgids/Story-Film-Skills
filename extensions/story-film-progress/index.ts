@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { matchesKey } from "@earendil-works/pi-tui";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
 type Status = "completed" | "current" | "blocked" | "pending" | "skipped" | string;
@@ -19,6 +20,7 @@ type WorkflowPreflight = {
   playbook?: string; profile?: string; status?: string;
   required_categories?: string[]; selected_categories?: string[]; missing_categories?: string[];
 };
+type ProjectState = { format?: string; phase?: string };
 type Ui = {
   setWidget?: (key: string, content: string[] | ((tui: any, theme: any) => any) | undefined, options?: { placement?: "aboveEditor" | "belowEditor" }) => void;
   setStatus?: (key: string, text: string | undefined) => void;
@@ -46,6 +48,7 @@ const WORKFLOW_PREFLIGHT_PIPELINES = new Set([
   "screenplay-to-film-package",
   "resource-safe-comfyui",
 ]);
+const PIPELINE_REQUIRED_FORMATS = new Set(["video", "film", "movie", "short-film", "feature-film"]);
 type ViewportAction = "up" | "down" | "page-up" | "page-down" | "current" | "follow" | "toggle" | "expand" | "collapse" | "compact";
 
 function terminalShortcutAction(data: string): ViewportAction | undefined {
@@ -73,6 +76,28 @@ function projectRoot(cwd: string): string | undefined {
     if (parent === here) return undefined;
     here = parent;
   }
+}
+
+function projectRootFromTarget(cwd: string, target: string): string | undefined {
+  const raw = String(target || "").trim();
+  if (!raw) return projectRoot(cwd);
+  const candidate = raw.startsWith("~/") || raw.startsWith("~\\")
+    ? resolve(homedir(), raw.slice(2))
+    : resolve(cwd, raw);
+  let here = dirname(candidate);
+  for (;;) {
+    if (existsSync(join(here, "00_project", "state.json"))) return here;
+    const parent = dirname(here);
+    if (parent === here) return projectRoot(cwd);
+    here = parent;
+  }
+}
+
+function loadProjectState(cwd: string): ProjectState | undefined {
+  const root = projectRoot(cwd);
+  if (!root) return undefined;
+  try { return JSON.parse(readFileSync(join(root, "00_project", "state.json"), "utf8")) as ProjectState; }
+  catch { return undefined; }
 }
 
 function load(cwd: string): Progress | undefined {
@@ -200,22 +225,43 @@ function pipelineGuardPrompt(value: Progress | undefined, preflight: WorkflowPre
 
 function packageRediscoveryBlockReason(event: any): string | undefined {
   const tool = String(event?.toolName ?? "").toLowerCase();
-  if (!new Set(["bash", "shell", "terminal"]).has(tool)) return undefined;
   const input = event?.input ?? {};
-  const command = String(input.command ?? input.cmd ?? input.script ?? "");
+  const command = tool === "bash" || tool === "shell" || tool === "terminal"
+    ? String(input.command ?? input.cmd ?? input.script ?? "")
+    : `${tool} ${JSON.stringify(input)}`;
+  if (!new Set(["bash", "shell", "terminal", "find", "ls"]).has(tool)) return undefined;
   if (!/\b(?:find|ls)\b/i.test(command)) return undefined;
-  const packageTree = /Story-Film-Skills[\\/](?:skills|scripts|references|docs|comfyui_workflows)(?:[\\/]|\b)|story-film-suite[\\/]bundle(?:[\\/]|\b)/i;
+  const packageTree = /Story-Film-Skills(?:[\\/]|(?:\s|$))|story-film-suite[\\/]bundle(?:[\\/]|\b)/i;
   if (!packageTree.test(command)) return undefined;
-  return "Do not use Bash/find/ls to rediscover Story-Film package structure. The active Story-Film SKILL.md gives authoritative relative paths for CATALOG.md, playbooks, sibling skills, scripts, references, docs, and bundled workflows. Read those known paths directly.";
+  return "Do not use Bash/find/ls to rediscover Story-Film package structure. Git-package playbooks are under skills/story-film/playbooks/, and the active Story-Film SKILL.md gives authoritative paths for CATALOG.md, sibling skills, scripts, references, docs, and bundled workflows. Read those known paths directly.";
 }
 
-function invalidProjectInitBlockReason(event: any): string | undefined {
+function wrongPlaybookPathBlockReason(event: any): string | undefined {
   const tool = String(event?.toolName ?? "").toLowerCase();
-  if (!new Set(["bash", "shell", "terminal"]).has(tool)) return undefined;
+  if (!new Set(["read", "read_file", "readfile"]).has(tool)) return undefined;
   const input = event?.input ?? {};
-  const command = String(input.command ?? input.cmd ?? input.script ?? "");
-  if (!/init_story_project\.py\b/i.test(command) || !/(?:^|\s)--playbook(?:=|\s)/i.test(command)) return undefined;
-  return "init_story_project.py does not accept --playbook. Initialize the project with init_story_project.py <project> [--title TITLE] [--format FORMAT], then initialize progress separately with pipeline_progress.py init <project> --playbook <playbook>.";
+  const path = String(input.path ?? input.file_path ?? input.filepath ?? "").replace(/\\/g, "/");
+  if (!/Story-Film-Skills\/playbooks\//i.test(path)) return undefined;
+  return "Story-Film playbooks are not at the Git package root. Read <package>/skills/story-film/playbooks/<playbook>.md. Entries written as playbooks/<name>.md in skills/story-film/CATALOG.md are relative to that catalog file.";
+}
+
+function storyFilmManagedStateBlockReason(event: any): string | undefined {
+  const tool = String(event?.toolName ?? "").toLowerCase();
+  const input = event?.input ?? {};
+  const managed = /00_project[\\/](?:pipeline_progress|workflow_preflight|workflow_preferences)\.json\b/i;
+  const reason = "pipeline_progress.json, workflow_preflight.json, and workflow_preferences.json are Story-Film script-owned state. Do not write or edit them directly. Use Story-Film's deterministic pipeline and workflow-selection tools so ordering, preflight, and selected workflows cannot be forged.";
+
+  if (new Set(["write", "write_file", "writefile", "edit", "edit_file", "editfile"]).has(tool)) {
+    const path = String(input.path ?? input.file_path ?? input.filepath ?? "");
+    return managed.test(path) ? reason : undefined;
+  }
+  if (new Set(["bash", "shell", "terminal"]).has(tool)) {
+    const command = String(input.command ?? input.cmd ?? input.script ?? "");
+    const approved = /(?:pipeline_progress|workflow_preflight)\.py\b/i.test(command);
+    const mutates = /(>>?|(?:^|\s)tee(?:\s|$)|\bsed\s+-i\b|\bperl\s+-pi\b)/i.test(command);
+    if (!approved && managed.test(command) && mutates) return reason;
+  }
+  return undefined;
 }
 
 function futureSkillBlockReason(value: Progress | undefined, requested: string | undefined): string | undefined {
@@ -230,18 +276,33 @@ function futureSkillBlockReason(value: Progress | undefined, requested: string |
 }
 
 function workflowPreflightBlockReason(value: Progress | undefined, event: any, cwd: string): string | undefined {
-  if (!value || !["active", "blocked", "paused"].includes(value.status || "") || !workflowPreflightRequired(value)) return undefined;
-  const preflight = loadWorkflowPreflight(cwd);
-  if (preflight?.status === "complete") return undefined;
-  const missing = preflight?.missing_categories?.length ? ` Missing categories: ${preflight.missing_categories.join(", ")}.` : "";
-  const reason = `Story-Film workflow preflight is incomplete.${missing} Complete generation-workflow-setup and verify scripts/workflow_preflight.py status is complete before writing creative production artifacts or advancing the pipeline. If ComfyUI is unavailable, mark the current preflight target blocked; do not continue with story work.`;
   const tool = String(event?.toolName ?? "").toLowerCase();
   const input = event?.input ?? {};
 
   if (new Set(["write", "write_file", "writefile", "edit", "edit_file", "editfile"]).has(tool)) {
     const path = String(input.path ?? input.file_path ?? input.filepath ?? "");
-    return protectedCreativePath(path) ? reason : undefined;
+    if (!protectedCreativePath(path)) return undefined;
+    const targetRoot = projectRootFromTarget(cwd, path);
+    const targetValue = targetRoot ? load(targetRoot) : value;
+    const targetState = targetRoot ? loadProjectState(targetRoot) : loadProjectState(cwd);
+
+    if ((!targetValue?.stages?.length || targetValue.status === "inactive")
+        && PIPELINE_REQUIRED_FORMATS.has(String(targetState?.format || "").toLowerCase())) {
+      return "Story-Film creative production is blocked because this film/video project has no active authoritative pipeline. Select the playbook and run scripts/pipeline_progress.py init <project> --playbook <playbook>, or initialize a new project atomically with scripts/init_story_project.py <project> --playbook <playbook>. Do not write creative artifacts and do not create pipeline_progress.json yourself.";
+    }
+
+    if (!targetValue || !["active", "blocked", "paused"].includes(targetValue.status || "") || !workflowPreflightRequired(targetValue)) return undefined;
+    const preflight = loadWorkflowPreflight(targetRoot || cwd);
+    if (preflight?.status === "complete") return undefined;
+    const missing = preflight?.missing_categories?.length ? ` Missing categories: ${preflight.missing_categories.join(", ")}.` : "";
+    return `Story-Film workflow preflight is incomplete.${missing} Complete generation-workflow-setup and verify scripts/workflow_preflight.py status is complete before writing creative production artifacts. If ComfyUI is unavailable, mark the current preflight target blocked; do not continue with story work.`;
   }
+
+  if (!value || !["active", "blocked", "paused"].includes(value.status || "") || !workflowPreflightRequired(value)) return undefined;
+  const preflight = loadWorkflowPreflight(cwd);
+  if (preflight?.status === "complete") return undefined;
+  const missing = preflight?.missing_categories?.length ? ` Missing categories: ${preflight.missing_categories.join(", ")}.` : "";
+  const reason = `Story-Film workflow preflight is incomplete.${missing} Complete generation-workflow-setup and verify scripts/workflow_preflight.py status is complete before advancing the pipeline. If ComfyUI is unavailable, mark the current preflight target blocked; do not continue with story work.`;
 
   if (new Set(["bash", "shell", "terminal"]).has(tool)) {
     const command = String(input.command ?? input.cmd ?? input.script ?? "");
@@ -496,8 +557,9 @@ export default function storyFilmProgress(pi: any): void {
   });
   pi.on?.("tool_call", async (event: any, ctx: any) => {
     const value = load(ctx.cwd);
-    const reason = packageRediscoveryBlockReason(event)
-      ?? invalidProjectInitBlockReason(event)
+    const reason = wrongPlaybookPathBlockReason(event)
+      ?? packageRediscoveryBlockReason(event)
+      ?? storyFilmManagedStateBlockReason(event)
       ?? workflowPreflightBlockReason(value, event, ctx.cwd)
       ?? futureSkillBlockReason(value, requestedSkillName(event))
       ?? genericTodoBlockReason(value, event)
